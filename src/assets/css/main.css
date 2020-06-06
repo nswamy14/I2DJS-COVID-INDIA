@@ -1,0 +1,82 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+    height: 100%;
+    width: 100%;
+}
+
+/*CSS DEFAULTS*/
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+ul[class],
+ol[class] {
+    padding: 0;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+ul[class],
+ol[class],
+li,
+figure,
+figcaption,
+blockquote,
+dl,
+dd {
+    margin: 0;
+}
+
+a:not([class]) {
+    text-decoration-skip-ink: auto;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+:focus {
+    outline: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    cursor: pointer;
+}
+
+a.disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}
+
+.viz-container {
+    height: 100%;
+    width: 100%;
+}

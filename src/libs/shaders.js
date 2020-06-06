@@ -1,0 +1,11 @@
+export const vertexShader = `attribute vec2 a_texCoord;
+    varying vec2 v_texCoord;
+    void main() {
+        vec2 clipSpace = a_texCoord * 2.0 - 1.0;
+        gl_Position = vec4(clipSpace, 0, 1);
+        v_texCoord = a_texCoord;
+    }`;
+
+export const fragmentShader = `precision mediump float; varying vec2 v_texCoord; uniform sampler2D u_framebuffer; uniform vec4 u_colorArr[12]; uniform float u_offset[12];
+float remap ( float minval, float maxval, float curval ) {    return ( curval - minval ) / ( maxval - minval );}
+void main() {    float alpha = texture2D(u_framebuffer, v_texCoord.xy).a;    if (alpha > 0.0 && alpha <= 1.0) {        vec4 color_;        if (alpha <= u_offset[0]) {            color_ = u_colorArr[0];        } else if (alpha <= u_offset[1]) {            color_ = mix( u_colorArr[0], u_colorArr[1], remap( u_offset[0], u_offset[1], alpha ) );        } else if (alpha <= u_offset[2]) {            color_ = mix( u_colorArr[1], u_colorArr[2], remap( u_offset[1], u_offset[2], alpha ) );        } else if (alpha <= u_offset[3]) {            color_ = mix( u_colorArr[2], u_colorArr[3], remap( u_offset[2], u_offset[3], alpha ) );        } else if (alpha <= u_offset[4]) {            color_ = mix( u_colorArr[3], u_colorArr[4], remap( u_offset[3], u_offset[4], alpha ) );        } else if (alpha <= u_offset[5]) {            color_ = mix( u_colorArr[4], u_colorArr[5], remap( u_offset[4], u_offset[5], alpha ) );        } else if (alpha <= u_offset[6]) {            color_ = mix( u_colorArr[5], u_colorArr[6], remap( u_offset[5], u_offset[6], alpha ) );        } else if (alpha <= u_offset[7]) {            color_ = mix( u_colorArr[6], u_colorArr[7], remap( u_offset[6], u_offset[7], alpha ) );        } else if (alpha <= u_offset[8]) {            color_ = mix( u_colorArr[7], u_colorArr[8], remap( u_offset[7], u_offset[8], alpha ) );        } else if (alpha <= u_offset[9]) {            color_ = mix( u_colorArr[8], u_colorArr[9], remap( u_offset[8], u_offset[9], alpha ) );        } else if (alpha <= u_offset[10]) {            color_ = mix( u_colorArr[9], u_colorArr[10], remap( u_offset[9], u_offset[10], alpha ) );        } else {            color_ = vec4(0.0, 0.0, 0.0, 0.0);        }        color_.a = color_.a - (0.2);        if (color_.a < 0.0) {            color_.a = 0.0;        }        gl_FragColor = color_;    }}`;
