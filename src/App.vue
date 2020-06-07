@@ -46,6 +46,7 @@ export default {
 			timelineData: {
 				data: []
 			},
+			formattedCovidData: [],
 			dataType: 'Active'
 		}
 	},
@@ -65,10 +66,7 @@ export default {
 			var indiancities = d3.json("https://nswamy14.github.io/geoJson/indianCitiesLatLong.json");
 			var covidData = d3.json("https://api.covid19india.org/districts_daily.json");
 			var activeRange = [Infinity, -Infinity];
-			// var heatmapLinearScale = d3.scaleLinear()
-			//     .range([6, 100]);
 			var dateBuckets = {};
-			var formattedCovidData = [];
 			var distMap = [];
 
 			Promise.all([indiancities, covidData]).then(function(values) {
@@ -100,11 +98,7 @@ export default {
 								latitude: dd.latitude
 							};
 							
-							// var xy = projection([dd.longitude, dd.latitude]);
-							// d.xy = xy;
-							
 							distMap.push(d);
-							// labelHref.push(d);
 							self.heatmapDataMap[d.name] = d;
 
 						    dis_val.forEach(function (d) {
@@ -130,12 +124,11 @@ export default {
 					}
 				}
 
-				formattedCovidData = self.formatData(dateBuckets);
-				self.animateCovid(formattedCovidData);
+				self.formattedCovidData = self.formatData(dateBuckets);
+				self.animateCovid(self.formattedCovidData);
 				self.covidDistrictData = distMap;
 				self.dataRange = activeRange;
 
-				// Trigger this on change of data source
 				self.timelineData = self.tilesData[0];
 				
 			});
@@ -147,6 +140,14 @@ export default {
 			self.timelineData = self.tilesData.filter(function (d) {
 				return d.label === val;
 			})[0]; // update with corresponding data object
+		},
+
+		getDistrictTimelineData (dist) {
+			console.log(this.formattedCovidData.map(function (d) {
+				return d.filter(function (d) {
+					return d.name === dist;
+				});
+			}))
 		},
 
 		animateCovid (covidData) {
