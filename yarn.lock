@@ -1288,7 +1288,7 @@ human-signals@^1.1.1:
 
 "i2djs@git+https://github.com/I2Djs/I2Djs.git":
   version "3.1.0"
-  resolved "git+https://github.com/I2Djs/I2Djs.git#0c9be9f719f3cca29d6aa10315a06af7e95c8d79"
+  resolved "git+https://github.com/I2Djs/I2Djs.git#d9e57d9811ccad4a5ac9e8dc29afc600b9ad4ff3"
   dependencies:
     earcut "^2.1.5"
 
@@ -2333,7 +2333,7 @@ vary@^1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
 
-vite@^0.20.0:
+vite@^0.20.5:
   version "0.20.5"
   resolved "https://registry.yarnpkg.com/vite/-/vite-0.20.5.tgz#e70bcf69f8c71f4f719bf5e60dc04ad2263f7d3f"
   integrity sha512-5G0sRbTfF8y7Z+hNV0itOPLd8302kzaJFBEyeDr8NnKSN6X8CNIYiy6bGpg/YynUJplaUm6X6ZiGGSg+L1u1Hw==
@@ -2423,6 +2423,11 @@ yallist@^3.0.2:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.1.tgz#dbb7daf9bfd8bac9ab45ebf602b8cbad0d5d08fd"
   integrity sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==
+
+yarn@^1.22.4:
+  version "1.22.4"
+  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.22.4.tgz#01c1197ca5b27f21edc8bc472cd4c8ce0e5a470e"
+  integrity sha512-oYM7hi/lIWm9bCoDMEWgffW8aiNZXCWeZ1/tGy0DWrN6vmzjCXIKu2Y21o8DYVBUtiktwKcNoxyGl/2iKLUNGA==
 
 ylru@^1.2.0:
   version "1.2.1"

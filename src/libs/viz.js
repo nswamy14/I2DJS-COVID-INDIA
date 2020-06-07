@@ -5,7 +5,8 @@ import { vertexShader, fragmentShader} from './shaders';
 export default function () {
 	var heatmapLinearScale = d3.scaleLinear()
 	    .range([6, 100]);
-	var colorGrad = [{
+
+	var ActiveColorGrad = [{
             color: [0, 0, 0, 0.1], offset: 0
         }, {
             color: [102, 150, 74, 0.5], offset: 0.2
@@ -16,7 +17,34 @@ export default function () {
         }, {
             color: [255, 0, 0, 1.0], offset: 1.0
         }];
-	var colorGradMap = gradientMapper(colorGrad);
+
+    var RecoveredColorGrad = [{
+            color: [0, 0, 0, 0.1], offset: 0
+        }, {
+            color: [102, 150, 74, 0.5], offset: 0.5
+        }, {
+            color: [166, 255, 115, 1.0], offset: 1.0
+        }];
+
+     var DeceasedColorGrad = [{
+            color: [0, 0, 0, 0.1], offset: 0
+        }, {
+            color: [255, 255, 0, 1.0], offset: 1.
+        }];
+
+     var ConfirmedColorGrad = [{
+            color: [255, 0, 0, 0.1], offset: 0
+        }, {
+            color: [255, 255, 255, 1.0], offset: 1.
+        }];
+
+
+	var ActiveColorGradMap = gradientMapper(ActiveColorGrad);
+	var RecoveredColorGradMap = gradientMapper(RecoveredColorGrad);
+	var DeceasedColorGradMap = gradientMapper(DeceasedColorGrad);
+	var ConfirmedColorGradMap = gradientMapper(ConfirmedColorGrad);
+	var colorGradMap = ActiveColorGradMap;
+
 	var dataType = '';
 	// var tooltip;
 	let Chart = function () {
@@ -25,6 +53,15 @@ export default function () {
 
 	Chart.prototype.dataType = function (val) {
 		dataType = val.toLowerCase();
+		if (dataType === 'active') {
+			colorGradMap = ActiveColorGradMap;
+		} else if (dataType === 'deceased') {
+			colorGradMap = DeceasedColorGradMap;
+		} else if (dataType === 'recovered') {
+			colorGradMap = RecoveredColorGradMap;
+		} else if (dataType === 'confirmed') {
+			colorGradMap = ConfirmedColorGradMap;
+		}
 	};
 
 	Chart.prototype.dataRange = function (range) {
@@ -115,6 +152,8 @@ export default function () {
 		var path = d3.geoPath()
 				  	 .projection(self.projection);
 
+		renderLegend(GeoMaprenderer);
+
 		this.geoGroup = GeoMaprenderer.createEl({
 			el: 'group'
 		});
@@ -125,7 +164,7 @@ export default function () {
 				globalAlpha: 1,
 				strokeStyle: '#c74a4a',
 				fillStyle: 'rgba(0, 0, 1, 1)',
-				lineWidth: 0.16
+				lineWidth: 0.2
 			},
 			bbox: false
 		});
@@ -134,7 +173,7 @@ export default function () {
 			el: 'group',
 			style: {
 				strokeStyle: '#c74a4a',
-				lineWidth: 0.3
+				lineWidth: 0.5
 			},
 			bbox: false
 		});
@@ -164,6 +203,65 @@ export default function () {
 				});
 			});
 		});
+
+		function renderLegend (renderer) {
+			var linearGradiant = renderer.createLinearGradient({
+				x1: 0,
+				y1: 0,
+				x2: 100,
+				y2: 0,
+				colorStops: [{
+			            color: 'rgba(0, 0, 0, 0.0)', value: 0
+			        }, {
+			            color: 'rgba(212, 225, 255, 0.5)', value: 20
+			        }, {
+			            color: 'rgba(166, 255, 115, 0.8)', value: 45
+			        }, {
+			            color: 'rgba(255, 255, 0, 1.0)', value: 65
+			        }, {
+			            color: 'rgba(255, 0, 0, 1.0)', value: 100.0
+			        }]
+			});
+
+			renderer.createEl({
+				el: 'rect',
+				attr: {
+					x: renderer.width - 300,
+					y: renderer.height - 200,
+					width: 200,
+					height: 20
+				},
+				style: {
+					fillStyle: linearGradiant
+				}
+			});
+
+			renderer.createEl({
+				el: 'text',
+				attr: {
+					x: renderer.width - 300,
+					y: renderer.height - 180 + 20,
+					text: 'Low'
+				},
+				style: {
+					fillStyle: '#888',
+					textAlign: 'center'
+				}
+			});
+
+			renderer.createEl({
+				el: 'text',
+				attr: {
+					x: renderer.width - 100,
+					y: renderer.height - 180 + 20,
+					text: 'High'
+				},
+				style: {
+					fillStyle: '#f00',
+					textAlign: 'center'
+				}
+			});
+		}
 	};
 
 	Chart.prototype.renderHeatMap = function (data) {
@@ -374,137 +472,6 @@ export default function () {
 			}
 		});
 	}
-
-	// Chart.prototype.renderToolTip = function (renderer) {
-	// 	var g = renderer.createEl({
-	// 		el: 'g',
-	// 		attr: {
-	// 			transform: {
-	// 				translate: [0, 0]
-	// 			}
-	// 		},
-	// 		style: {
-	// 			globalAlpha: 0
-	// 		}
-	// 	});
-
-	// 	g.createEl({
-	// 		el: 'rect',
-	// 		attr: {
-	// 			x: 0,
-	// 			y: 0,
-	// 			width: 250,
-	// 			height: 120,
-	// 			rx: 10,
-	// 			ry: 10
-	// 		},
-	// 		style: {
-	// 			fillStyle: 'rgba(100, 100, 100, 0.7)'
-	// 		}
-	// 	});
-
-	// 	var tooltiphref = g.join([{
-	// 			label: 'Name',
-	// 			value: '',
-	// 			color: '#ffffff'
-	// 		}, {
-	// 			label: 'Confirmed',
-	// 			value: 0,
-	// 			color: '#ff3d3d'
-	// 		}, {
-	// 			label: 'Active',
-	// 			color: '#36a4ff',
-	// 			value: 0
-	// 		}, {
-	// 			label: 'Recovered',
-	// 			color: '#0be059',
-	// 			value: 0
-	// 		}, {
-	// 			label: 'Death',
-	// 			value: 0,
-	// 			color: '#dba9a9'
-	// 		}], '.keyValue', {
-	// 		action: {
-	// 			enter: function (data) {
-	// 				this.createEls(data['.keyValue'], {
-	// 					el: 'g',
-	// 					attr: {
-	// 						class: 'keyValue',
-	// 						transform: function (d, i) {
-	// 							return {
-	// 								translate: [25, i * 20 + 20]
-	// 							}
-	// 						}
-	// 					},
-	// 					style: {
-	// 						fillStyle: function (d) {
-	// 							return d.color;
-	// 						}
-	// 					}
-	// 				}).forEach(function (d) {
-	// 					this.createEl({
-	// 						el: 'text',
-	// 						attr: {
-	// 							x: 0,
-	// 							y: 0,
-	// 							text: d.label,
-	// 							class: 'label'
-	// 						},
-	// 						style: {
-	// 							font: '15px Arial'
-	// 						}
-	// 					});
-
-	// 					this.createEl({
-	// 						el: 'text',
-	// 						attr: {
-	// 							x: 80,
-	// 							y: 0,
-	// 							text: d.value,
-	// 							class: 'value'
-	// 						},
-	// 						style: {
-	// 							font: '15px Arial'
-	// 						}
-	// 					});
-	// 				})
-	// 			},
-	// 			update: function (nodes) {
-	// 				nodes['.keyValue'].forEach(function (d) {
-	// 					this.fetchEl('.value').text(d.value);
-	// 				});
-	// 			}
-	// 		}
-	// 	})
-
-	// 	return function updateToolTip (data, pos) {
-	// 		if (arguments.length === 0) {
-	// 			g.setStyle('globalAlpha', 0);
-	// 			return;
-	// 		}
-	// 		g.setStyle('globalAlpha', 1);
-	// 		tooltiphref.join([{
-	// 			label: 'Name',
-	// 			value: data.name
-	// 		}, {
-	// 			label: 'Confirmed',
-	// 			value: data.confirmed
-	// 		}, {
-	// 			label: 'Active',
-	// 			value: data.active
-	// 		}, {
-	// 			label: 'Recovered',
-	// 			value: data.recovered
-	// 		}, {
-	// 			label: 'Death',
-	// 			value: data.deceased
-	// 		}]);
-
-	// 		g.setAttr('transform', {
-	// 			translate: [pos.offsetX, pos.offsetY]
-	// 		});
-	// 	};
-	// }
 
 	function getGradientImage () {
 		var radialGrad = i2d.canvasLayer(null,{}, {});

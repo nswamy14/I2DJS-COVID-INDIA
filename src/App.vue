@@ -91,7 +91,7 @@ export default {
 							var d = {
 								name: disLow,
 								active: 0,
-								death: 0,
+								deceased: 0,
 								confirmed: 0,
 								recovered: 0,
 								longitude: dd.longitude,
@@ -168,7 +168,7 @@ export default {
 				});
 
 				self.tilesData[2].data.push({
-					value: currData.death
+					value: currData.deceased
 				});
 
 				self.tilesData[3].data.push({
@@ -204,13 +204,13 @@ export default {
 					confirmed: 0,
 					active: 0,
 					recovered: 0,
-					death: 0,
+					deceased: 0,
 					distList: curr
 				}
 				var barData = curr.reduce(function (p, c) {
 					p.active += c.active;
 					p.recovered += c.recovered;
-					p.death += c.deceased;
+					p.deceased += c.deceased;
 					p.confirmed += c.confirmed;
 					return p;
 				}, dataObj);
