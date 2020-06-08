@@ -1,18 +1,42 @@
 {
   "name": "i2djs-covid-india",
   "version": "0.0.1",
+  "license": "MIT",
+  "description": "Dashboard showcasing state and district wise impact of Covid-19 in India created using I2Djs",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build"
+    "dev": "vue-cli-service serve",
+    "serve": "vue-cli-service serve",
+    "lint": "vue-cli-service lint",
+    "build": "vue-cli-service build --modern",
+    "build-r": "vue-cli-service build --modern --report",
+    "build-m": "vue-cli-service build",
+    "build-m-r": "vue-cli-service build --report"
   },
   "dependencies": {
-    "d3": "^5.16.0",
+    "axios": "^0.19.0",
+    "core-js": "^3.6.5",
+    "d3": "^5.12.0",
     "i2djs": "git+https://github.com/I2Djs/I2Djs.git",
-    "vue": "^3.0.0-beta.14",
-    "yarn": "^1.22.4"
+    "lodash": "^4.17.15",
+    "vue": "^2.6.10",
+    "vue-router": "^3.1.3",
+    "vuetify": "^2.1.0"
   },
   "devDependencies": {
-    "@vue/compiler-sfc": "^3.0.0-beta.14",
-    "vite": "^0.20.5"
+    "@mdi/js": "^5.0.45",
+    "@vue/cli-plugin-babel": "^4.1.0",
+    "@vue/cli-plugin-eslint": "^4.1.0",
+    "@vue/cli-plugin-router": "^4.1.0",
+    "@vue/cli-service": "^4.1.0",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-vue": "^5.2.3",
+    "sass": "^1.26.8",
+    "sass-loader": "^8.0.2",
+    "vue-cli-plugin-vuetify": "^2.0.3",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.3.0"
   }
 }
