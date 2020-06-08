@@ -66,6 +66,7 @@ import TimelineView from './TimelineView';
 import CountersView from './CountersView';
 import MapContainer from './MapContainer';
 import IndianCities from '@/assets/data/IndianCitiesLatLong';
+import pastCovidData from '@/assets/data/pastCovidData';
 import { getDistrictWiseDailyData } from '@/api/CovidServices';
 
 export default {
@@ -124,12 +125,18 @@ export default {
 			let distMap = [];
 			let count = 0;
 
+			let pastData = pastCovidData['districtsDaily'];
+			let visitedStates = {};
 			for (let state in covidData.districtsDaily) {
-				let state_val = covidData.districtsDaily[state];
-				for (let dis in state_val) {
-					let dis_val = state_val[dis];
+				visitedStates[state] = {};
+				let stateVal = covidData.districtsDaily[state];
+				let statePastData = pastData[state] || {};
+				for (let dis in stateVal) {
+					visitedStates[state][dis] = true;
+					let pastDisVal = statePastData[dis] || [];
+					let disVal = pastDisVal.concat(stateVal[dis]);
 					let disLow = dis.toLowerCase();
-					dis_val.forEach(function (dt) {
+					disVal.forEach(function (dt) {
 						dt.visible = false;
 					});
 					// console.log(disLow);
@@ -149,7 +156,7 @@ export default {
 						distMap.push(d);
 						self.heatmapDataMap[d.name] = d;
 
-						dis_val.forEach(function (d) {
+						disVal.forEach(function (d) {
 							if (!dateBuckets[d.date]) {
 								dateBuckets[d.date] = [];
 							}
@@ -164,9 +171,9 @@ export default {
 							}
 						});
 					} else {
-						if (dis_val[dis_val.length - 1].active > 0) {
+						if (disVal[disVal.length - 1].active > 0) {
 							count += 1;
-							console.log(disLow, dis_val[dis_val.length - 1].active, state);
+							console.log(disLow, disVal[disVal.length - 1].active, state);
 						}
 					}
 				}
