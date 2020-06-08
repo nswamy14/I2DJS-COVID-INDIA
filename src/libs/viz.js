@@ -1,42 +1,40 @@
 import * as d3 from 'd3';
 import * as i2d from 'i2djs';
-import { vertexShader, fragmentShader} from './shaders';
+import { vertexShader, fragmentShader } from './shaders';
 
 export default function () {
 	var heatmapLinearScale = d3.scaleLinear()
 	    .range([6, 100]);
 
 	var ActiveColorGrad = [{
-            color: [0, 0, 0, 0.1], offset: 0
-        }, {
-            color: [102, 150, 74, 0.5], offset: 0.2
-        }, {
-            color: [166, 255, 115, 0.8], offset: 0.45
-        }, {
-            color: [255, 255, 0, 1.0], offset: 0.65
-        }, {
-            color: [255, 0, 0, 1.0], offset: 1.0
-        }];
+		color: [0, 0, 0, 0.0], offset: 0
+	}, {
+		color: [102, 150, 74, 0.5], offset: 0.2
+	}, {
+		color: [166, 255, 115, 0.8], offset: 0.45
+	}, {
+		color: [255, 255, 0, 1.0], offset: 0.65
+	}, {
+		color: [255, 0, 0, 1.0], offset: 1.0
+	}];
 
-    var RecoveredColorGrad = [{
-            color: [0, 0, 0, 0.1], offset: 0
-        }, {
-            color: [102, 150, 74, 0.5], offset: 0.5
-        }, {
-            color: [166, 255, 115, 1.0], offset: 1.0
-        }];
+	var RecoveredColorGrad = [{
+		color: [0, 0, 0, 0.1], offset: 0
+	}, {
+		color: [166, 255, 115, 1.0], offset: 1.0
+	}];
 
-     var DeceasedColorGrad = [{
-            color: [0, 0, 0, 0.1], offset: 0
-        }, {
-            color: [255, 255, 0, 1.0], offset: 1.
-        }];
+	var DeceasedColorGrad = [{
+		color: [0, 0, 0, 0.1], offset: 0
+	}, {
+		color: [255, 255, 0, 1.0], offset: 1.0
+	}];
 
-     var ConfirmedColorGrad = [{
-            color: [255, 0, 0, 0.1], offset: 0
-        }, {
-            color: [255, 255, 255, 1.0], offset: 1.
-        }];
+	var ConfirmedColorGrad = [{
+		color: [255, 0, 0, 0.1], offset: 0
+	}, {
+		color: [255, 255, 255, 1.0], offset: 1.0
+	}];
 
 
 	var ActiveColorGradMap = gradientMapper(ActiveColorGrad);
@@ -44,12 +42,12 @@ export default function () {
 	var DeceasedColorGradMap = gradientMapper(DeceasedColorGrad);
 	var ConfirmedColorGradMap = gradientMapper(ConfirmedColorGrad);
 	var colorGradMap = ActiveColorGradMap;
-
+	var heatmapShader;
 	var dataType = '';
 	// var tooltip;
 	let Chart = function () {
 		
-	}
+	};
 
 	Chart.prototype.dataType = function (val) {
 		dataType = val.toLowerCase();
@@ -62,7 +60,27 @@ export default function () {
 		} else if (dataType === 'confirmed') {
 			colorGradMap = ConfirmedColorGradMap;
 		}
+		if (heatmapShader) {
+			heatmapShader.setUniformData('u_colorArr', colorGradMap.value);
+			heatmapShader.setUniformData('u_offset', colorGradMap.offset);
+		}
 	};
+
+	Chart.prototype.zoomToLocation = function (location) {
+		console.log(location);
+		console.log(this.webglRenderer);
+
+		let translate = this.zoomInstance.event.transform.translate;
+		let scale = this.zoomInstance.event.transform.scale[0];
+		let xy = this.projection([location.longitude, location.latitude]);
+				xy[0] *= scale;
+				xy[1] *= scale;
+				xy[0] += (translate[0]);
+				xy[1] += (translate[1]);
+
+		// this.zoomInstance.zoomTarget([this.webglRenderer.width / 2, this.webglRenderer.height / 2]);
+		this.webglRenderer.scaleTo(8, xy);
+	}
 
 	Chart.prototype.dataRange = function (range) {
 		heatmapLinearScale.domain(range);
@@ -76,66 +94,65 @@ export default function () {
 		self.zoomInstance.zoomStart(zoomStart);
 		self.zoomInstance.zoom(onZoom);
 		self.zoomInstance.zoomEnd(zoomEnd);
+		self.zoomInstance.duration(1000);
 
 		self.zoomInstance.panExtent([[-10000, -10000], [10000, 10000]]);
 
-			self.renderGeoMap();
-			self.renderHeatMap(districtData);
+		self.renderGeoMap();
+		self.renderHeatMap(districtData);
 
-			// zoomInstance.zoomTarget([GeoMaprenderer.width / 2, GeoMaprenderer.height / 2]);
+		function zoomStart (event) {
+			// tooltip();
+		}
 
-			function zoomStart (event) {
-				// tooltip();
-			}
-
-			function onZoom (event) {
-				var scale = event.transform.scale[0];
-				var sqrtScale = Math.sqrt(1 / scale);
-				self.geoGroup.setAttr('transform', event.transform);
-				self.heatmapHref.setAttr('transform', event.transform);
-				self.labelHref.setAttr('transform', event.transform);
+		function onZoom (event) {
+			var scale = event.transform.scale[0];
+			var sqrtScale = Math.sqrt(1 / scale);
+			self.geoGroup.setAttr('transform', event.transform);
+			self.heatmapHref.setAttr('transform', event.transform);
+			self.labelHref.setAttr('transform', event.transform);
 				
-				var nodes = self.heatmapHref.children;
+			var nodes = self.heatmapHref.children;
 
-				self.distG.setStyle('lineWidth', 0.16 / scale);
-				self.stateG.setStyle('lineWidth', 0.3 / scale);
+			self.distG.setStyle('lineWidth', 0.16 / scale);
+			self.stateG.setStyle('lineWidth', 0.3 / scale);
 
-				for (var i = nodes.length - 1; i >= 0; i--) {
-					var d = nodes[i].data();
-					var val = d.d[dataType];
-					val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+			for (var i = nodes.length - 1; i >= 0; i--) {
+				var d = nodes[i].data();
+				var val = d.d[dataType];
+				val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
 
-					nodes[i]
+				nodes[i]
 					.setAttr('width', val * sqrtScale)
 					.setAttr('height', val * sqrtScale)
 					.setAttr('x', d.xy[0] - ((val * 0.5) * sqrtScale))
 					.setAttr('y', d.xy[1] - ((val * 0.5) * sqrtScale));
-				};
-			}
+			};
+		}
 
-			function  zoomEnd (event) {
-				var scale = event.transform.scale[0];
-				var sqrtScale = Math.sqrt(1 / scale);
-				var nodes = self.labelHref.children;
-				if (scale >= 3.0) {
-					self.labelHref.setStyle('display', true);
-					for (var i = nodes.length - 1; i >= 0; i--) {
-						var d = nodes[i].data();
-						nodes[i].setStyle('font', 10 * sqrtScale +'px Arial');
-						var width = nodes[i].attr.width;
-						var height = nodes[i].attr.height;
-						var val = d.d[dataType];
-						val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+		function zoomEnd (event) {
+			var scale = event.transform.scale[0];
+			var sqrtScale = Math.sqrt(1 / scale);
+			var nodes = self.labelHref.children;
+			if (scale >= 3.0) {
+				self.labelHref.setStyle('display', true);
+				for (var i = nodes.length - 1; i >= 0; i--) {
+					var d = nodes[i].data();
+					nodes[i].setStyle('font', 10 * sqrtScale + 'px Arial');
+					var width = nodes[i].attr.width;
+					// var height = nodes[i].attr.height;
+					var val = d.d[dataType];
+					val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
 						
-						nodes[i]
-							.setAttr('x', d.xy[0] - ((width * 0.5)))
-							.setAttr('y', d.xy[1] - ((val * 0.5) / scale));
-					};
-				} else {
-					self.labelHref.setStyle('display', 'none');
-				}
+					nodes[i]
+						.setAttr('x', d.xy[0] - ((width * 0.5)))
+						.setAttr('y', d.xy[1] - ((val * 0.5) / scale));
+				};
+			} else {
+				self.labelHref.setStyle('display', 'none');
 			}
-	}
+		}
+	};
 
 	Chart.prototype.update = function (argument) {
 		this.heatmapHref.update();
@@ -145,12 +162,12 @@ export default function () {
 		var self = this;
 		var GeoMaprenderer = i2d.canvasLayer('#map-container', {}, {});
 		self.projection = d3.geoMercator()
-			   .translate([GeoMaprenderer.width/2, GeoMaprenderer.height/2])
+			   .translate([GeoMaprenderer.width / 2, (GeoMaprenderer.height / 2 + 50)])
 			   .center([78.96288, 20.593684])
-			   .scale([Math.min(GeoMaprenderer.height , GeoMaprenderer.width) * 1.5]);
+			   .scale([Math.min(GeoMaprenderer.height, GeoMaprenderer.width) * 1.65]);
 		        
 		var path = d3.geoPath()
-				  	 .projection(self.projection);
+			.projection(self.projection);
 
 		renderLegend(GeoMaprenderer);
 
@@ -158,32 +175,31 @@ export default function () {
 			el: 'group'
 		});
 
-		this.distG = this.geoGroup.createEl({
-			el: 'group',
-			style: {
-				globalAlpha: 1,
-				strokeStyle: '#c74a4a',
-				fillStyle: 'rgba(0, 0, 1, 1)',
-				lineWidth: 0.2
-			},
-			bbox: false
-		});
-
 		this.stateG = this.geoGroup.createEl({
 			el: 'group',
 			style: {
 				strokeStyle: '#c74a4a',
+				fillStyle: 'rgba(0, 0, 1, 1)',
 				lineWidth: 0.5
 			},
 			bbox: false
 		});
 
-		var indiaDist = d3.json("https://nswamy14.github.io/geoJson/india.district.geo.json");
-		var states = d3.json("https://nswamy14.github.io/geoJson/india.states.geo.json");
-		Promise.all([indiaDist, states]).then(function(values) {
+		this.distG = this.geoGroup.createEl({
+			el: 'group',
+			style: {
+				strokeStyle: '#c74a4a',
+				lineWidth: 0.2
+			},
+			bbox: false
+		});
+
+		var indiaDist = d3.json('https://nswamy14.github.io/geoJson/india.district.geo.json');
+		var states = d3.json('https://nswamy14.github.io/geoJson/india.states.geo.json');
+		Promise.all([indiaDist, states]).then(function (values) {
 			var districtGeoData = values[0];
 			var stateGeoData = values[1];
-			var count = 0;
+			// var count = 0;
 
 			stateGeoData.features.forEach(function (state) {
 				self.stateG.createEl({
@@ -227,7 +243,7 @@ export default function () {
 				el: 'rect',
 				attr: {
 					x: renderer.width - 300,
-					y: renderer.height - 200,
+					y: renderer.height - 150,
 					width: 200,
 					height: 20
 				},
@@ -240,7 +256,7 @@ export default function () {
 				el: 'text',
 				attr: {
 					x: renderer.width - 300,
-					y: renderer.height - 180 + 20,
+					y: renderer.height - 130 + 20,
 					text: 'Low'
 				},
 				style: {
@@ -253,7 +269,7 @@ export default function () {
 				el: 'text',
 				attr: {
 					x: renderer.width - 100,
-					y: renderer.height - 180 + 20,
+					y: renderer.height - 130 + 20,
 					text: 'High'
 				},
 				style: {
@@ -267,18 +283,20 @@ export default function () {
 	Chart.prototype.renderHeatMap = function (data) {
 		let self = this;
 		var webglRenderer = i2d.webglLayer('#map-container', {
-	                premultipliedAlpha: false,
-	                depth: false,
-	                antialias: true,
-	                alpha: true,
-	                preserveDrawingBuffer: false
-	            }, {
-	            	enableEvents: true,
-	            	enableResize: false
-	            });
+			premultipliedAlpha: false,
+			depth: false,
+			antialias: true,
+			alpha: true,
+			preserveDrawingBuffer: false
+		}, {
+			enableEvents: true,
+			enableResize: false
+		});
 		webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
+		self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
 		webglRenderer.on('zoom', self.zoomInstance);
-		var opacity = 1.0;
+		this.webglRenderer = webglRenderer;
+		// var opacity = 1.0;
 
 		var Texture = webglRenderer.TextureObject({
 		        width: webglRenderer.width * webglRenderer.pixelRatio,
@@ -298,37 +316,37 @@ export default function () {
 		    });
 
 		var labelGroup = webglRenderer.createEl({
-		        el: 'group',
-		        attr: {
-		            shaderType: 'text'
-		        },
-		        style: {
-		        	display: 'none'
-		        }
-		    });
+			el: 'group',
+			attr: {
+				shaderType: 'text'
+			},
+			style: {
+				display: 'none'
+			}
+		});
 
 		var imageGroup = webglRenderer.createEl({
-		        el: 'group',
-		        attr: {
-		            shaderType: 'image'
-		        },
-		        renderTarget: renderTarget,
-		        ctx: function (ctx) {
-		            ctx.enable(ctx.BLEND);
-		            ctx.blendEquation(ctx.FUNC_ADD);
-		            ctx.blendFunc(ctx.ONE, ctx.ONE_MINUS_SRC_ALPHA);
-		            ctx.depthMask(true);
-		        }
-		    });
+			el: 'group',
+			attr: {
+				shaderType: 'image'
+			},
+			renderTarget: renderTarget,
+			ctx: function (ctx) {
+				ctx.enable(ctx.BLEND);
+				ctx.blendEquation(ctx.FUNC_ADD);
+				ctx.blendFunc(ctx.ONE, ctx.ONE_MINUS_SRC_ALPHA);
+				ctx.depthMask(true);
+			}
+		});
 
 		var meshgeome = webglRenderer.MeshGeometry();
-			meshgeome.setAttr('a_texCoord', {
+		meshgeome.setAttr('a_texCoord', {
 			    value: new Float32Array([0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
 			    size: 2
-			});
-			meshgeome.setDrawRange(0, 6);
+		});
+		meshgeome.setDrawRange(0, 6);
 
-			webglRenderer.createShaderEl({
+		heatmapShader = webglRenderer.createShaderEl({
 			    fragmentShader: fragmentShader,
 			    vertexShader: vertexShader,
 			    uniforms: {
@@ -346,51 +364,51 @@ export default function () {
 			    },
 			    bbox: false,
 			    geometry: meshgeome
-			});
+		});
 
 
 		var TextureIns = webglRenderer.TextureObject({
 			    width: 100,
 			    height: 100,
 			    src: getGradientImage()
-			});
+		});
 
 		data = data.map(function (d) {
-			let xy = self.projection([d.longitude, d.latitude])
+			let xy = self.projection([d.longitude, d.latitude]);
 			return {
 				xy: xy,
 				d: d
-			}
+			};
 		});
 
 		this.heatmapHref = imageGroup.join(data, 'image', {
 			action: {
 				enter: function (data) {
 					this.createEls(data['image'], {
-					        el: 'image',
-					        attr: {
-					            x: function  (d) {
-					            	return d.xy[0]
-					            },
-					            y: function  (d) {
-					            	return d.xy[1]
-					            },
-					            width: 0,
-					            height: 0,
-					            src: TextureIns
-					        },
-					        style: {
-					        	opacity: 0
-					        }
-					    })
-					.on('zoom', self.zoomInstance)
-					.on('mousemove', function (e) {
-						var d = this.data();
-						// tooltip(d, e);
+						el: 'image',
+						attr: {
+							x: function (d) {
+								return d.xy[0];
+							},
+							y: function (d) {
+								return d.xy[1];
+							},
+							width: 0,
+							height: 0,
+							src: TextureIns
+						},
+						style: {
+							opacity: 0
+						}
 					})
-					.on('mouseout', function (e) {
+						.on('zoom', self.zoomInstance)
+						.on('mousemove', function (e) {
+						// var d = this.data();
+						// tooltip(d, e);
+						})
+						.on('mouseout', function (e) {
 						// tooltip();
-					});
+						});
 				},
 				update: function (nodes) {
 					nodes['image'].forEach(function (dd) {
@@ -401,18 +419,18 @@ export default function () {
 						op = (op > 1.0 ? 1.0 : op);
 						var scale = self.zoomInstance.event.transform.scale[0];
 						this.animateTo({
-					    	duration: 100,
-					    	attr: {
-					    		width: val / scale,
-					    		height: val / scale,
-					    		x: dd.xy[0] - ((val * 0.5) / scale),
-					    		y: dd.xy[1] - ((val * 0.5) / scale)
-					    	},
-					    	style: {
-					    		opacity: op
-					    	}
-					    });
-					})
+							duration: 100,
+							attr: {
+								width: val / scale,
+								height: val / scale,
+								x: dd.xy[0] - ((val * 0.5) / scale),
+								y: dd.xy[1] - ((val * 0.5) / scale)
+							},
+							style: {
+								opacity: op
+							}
+						});
+					});
 				}
 			}
 		});
@@ -421,32 +439,32 @@ export default function () {
 			action: {
 				enter: function (data) {
 					this.createEls(data['text'], {
-					        el: 'text',
-					        attr: {
-					            x: function  (d) {
-					            	return d.xy[0] - (d.d.name.length)
-					            },
-					            y: function  (d) {
-					            	return d.xy[1] + 10
-					            },
-					            text: function (d) {
-					            	return d.d.name
-					            }
-					        },
-					        style: {
-					        	font: "10px Arial",
-								fillStyle: '#dba9a9'
-								// opacity: 0.5
-					        }
-					    })
-					.on('zoom', self.zoomInstance)
-					.on('mousemove', function (e) {
-						var d = this.data();
-						// tooltip(d, e);
+						el: 'text',
+						attr: {
+							x: function (d) {
+								return d.xy[0] - (d.d.name.length);
+							},
+							y: function (d) {
+								return d.xy[1] + 10;
+							},
+							text: function (d) {
+								return d.d.name;
+							}
+						},
+						style: {
+							font: '10px Arial',
+							fillStyle: '#dba9a9'
+							// opacity: 0.5
+						}
 					})
-					.on('mouseout', function (e) {
+						.on('zoom', self.zoomInstance)
+						.on('mousemove', function (e) {
+							// var d = this.data();
+						// tooltip(d, e);
+						})
+						.on('mouseout', function (e) {
 						// tooltip();
-					});
+						});
 				},
 				update: function (nodes) {
 					// nodes['text'].forEach(function (d) {
@@ -471,10 +489,10 @@ export default function () {
 				}
 			}
 		});
-	}
+	};
 
 	function getGradientImage () {
-		var radialGrad = i2d.canvasLayer(null,{}, {});
+		var radialGrad = i2d.canvasLayer(null, {}, {});
 		    radialGrad.setPixelRatio(1);
 		    radialGrad.setSize(100, 100);
 
@@ -486,18 +504,18 @@ export default function () {
 		                    { color: 'rgba(0, 0, 0, 0)', value: 100 }]
 		            });
 
-			radialGrad.createEl({
-		                el:'circle',
-		                attr:{
+		radialGrad.createEl({
+		                el: 'circle',
+		                attr: {
 		                    r: 50, cx: 50, cy: 50
 		                },
-		                style:{
+		                style: {
 		                    fillStyle: radialGradiant
 		                }
 		            });
-			radialGrad.execute();
+		radialGrad.execute();
 
-			return radialGrad;
+		return radialGrad;
 	}
 
 	function gradientMapper (grad) {

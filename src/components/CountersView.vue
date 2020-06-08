@@ -4,9 +4,9 @@
 
 <script>
 export default {
-  name: 'CountersView',
-  data() {
-    return {};
-  }
-}
+	name: 'CountersView',
+	data () {
+		return {};
+	}
+};
 </script>

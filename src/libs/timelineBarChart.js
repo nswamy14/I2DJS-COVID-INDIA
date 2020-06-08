@@ -1,15 +1,14 @@
 import * as i2d from 'i2djs';
 import * as d3 from 'd3';
 export default function () {
-
 	let Chart = function () {
 		this.heightScale = d3.scaleLinear()
 	    .range([0, 0])
 	    .domain([0, 0]);
-	}
+	};
 	Chart.prototype.dataRange = function (range) {
 		this.heightScale.domain([0, range[1]]);
-	}
+	};
 	Chart.prototype.initialize = function (data) {
 		let self = this;
 		this.timelineLayer = i2d.canvasLayer('#timeline-container', {}, {});
@@ -55,17 +54,17 @@ export default function () {
 				update: function (nodes) {
 					nodes['rect'].forEach(function (d, i) {
 						this.setAttr('x', i * 25);
-						this.setAttr('y',  -self.heightScale((d.value)));
+						this.setAttr('y', -self.heightScale((d.value)));
 						this.setAttr('height', self.heightScale((d.value)));
-					})
+					});
 				}
 			}
-		})
+		});
 	};
 	Chart.prototype.update = function (data) {
 		// console.log(data);
 		this.barHref.join(data);
 		this.barHref.update();
-	}
+	};
 	return new Chart();
 }

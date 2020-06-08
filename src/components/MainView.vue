@@ -42,6 +42,7 @@
 					<map-container :covidDistrictData="covidDistrictData"
 								   :dataRange="dataRange"
 								   :dataType="dataType"
+								   :searchGeoLocation="searchGeoLocation"
 								   id="map-container"
 								   v-if="covidDistrictData.length !== 0">
 					</map-container>
@@ -73,8 +74,9 @@ export default {
 	components: { DistrictView, TimelineView, CountersView, MapContainer },
 	data () {
 		return {
-			search: 'Bellary',
-			searchItems: ['Bellary'],
+			search: '',
+			searchGeoLocation: {},
+			searchItems: ['Ballari', 'Jodhpur'],
 			selectedCounter: {},
 			counters: [{
 				label: 'Confirmed', key: 'confirmed', data: [], color: '#ff3d3d', scale: [Infinity, -Infinity]
@@ -104,12 +106,16 @@ export default {
 		},
 
 		search (val) {
-			this.getDistrictTimelineData(val);
+			if (val && this.heatmapDataMap[val.toLowerCase()]) {
+				this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
+				console.log(this.searchGeoLocation);
+			}
+			// this.searchGeoLocation(val);
 		}
 	},
 
 	mounted () {
-		this.selectedCounter = this.counters[0];
+		this.selectedCounter = this.counters[1];
 		this.initialize();
 	},
 
@@ -122,14 +128,14 @@ export default {
 			let activeRange = [Infinity, -Infinity];
 			let dateBuckets = {};
 			let distMap = [];
-			let count = 0;
+			// let count = 0;
 
 			for (let state in covidData.districtsDaily) {
-				let state_val = covidData.districtsDaily[state];
-				for (let dis in state_val) {
-					let dis_val = state_val[dis];
+				let stateVal = covidData.districtsDaily[state];
+				for (let dis in stateVal) {
+					let disVal = stateVal[dis];
 					let disLow = dis.toLowerCase();
-					dis_val.forEach(function (dt) {
+					disVal.forEach(function (dt) {
 						dt.visible = false;
 					});
 					// console.log(disLow);
@@ -149,7 +155,7 @@ export default {
 						distMap.push(d);
 						self.heatmapDataMap[d.name] = d;
 
-						dis_val.forEach(function (d) {
+						disVal.forEach(function (d) {
 							if (!dateBuckets[d.date]) {
 								dateBuckets[d.date] = [];
 							}
@@ -164,9 +170,9 @@ export default {
 							}
 						});
 					} else {
-						if (dis_val[dis_val.length - 1].active > 0) {
-							count += 1;
-							console.log(disLow, dis_val[dis_val.length - 1].active, state);
+						if (disVal[disVal.length - 1].active > 0) {
+							// count += 1;
+							console.log(disLow, disVal[disVal.length - 1].active, state);
 						}
 					}
 				}
@@ -176,9 +182,14 @@ export default {
 			self.animateCovid(self.formattedCovidData);
 			self.covidDistrictData = distMap;
 			self.dataRange = activeRange;
+			self.searchItems = Object.keys(self.heatmapDataMap);
 
 			self.timelineData = self.selectedCounter;
 		},
+
+		// searchGeoLocation (geoLocation) {
+		// 	this.getDistrictTimelineData(val);
+		// },
 
 		async getDistrictWiseDailyData () {
 			try {
@@ -255,7 +266,7 @@ export default {
 					deceased: 0,
 					distList: curr
 				};
-				let barData = curr.reduce(function (p, c) {
+				curr.reduce(function (p, c) {
 					p.active += c.active;
 					p.recovered += c.recovered;
 					p.deceased += c.deceased;

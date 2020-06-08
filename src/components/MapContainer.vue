@@ -5,57 +5,64 @@
 <script>
 import geoHeatmap from './../libs/viz.js';
 export default {
-  name: 'MapContainer',
-  data() {
-    return {};
-  },
-  props: {
-    dataType: {
-      type: String,
-      required: true
+	name: 'MapContainer',
+	data () {
+		return {};
+	},
+	props: {
+		dataType: {
+			type: String,
+			required: true
+		},
+    searchGeoLocation: {
+      type: Object,
+      required: false
     },
+		covidDistrictData: {
+			type: Array,
+			required: true
+		},
+		dataRange: {
+			type: Array,
+			required: true
+		}
+	},
+	mounted () {
+		this.initialize(this.covidDistrictData);
+	},
+
+	watch: {
     covidDistrictData: {
-      type: Array,
-      required: true
+			handler (val) {
+				this.update();
+			},
+			deep: true
+		},
+    searchGeoLocation (val) {
+      console.log(val);
+      this.geoHeatmapInstance.zoomToLocation(val);
     },
-    dataRange: {
-      type: Array,
-      required: true
-    }
-  },
-  mounted () {
-      this.initialize(this.covidDistrictData);
-  },
+		dataRange (range) {
+			// console.log(range);
+			this.geoHeatmapInstance.dataRange(range);
+		},
+		dataType (val) {
+			this.geoHeatmapInstance.dataType(this.dataType);
+			this.geoHeatmapInstance.update();
+		}
+	},
 
-  watch: {
-  	covidDistrictData: {
-      handler (val) {
-        this.update();
-      },
-      deep: true
+	methods: {
+    initialize (covidDistData) {
+			this.geoHeatmapInstance = geoHeatmap();
+			this.geoHeatmapInstance.dataType(this.dataType);
+      this.geoHeatmapInstance.initialize(covidDistData);
+			this.geoHeatmapInstance.dataRange(this.dataRange);
     },
-    dataRange (range) {
-      // console.log(range);
-      this.geoHeatmapInstance.dataRange(range);
-    },
-    dataType (val) {
-      this.geoHeatmapInstance.dataType(this.dataType);
-      this.geoHeatmapInstance.update();
-    }
-  },
 
-  methods: {
-  	initialize (covidDistData) {
-      console.log(this.dataType);
-      this.geoHeatmapInstance = geoHeatmap();
-      this.geoHeatmapInstance.dataType(this.dataType);
-  		this.geoHeatmapInstance.initialize(covidDistData);
-      this.geoHeatmapInstance.dataRange(this.dataRange);
-  	},
-
-    update () {
-      this.geoHeatmapInstance.update();
-    }
-  }
-}
+		update () {
+			this.geoHeatmapInstance.update();
+		}
+	}
+};
 </script>

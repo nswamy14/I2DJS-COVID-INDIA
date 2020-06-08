@@ -6,9 +6,9 @@
 
 <script>
 export default {
-  name: 'DistrictView',
-  data() {
-    return {};
-  }
-}
+	name: 'DistrictView',
+	data () {
+		return {};
+	}
+};
 </script>
