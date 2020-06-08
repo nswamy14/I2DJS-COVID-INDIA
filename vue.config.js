@@ -20,7 +20,7 @@ module.exports = {
 			}
 		},
 		performance: {
-			hints: "warning",
+			hints: false,
 			maxEntrypointSize: 1024000,
 			maxAssetSize: 1024000
 		}

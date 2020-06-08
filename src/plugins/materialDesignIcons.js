@@ -1,7 +1,11 @@
 import {
-	mdiAccount
+	mdiCheckboxMarkedCircleOutline,
+	mdiMagnify,
+	mdiMapSearch
 } from '@mdi/js';
 
 export default {
-	account: mdiAccount
+	checkboxMarkedCircleOutline: mdiCheckboxMarkedCircleOutline,
+	mapSearch: mdiMapSearch,
+	search: mdiMagnify
 };

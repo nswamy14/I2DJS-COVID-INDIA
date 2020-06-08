@@ -8,7 +8,7 @@
 # Covid-19 Dashboard for India
 > Dashboard showcasing state and district wise impact of Covid-19 in India created using [I2Djs](https://github.com/I2Djs/I2Djs)
 
-### Setup
+### Project Setup
 ```
 yarn
 ```
@@ -40,6 +40,11 @@ yarn build-m
 ### Modern Build with Report
 ```
 yarn build-m-r
+```
+
+### Serve built files 
+```
+serve dist
 ```
 
 ### Lints and fixes files
