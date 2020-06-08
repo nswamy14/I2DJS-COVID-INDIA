@@ -1,9 +1,6 @@
 .DS_Store
 node_modules/
 certs/
-npm-debug.log*
-error.log
-info.log
 
 #swap files created by text editors(vi)
 *.swp
@@ -16,6 +13,8 @@ info.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+error.log
+info.log
 
 # Editor directories and files
 .idea
@@ -25,4 +24,4 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-/graphql.config.json
+
