@@ -30,17 +30,16 @@ export default function () {
 		color: [255, 255, 0, 1.0], offset: 1.0
 	}];
 
-	var ConfirmedColorGrad = [{
-		color: [255, 0, 0, 0.1], offset: 0
-	}, {
-		color: [255, 255, 255, 1.0], offset: 1.0
-	}];
-
-
+	// var ConfirmedColorGrad = [{
+	// 	color: [255, 0, 0, 0.1], offset: 0
+	// }, {
+	// 	color: [255, 255, 255, 1.0], offset: 1.0
+	// }];
+	var sqrt = Math.sqrt;
 	var ActiveColorGradMap = gradientMapper(ActiveColorGrad);
 	var RecoveredColorGradMap = gradientMapper(RecoveredColorGrad);
 	var DeceasedColorGradMap = gradientMapper(DeceasedColorGrad);
-	var ConfirmedColorGradMap = gradientMapper(ConfirmedColorGrad);
+	var ConfirmedColorGradMap = ActiveColorGradMap;
 	var colorGradMap = ActiveColorGradMap;
 	var heatmapShader;
 	var dataType = '';
@@ -67,20 +66,24 @@ export default function () {
 	};
 
 	Chart.prototype.zoomToLocation = function (location) {
-		console.log(location);
-		console.log(this.webglRenderer);
-
 		let translate = this.zoomInstance.event.transform.translate;
 		let scale = this.zoomInstance.event.transform.scale[0];
-		let xy = this.projection([location.longitude, location.latitude]);
+		if (location) {
+			let xy = this.projection([location.longitude, location.latitude]);
 				xy[0] *= scale;
 				xy[1] *= scale;
 				xy[0] += (translate[0]);
 				xy[1] += (translate[1]);
-
-		// this.zoomInstance.zoomTarget([this.webglRenderer.width / 2, this.webglRenderer.height / 2]);
-		this.webglRenderer.scaleTo(8, xy);
-	}
+			this.webglRenderer.scaleTo(8, xy);
+		} else {
+			let xy = this.projection([78.96288, 20.593684]);
+				// xy[0] -= (translate[0]);
+				// xy[1] -= (translate[1]);
+				// xy[0] /= scale;
+				// xy[1] /= scale
+			this.webglRenderer.scaleTo(1, xy);
+		}
+	};
 
 	Chart.prototype.dataRange = function (range) {
 		heatmapLinearScale.domain(range);
@@ -107,20 +110,20 @@ export default function () {
 
 		function onZoom (event) {
 			var scale = event.transform.scale[0];
-			var sqrtScale = Math.sqrt(1 / scale);
+			var sqrtScale = sqrt(1 / scale);
 			self.geoGroup.setAttr('transform', event.transform);
 			self.heatmapHref.setAttr('transform', event.transform);
 			self.labelHref.setAttr('transform', event.transform);
 				
 			var nodes = self.heatmapHref.children;
 
-			self.distG.setStyle('lineWidth', 0.16 / scale);
-			self.stateG.setStyle('lineWidth', 0.3 / scale);
+			self.distG.setStyle('lineWidth', 0.2 / scale);
+			self.stateG.setStyle('lineWidth', 0.4 / scale);
 
 			for (var i = nodes.length - 1; i >= 0; i--) {
 				var d = nodes[i].data();
 				var val = d.d[dataType];
-				val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+				val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
 
 				nodes[i]
 					.setAttr('width', val * sqrtScale)
@@ -132,7 +135,7 @@ export default function () {
 
 		function zoomEnd (event) {
 			var scale = event.transform.scale[0];
-			var sqrtScale = Math.sqrt(1 / scale);
+			var sqrtScale = sqrt(1 / scale);
 			var nodes = self.labelHref.children;
 			if (scale >= 3.0) {
 				self.labelHref.setStyle('display', true);
@@ -140,9 +143,8 @@ export default function () {
 					var d = nodes[i].data();
 					nodes[i].setStyle('font', 10 * sqrtScale + 'px Arial');
 					var width = nodes[i].attr.width;
-					// var height = nodes[i].attr.height;
 					var val = d.d[dataType];
-					val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+					val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
 						
 					nodes[i]
 						.setAttr('x', d.xy[0] - ((width * 0.5)))
@@ -180,7 +182,7 @@ export default function () {
 			style: {
 				strokeStyle: '#c74a4a',
 				fillStyle: 'rgba(0, 0, 1, 1)',
-				lineWidth: 0.5
+				lineWidth: 0.4
 			},
 			bbox: false
 		});
@@ -414,17 +416,18 @@ export default function () {
 					nodes['image'].forEach(function (dd) {
 						var d = dd.d;
 						var val = d[dataType];
-						val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+						val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
 						var op = Math.log(val || 1) / 5;
 						op = (op > 1.0 ? 1.0 : op);
 						var scale = self.zoomInstance.event.transform.scale[0];
+						var sqrtScale = sqrt(1 / scale);
 						this.animateTo({
 							duration: 100,
 							attr: {
-								width: val / scale,
-								height: val / scale,
-								x: dd.xy[0] - ((val * 0.5) / scale),
-								y: dd.xy[1] - ((val * 0.5) / scale)
+								width: val / sqrtScale,
+								height: val / sqrtScale,
+								x: dd.xy[0] - ((val * 0.5) / sqrtScale),
+								y: dd.xy[1] - ((val * 0.5) / sqrtScale)
 							},
 							style: {
 								opacity: op

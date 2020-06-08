@@ -67,6 +67,7 @@ import TimelineView from './TimelineView';
 import CountersView from './CountersView';
 import MapContainer from './MapContainer';
 import IndianCities from '@/assets/data/IndianCitiesLatLong';
+import pastCovidData from '@/assets/data/pastCovidData';
 import { getDistrictWiseDailyData } from '@/api/CovidServices';
 
 export default {
@@ -108,7 +109,8 @@ export default {
 		search (val) {
 			if (val && this.heatmapDataMap[val.toLowerCase()]) {
 				this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
-				console.log(this.searchGeoLocation);
+			} else {
+				this.searchGeoLocation = '';
 			}
 			// this.searchGeoLocation(val);
 		}
@@ -128,12 +130,17 @@ export default {
 			let activeRange = [Infinity, -Infinity];
 			let dateBuckets = {};
 			let distMap = [];
-			// let count = 0;
 
+			let pastData = pastCovidData['districtsDaily'];
+			let visitedStates = {};
 			for (let state in covidData.districtsDaily) {
+				visitedStates[state] = {};
 				let stateVal = covidData.districtsDaily[state];
+				let statePastData = pastData[state] || {};
 				for (let dis in stateVal) {
-					let disVal = stateVal[dis];
+					visitedStates[state][dis] = true;
+					let pastDisVal = statePastData[dis] || [];
+					let disVal = pastDisVal.concat(stateVal[dis]);
 					let disLow = dis.toLowerCase();
 					disVal.forEach(function (dt) {
 						dt.visible = false;
@@ -179,6 +186,7 @@ export default {
 			}
 
 			self.formattedCovidData = self.formatData(dateBuckets);
+			console.log(self.formattedCovidData);
 			self.animateCovid(self.formattedCovidData);
 			self.covidDistrictData = distMap;
 			self.dataRange = activeRange;
@@ -214,6 +222,7 @@ export default {
 
 			function Play () {
 				if (!covidData[playIndex]) {
+					console.log(self.heatmapDataMap['mumbai']);
 					return;
 				}
 				let currData = covidData[playIndex];
@@ -245,7 +254,7 @@ export default {
 				});
 
 				playIndex += 1;
-				setTimeout(Play, 200);
+				setTimeout(Play, 100);
 			}
 
 			Play();
@@ -259,7 +268,7 @@ export default {
 			dtKeys.forEach(function (dt) {
 				let curr = dateBuckets[dt];
 				let dataObj = {
-					date: dt,
+					date: new Date(dt),
 					confirmed: 0,
 					active: 0,
 					recovered: 0,
@@ -282,6 +291,10 @@ export default {
 				// 	d.scale[1] =  Math.max(d.scale[1], dataObj[d.key]);
 				// });
 				dateData.push(dataObj);
+			});
+
+			dateData = dateData.sort(function (a, b) {
+				return a.date - b.date;
 			});
 
 			self.counters.forEach(function (d) {

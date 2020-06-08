@@ -39,7 +39,6 @@ export default {
 			deep: true
 		},
     searchGeoLocation (val) {
-      console.log(val);
       this.geoHeatmapInstance.zoomToLocation(val);
     },
 		dataRange (range) {
