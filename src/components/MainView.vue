@@ -54,7 +54,7 @@
 						:covidDistrictData="covidDistrictData"
 						:dataRange="dataRange"
 						:dataType="dataType"
-						id="map-container"
+						:searchGeoLocation="searchGeoLocation"id="map-container"
 						v-if="covidDistrictData.length !== 0"
 					>
 					</map-container>
@@ -79,6 +79,7 @@
 <script>
 import TimelineView from "./TimelineView";
 import MapContainer from "./MapContainer";
+import pastCovidData from '@/assets/data/pastCovidData';
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
 
 export default {
@@ -86,8 +87,9 @@ export default {
 	components: { TimelineView, MapContainer },
 	data() {
 		return {
-			search: "Bellary",
-			searchItems: ["Bellary"],
+			search: '',
+			searchGeoLocation: {},
+			searchItems: ['Ballari', 'Jodhpur'],
 			selectedCounter: {},
 			counters: [
 				{
@@ -138,12 +140,17 @@ export default {
 		},
 
 		search(val) {
-			this.getDistrictTimelineData(val);
+			if (val && this.heatmapDataMap[val.toLowerCase()]) {
+				this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
+			} else {
+				this.searchGeoLocation = '';
+			}
+			// this.searchGeoLocation(val);
 		},
 	},
 
 	mounted() {
-		this.selectedCounter = this.counters[0];
+		this.selectedCounter = this.counters[1];
 		this.initialize();
 	},
 
@@ -160,10 +167,16 @@ export default {
 			let dateBuckets = {};
 			let distMap = [];
 
+			let pastData = pastCovidData['districtsDaily'];
+			let visitedStates = {};
 			for (let state in covidData.districtsDaily) {
+				visitedStates[state] = {};
 				let stateVal = covidData.districtsDaily[state];
+				let statePastData = pastData[state] || {};
 				for (let dis in stateVal) {
-					let disVal = stateVal[dis];
+					visitedStates[state][dis] = true;
+					let pastDisVal = statePastData[dis] || [];
+					let disVal = pastDisVal.concat(stateVal[dis]);
 					let disLow = dis.toLowerCase();
 					disVal.forEach(function (dt) {
 						dt.visible = false;
@@ -206,23 +219,26 @@ export default {
 						});
 					} else {
 						if (disVal[disVal.length - 1].active > 0) {
-							console.log(
-								disLow,
-								disVal[disVal.length - 1].active,
-								state
-							);
+							// count += 1;
+							console.log(disLow, disVal[disVal.length - 1].active, state);
 						}
 					}
 				}
 			}
 
 			self.formattedCovidData = self.formatData(dateBuckets);
+			console.log(self.formattedCovidData);
 			self.animateCovid(self.formattedCovidData);
 			self.covidDistrictData = distMap;
 			self.dataRange = activeRange;
+			self.searchItems = Object.keys(self.heatmapDataMap);
 
 			self.timelineData = self.selectedCounter;
 		},
+
+		// searchGeoLocation (geoLocation) {
+		// 	this.getDistrictTimelineData(val);
+		// },
 
 		async getDistrictWiseDailyData() {
 			try {
@@ -258,6 +274,7 @@ export default {
 
 			function Play() {
 				if (!covidData[playIndex]) {
+					console.log(self.heatmapDataMap['mumbai']);
 					return;
 				}
 				let currData = covidData[playIndex];
@@ -292,7 +309,7 @@ export default {
 				});
 
 				playIndex += 1;
-				setTimeout(Play, 200);
+				setTimeout(Play, 100);
 			}
 
 			Play();
@@ -306,20 +323,20 @@ export default {
 			dtKeys.forEach(function (dt) {
 				let curr = dateBuckets[dt];
 				let dataObj = {
-					date: dt,
+					date: new Date(dt),
 					confirmed: 0,
 					active: 0,
 					recovered: 0,
 					deceased: 0,
 					distList: curr,
 				};
-				// let barData = curr.reduce(function (p, c) {
-				// 	p.active += c.active;
-				// 	p.recovered += c.recovered;
-				// 	p.deceased += c.deceased;
-				// 	p.confirmed += c.confirmed;
-				// 	return p;
-				// }, dataObj);
+				curr.reduce(function (p, c) {
+					p.active += c.active;
+					p.recovered += c.recovered;
+					p.deceased += c.deceased;
+					p.confirmed += c.confirmed;
+					return p;
+				}, dataObj);
 
 				confirmScale[0] = Math.min(confirmScale[0], dataObj.confirmed);
 				confirmScale[1] = Math.max(confirmScale[1], dataObj.confirmed);
@@ -329,6 +346,10 @@ export default {
 				// 	d.scale[1] =  Math.max(d.scale[1], dataObj[d.key]);
 				// });
 				dateData.push(dataObj);
+			});
+
+			dateData = dateData.sort(function (a, b) {
+				return a.date - b.date;
 			});
 
 			self.counters.forEach(function (d) {

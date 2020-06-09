@@ -4734,7 +4734,7 @@ human-signals@^1.1.1:
 
 "i2djs@git+https://github.com/I2Djs/I2Djs.git":
   version "3.1.0"
-  resolved "git+https://github.com/I2Djs/I2Djs.git#d9e57d9811ccad4a5ac9e8dc29afc600b9ad4ff3"
+  resolved "git+https://github.com/I2Djs/I2Djs.git#cb6e1a4d9f14536e58aea1fc4d89bdb15bb3d997"
   dependencies:
     earcut "^2.1.5"
 

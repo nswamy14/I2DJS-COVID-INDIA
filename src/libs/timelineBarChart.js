@@ -10,7 +10,7 @@ export default function () {
 	Chart.prototype.initialize = function (data) {
 		let self = this;
 		this.timelineLayer = i2d.canvasLayer("#timeline-container", {}, {});
-		this.heightScale.range([0, this.timelineLayer.height - 20]);
+		this.heightScale.range([5, this.timelineLayer.height - 20]);
 		this.gradColor = this.timelineLayer.createLinearGradient({
 			x1: 0,
 			y1: 100,
@@ -31,7 +31,7 @@ export default function () {
 			el: "group",
 			attr: {
 				transform: {
-					translate: [0, this.timelineLayer.height],
+					translate: [100, this.timelineLayer.height],
 				},
 			},
 		});
@@ -42,9 +42,9 @@ export default function () {
 						el: "rect",
 						attr: {
 							x: 0,
-							y: 0,
+							y: 5,
 							height: 0,
-							width: 20,
+							width: 5
 						},
 						style: {
 							fillStyle: self.gradColor,
@@ -56,7 +56,7 @@ export default function () {
 				},
 				update: function (nodes) {
 					nodes["rect"].forEach(function (d, i) {
-						this.setAttr("x", i * 25);
+						this.setAttr("x", i * 7);
 						this.setAttr("y", -self.heightScale(d.value));
 						this.setAttr("height", self.heightScale(d.value));
 					});

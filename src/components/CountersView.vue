@@ -5,7 +5,7 @@
 <script>
 export default {
 	name: "CountersView",
-	data() {
+	data () {
 		return {};
 	},
 };

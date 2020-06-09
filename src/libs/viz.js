@@ -7,7 +7,7 @@ export default function () {
 
 	var ActiveColorGrad = [
 		{
-			color: [0, 0, 0, 0.1],
+			color: [0, 0, 0, 0.0],
 			offset: 0,
 		},
 		{
@@ -28,49 +28,30 @@ export default function () {
 		},
 	];
 
-	var RecoveredColorGrad = [
-		{
-			color: [0, 0, 0, 0.1],
-			offset: 0,
-		},
-		{
-			color: [102, 150, 74, 0.5],
-			offset: 0.5,
-		},
-		{
-			color: [166, 255, 115, 1.0],
-			offset: 1.0,
-		},
-	];
+	var RecoveredColorGrad = [{
+		color: [0, 0, 0, 0.1], offset: 0
+	}, {
+		color: [166, 255, 115, 1.0], offset: 1.0
+	}];
 
-	var DeceasedColorGrad = [
-		{
-			color: [0, 0, 0, 0.1],
-			offset: 0,
-		},
-		{
-			color: [255, 255, 0, 1.0],
-			offset: 1.0,
-		},
-	];
+	var DeceasedColorGrad = [{
+		color: [0, 0, 0, 0.1], offset: 0
+	}, {
+		color: [255, 255, 0, 1.0], offset: 1.0
+	}];
 
-	var ConfirmedColorGrad = [
-		{
-			color: [255, 0, 0, 0.1],
-			offset: 0,
-		},
-		{
-			color: [255, 255, 255, 1.0],
-			offset: 1.0,
-		},
-	];
-
+	// var ConfirmedColorGrad = [{
+	// 	color: [255, 0, 0, 0.1], offset: 0
+	// }, {
+	// 	color: [255, 255, 255, 1.0], offset: 1.0
+	// }];
+	var sqrt = Math.sqrt;
 	var ActiveColorGradMap = gradientMapper(ActiveColorGrad);
 	var RecoveredColorGradMap = gradientMapper(RecoveredColorGrad);
 	var DeceasedColorGradMap = gradientMapper(DeceasedColorGrad);
-	var ConfirmedColorGradMap = gradientMapper(ConfirmedColorGrad);
+	var ConfirmedColorGradMap = ActiveColorGradMap;
 	var colorGradMap = ActiveColorGradMap;
-
+	var heatmapShader;
 	var dataType = "";
 	// var tooltip;
 	let Chart = function () {};
@@ -86,6 +67,30 @@ export default function () {
 		} else if (dataType === "confirmed") {
 			colorGradMap = ConfirmedColorGradMap;
 		}
+		if (heatmapShader) {
+			heatmapShader.setUniformData('u_colorArr', colorGradMap.value);
+			heatmapShader.setUniformData('u_offset', colorGradMap.offset);
+		}
+	};
+
+	Chart.prototype.zoomToLocation = function (location) {
+		let translate = this.zoomInstance.event.transform.translate;
+		let scale = this.zoomInstance.event.transform.scale[0];
+		if (location) {
+			let xy = this.projection([location.longitude, location.latitude]);
+				xy[0] *= scale;
+				xy[1] *= scale;
+				xy[0] += (translate[0]);
+				xy[1] += (translate[1]);
+			this.webglRenderer.scaleTo(8, xy);
+		} else {
+			let xy = this.projection([78.96288, 20.593684]);
+				// xy[0] -= (translate[0]);
+				// xy[1] -= (translate[1]);
+				// xy[0] /= scale;
+				// xy[1] /= scale
+			this.webglRenderer.scaleTo(1, xy);
+		}
 	};
 
 	Chart.prototype.dataRange = function (range) {
@@ -100,6 +105,7 @@ export default function () {
 		self.zoomInstance.zoomStart(zoomStart);
 		self.zoomInstance.zoom(onZoom);
 		self.zoomInstance.zoomEnd(zoomEnd);
+		self.zoomInstance.duration(1000);
 
 		self.zoomInstance.panExtent([
 			[-10000, -10000],
@@ -109,7 +115,7 @@ export default function () {
 		self.renderGeoMap();
 		self.renderHeatMap(districtData);
 
-		// zoomInstance.zoomTarget([GeoMaprenderer.width / 2, GeoMaprenderer.height / 2]);
+
 
 		function zoomStart(event) {
 			// tooltip();
@@ -117,20 +123,20 @@ export default function () {
 
 		function onZoom(event) {
 			var scale = event.transform.scale[0];
-			var sqrtScale = Math.sqrt(1 / scale);
+			var sqrtScale = sqrt(1 / scale);
 			self.geoGroup.setAttr("transform", event.transform);
 			self.heatmapHref.setAttr("transform", event.transform);
 			self.labelHref.setAttr("transform", event.transform);
 
 			var nodes = self.heatmapHref.children;
 
-			self.distG.setStyle("lineWidth", 0.16 / scale);
-			self.stateG.setStyle("lineWidth", 0.3 / scale);
+			self.distG.setStyle("lineWidth", 0.2 / scale);
+			self.stateG.setStyle("lineWidth", 0.4 / scale);
 
 			for (var i = nodes.length - 1; i >= 0; i--) {
 				var d = nodes[i].data();
 				var val = d.d[dataType];
-				val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+				val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
 
 				nodes[i]
 					.setAttr("width", val * sqrtScale)
@@ -140,26 +146,25 @@ export default function () {
 			}
 		}
 
-		function zoomEnd(event) {
+		function zoomEnd (event) {
 			var scale = event.transform.scale[0];
-			var sqrtScale = Math.sqrt(1 / scale);
+			var sqrtScale = sqrt(1 / scale);
 			var nodes = self.labelHref.children;
 			if (scale >= 3.0) {
-				self.labelHref.setStyle("display", true);
-				for (let i = nodes.length - 1; i >= 0; i--) {
+				self.labelHref.setStyle('display', true);
+				for (var i = nodes.length - 1; i >= 0; i--) {
 					var d = nodes[i].data();
-					nodes[i].setStyle("font", 10 * sqrtScale + "px Arial");
+					nodes[i].setStyle('font', 10 * sqrtScale + 'px Arial');
 					var width = nodes[i].attr.width;
-					// var height = nodes[i].attr.height;
 					var val = d.d[dataType];
-					val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+					val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
 
 					nodes[i]
-						.setAttr("x", d.xy[0] - width * 0.5)
-						.setAttr("y", d.xy[1] - (val * 0.5) / scale);
-				}
+						.setAttr('x', d.xy[0] - ((width * 0.5)))
+						.setAttr('y', d.xy[1] - ((val * 0.5) / scale));
+				};
 			} else {
-				self.labelHref.setStyle("display", "none");
+				self.labelHref.setStyle('display', 'none');
 			}
 		}
 	};
@@ -170,16 +175,14 @@ export default function () {
 
 	Chart.prototype.renderGeoMap = function (argument) {
 		var self = this;
-		var GeoMaprenderer = i2d.canvasLayer("#map-container", {}, {});
-		self.projection = d3
-			.geoMercator()
-			.translate([GeoMaprenderer.width / 2, GeoMaprenderer.height / 2])
-			.center([78.96288, 20.593684])
-			.scale([
-				Math.min(GeoMaprenderer.height, GeoMaprenderer.width) * 1.5,
-			]);
+		var GeoMaprenderer = i2d.canvasLayer('#map-container', {}, {});
+		self.projection = d3.geoMercator()
+			   .translate([GeoMaprenderer.width / 2, (GeoMaprenderer.height / 2 + 50)])
+			   .center([78.96288, 20.593684])
+			   .scale([Math.min(GeoMaprenderer.height, GeoMaprenderer.width) * 1.65]);
 
-		var path = d3.geoPath().projection(self.projection);
+		var path = d3.geoPath()
+			.projection(self.projection);
 
 		renderLegend(GeoMaprenderer);
 
@@ -187,35 +190,35 @@ export default function () {
 			el: "group",
 		});
 
-		this.distG = this.geoGroup.createEl({
+		this.stateG = this.geoGroup.createEl({
 			el: "group",
 			style: {
-				globalAlpha: 1,
-				strokeStyle: "#c74a4a",
-				fillStyle: "rgba(0, 0, 1, 1)",
-				lineWidth: 0.2,
+				strokeStyle: '#c74a4a',
+				fillStyle: 'rgba(0, 0, 1, 1)',
+				lineWidth: 0.4
 			},
 			bbox: false,
 		});
 
-		this.stateG = this.geoGroup.createEl({
+		this.distG = this.geoGroup.createEl({
 			el: "group",
 			style: {
-				strokeStyle: "#c74a4a",
-				lineWidth: 0.5,
+				strokeStyle: '#c74a4a',
+				lineWidth: 0.2
 			},
 			bbox: false,
 		});
 
 		var indiaDist = d3.json(
-			"https://nswamy14.github.io/geoJson/india.district.geo.json"
+			'https://nswamy14.github.io/geoJson/india.district.geo.json'
 		);
 		var states = d3.json(
-			"https://nswamy14.github.io/geoJson/india.states.geo.json"
+			'https://nswamy14.github.io/geoJson/india.states.geo.json'
 		);
 		Promise.all([indiaDist, states]).then(function (values) {
 			var districtGeoData = values[0];
 			var stateGeoData = values[1];
+			// var count = 0;
 
 			stateGeoData.features.forEach(function (state) {
 				self.stateG.createEl({
@@ -270,7 +273,7 @@ export default function () {
 				el: "rect",
 				attr: {
 					x: renderer.width - 300,
-					y: renderer.height - 200,
+					y: renderer.height - 150,
 					width: 200,
 					height: 20,
 				},
@@ -283,7 +286,7 @@ export default function () {
 				el: "text",
 				attr: {
 					x: renderer.width - 300,
-					y: renderer.height - 180 + 20,
+					y: renderer.height - 130 + 20,
 					text: "Low",
 				},
 				style: {
@@ -296,7 +299,7 @@ export default function () {
 				el: "text",
 				attr: {
 					x: renderer.width - 100,
-					y: renderer.height - 180 + 20,
+					y: renderer.height - 130 + 20,
 					text: "High",
 				},
 				style: {
@@ -324,7 +327,10 @@ export default function () {
 			}
 		);
 		webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
-		webglRenderer.on("zoom", self.zoomInstance);
+		self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
+		webglRenderer.on('zoom', self.zoomInstance);
+		this.webglRenderer = webglRenderer;
+		// var opacity = 1.0;
 
 		var Texture = webglRenderer.TextureObject({
 			width: webglRenderer.width * webglRenderer.pixelRatio,
@@ -387,7 +393,7 @@ export default function () {
 		});
 		meshgeome.setDrawRange(0, 6);
 
-		webglRenderer.createShaderEl({
+		heatmapShader =webglRenderer.createShaderEl({
 			fragmentShader: fragmentShader,
 			vertexShader: vertexShader,
 			uniforms: {
@@ -454,56 +460,57 @@ export default function () {
 					nodes["image"].forEach(function (dd) {
 						var d = dd.d;
 						var val = d[dataType];
-						val = val <= 0 ? 0 : heatmapLinearScale(Math.sqrt(val));
+						val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
 						var op = Math.log(val || 1) / 5;
 						op = op > 1.0 ? 1.0 : op;
 						var scale = self.zoomInstance.event.transform.scale[0];
+						var sqrtScale = sqrt(1 / scale);
 						this.animateTo({
 							duration: 100,
 							attr: {
-								width: val / scale,
-								height: val / scale,
-								x: dd.xy[0] - (val * 0.5) / scale,
-								y: dd.xy[1] - (val * 0.5) / scale,
+								width: val / sqrtScale,
+								height: val / sqrtScale,
+								x: dd.xy[0] - ((val * 0.5) / sqrtScale),
+								y: dd.xy[1] - ((val * 0.5) / sqrtScale)
 							},
 							style: {
-								opacity: op,
-							},
+								opacity: op
+							}
 						});
 					});
-				},
-			},
+				}
+			}
 		});
 
 		this.labelHref = labelGroup.join(data, "text", {
 			action: {
 				enter: function (data) {
-					this.createEls(data["text"], {
-						el: "text",
+					this.createEls(data['text'], {
+						el: 'text',
 						attr: {
 							x: function (d) {
-								return d.xy[0] - d.d.name.length;
+								return d.xy[0] - (d.d.name.length);
 							},
 							y: function (d) {
 								return d.xy[1] + 10;
 							},
 							text: function (d) {
 								return d.d.name;
-							},
+							}
 						},
 						style: {
-							font: "10px Arial",
-							fillStyle: "#dba9a9",
+							font: '10px Arial',
+							fillStyle: '#dba9a9'
 							// opacity: 0.5
-						},
+						}
 					})
-						.on("zoom", self.zoomInstance)
-						.on("mousemove", function (e) {
+						.on('zoom', self.zoomInstance)
+						.on('mousemove', function (e) {
 							// var d = this.data();
-							// tooltip(d, e);
+						// tooltip(d, e);
 						})
-						.on("mouseout", function (e) {
-							// tooltip();
+						.on('mouseout', function (e) {
+						// tooltip();
 						});
 				},
 				update: function (nodes) {
