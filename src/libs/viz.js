@@ -1,10 +1,23 @@
-import * as d3 from "d3";
+import { geoMercator, geoPath } from "d3";
 import * as i2d from "i2djs";
 import { vertexShader, fragmentShader } from "./shaders";
+import {
+	getIndianDistrictGeoJson,
+	getIndianStatesGeoJson,
+} from "@/api/CovidServices";
 
 export default function () {
-	var heatmapLinearScale = d3.scaleLinear().range([6, 100]);
-
+	// var heatmapLinearScale = d3.scaleLinear();
+	let scaleRange = [0, 0];
+	let scaleDomain = [0, 0];
+	function scaleFun(count) {
+		return (
+			scaleRange[0] +
+			((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
+				(scaleRange[1] - scaleRange[0])
+		);
+	}
+	// var indiaDist;
 	var ActiveColorGrad = [
 		{
 			color: [0, 0, 0, 0.0],
@@ -34,6 +47,10 @@ export default function () {
 			offset: 0,
 		},
 		{
+			color: [166, 255, 115, 0.3],
+			offset: 0.3,
+		},
+		{
 			color: [166, 255, 115, 1.0],
 			offset: 1.0,
 		},
@@ -43,6 +60,10 @@ export default function () {
 		{
 			color: [0, 0, 0, 0.1],
 			offset: 0,
+		},
+		{
+			color: [255, 255, 0, 0.5],
+			offset: 0.2,
 		},
 		{
 			color: [255, 255, 0, 1.0],
@@ -104,7 +125,8 @@ export default function () {
 	};
 
 	Chart.prototype.dataRange = function (range) {
-		heatmapLinearScale.domain(range);
+		// heatmapLinearScale.domain(range);
+		scaleDomain = range;
 	};
 
 	Chart.prototype.initialize = function (districtData) {
@@ -144,7 +166,7 @@ export default function () {
 			for (var i = nodes.length - 1; i >= 0; i--) {
 				var d = nodes[i].data();
 				var val = d.d[dataType];
-				val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
+				val = val <= 0 ? 0 : scaleFun(sqrt(val));
 
 				nodes[i]
 					.setAttr("width", val * sqrtScale)
@@ -165,7 +187,7 @@ export default function () {
 					nodes[i].setStyle("font", 10 * sqrtScale + "px Arial");
 					var width = nodes[i].attr.width;
 					var val = d.d[dataType];
-					val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
+					val = val <= 0 ? 0 : scaleFun(sqrt(val));
 
 					nodes[i]
 						.setAttr("x", d.xy[0] - width * 0.5)
@@ -184,18 +206,13 @@ export default function () {
 	Chart.prototype.renderGeoMap = function (argument) {
 		var self = this;
 		var GeoMaprenderer = i2d.canvasLayer("#map-container", {}, {});
-		self.projection = d3
-			.geoMercator()
-			.translate([
-				GeoMaprenderer.width / 2,
-				GeoMaprenderer.height / 2 + 50,
-			])
-			.center([78.96288, 20.593684])
-			.scale([
-				Math.min(GeoMaprenderer.height, GeoMaprenderer.width) * 1.65,
-			]);
+		var mindim = Math.min(GeoMaprenderer.height, GeoMaprenderer.width);
+		self.projection = geoMercator()
+			.translate([GeoMaprenderer.width / 2, mindim / 2 + 50])
+			.center([81, 20.593684])
+			.scale([mindim * 1.65]);
 
-		var path = d3.geoPath().projection(self.projection);
+		var path = geoPath().projection(self.projection);
 
 		renderLegend(GeoMaprenderer);
 
@@ -219,19 +236,28 @@ export default function () {
 				strokeStyle: "#c74a4a",
 				lineWidth: 0.2,
 			},
-			bbox: false,
+			// bbox: false,
 		});
 
-		var indiaDist = d3.json(
-			"https://nswamy14.github.io/geoJson/india.district.geo.json"
-		);
-		var states = d3.json(
-			"https://nswamy14.github.io/geoJson/india.states.geo.json"
-		);
-		Promise.all([indiaDist, states]).then(function (values) {
-			var districtGeoData = values[0];
-			var stateGeoData = values[1];
-			// var count = 0;
+		renderGeoJson();
+
+		// indiaDist = json(
+		// 	"https://nswamy14.github.io/geoJson/india.district.geo.json"
+		// );
+		// var states = json(
+		// 	"https://nswamy14.github.io/geoJson/india.states2.geo.json"
+		// );
+		// Promise.all([indiaDist, states]).then(function (values) {
+		// 	var districtGeoData = values[0];
+		// 	var stateGeoData = values[1];
+		// 	// var count = 0;
+		// });
+
+		async function renderGeoJson() {
+			let [districtGeoData, stateGeoData] = await Promise.all([
+				getIndianDistrictGeoJson(),
+				getIndianStatesGeoJson(),
+			]);
 
 			stateGeoData.features.forEach(function (state) {
 				self.stateG.createEl({
@@ -250,7 +276,7 @@ export default function () {
 					},
 				});
 			});
-		});
+		}
 
 		function renderLegend(renderer) {
 			var linearGradiant = renderer.createLinearGradient({
@@ -339,6 +365,9 @@ export default function () {
 				enableResize: false,
 			}
 		);
+		let dimMin = Math.min(webglRenderer.width, webglRenderer.height);
+		// heatmapLinearScale.range([dimMin * 0.01, dimMin * 0.1]);
+		scaleRange = [dimMin * 0.01, dimMin * 0.1];
 		webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
 		self.zoomInstance.zoomTarget([
 			webglRenderer.width / 2,
@@ -476,7 +505,7 @@ export default function () {
 					nodes["image"].forEach(function (dd) {
 						var d = dd.d;
 						var val = d[dataType];
-						val = val <= 0 ? 0 : heatmapLinearScale(sqrt(val));
+						val = val <= 0 ? 0 : scaleFun(sqrt(val));
 						var op = Math.log(val || 1) / 5;
 						op = op > 1.0 ? 1.0 : op;
 						var scale = self.zoomInstance.event.transform.scale[0];
@@ -552,6 +581,9 @@ export default function () {
 				},
 			},
 		});
+
+		this.heatmapHref.update();
+		this.labelHref.update();
 	};
 
 	function getGradientImage() {

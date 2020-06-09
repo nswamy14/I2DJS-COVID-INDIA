@@ -160,14 +160,12 @@ export default {
 			let self = this;
 
 			let [IndianCities, covidData] = await Promise.all([
-				this.getIndianCities(),
-				this.getDistrictWiseDailyData(),
+				getIndianCities(),
+				getDistrictWiseDailyData(),
 			]);
-
 			let activeRange = [Infinity, -Infinity];
 			let dateBuckets = {};
 			let distMap = [];
-
 			let pastData = pastCovidData["districtsDaily"];
 			let visitedStates = {};
 			for (let state in covidData.districtsDaily) {
@@ -182,14 +180,13 @@ export default {
 					disVal.forEach(function (dt) {
 						dt.visible = false;
 					});
-					// console.log(disLow);
 					let dd =
 						IndianCities[disLow] ||
 						IndianCities[state.toLowerCase()];
-					//  || (IndianCities[state.toLowerCase()])
 					if (IndianCities[disLow]) {
-						let d = {
+						let districtObj = {
 							name: disLow,
+							state: state,
 							active: 0,
 							deceased: 0,
 							confirmed: 0,
@@ -197,9 +194,6 @@ export default {
 							longitude: dd.longitude,
 							latitude: dd.latitude,
 						};
-
-						distMap.push(d);
-						self.heatmapDataMap[d.name] = d;
 
 						disVal.forEach(function (d) {
 							if (!dateBuckets[d.date]) {
@@ -217,51 +211,61 @@ export default {
 							) {
 								activeRange[0] = Math.sqrt(d.active);
 							}
+
+							districtObj.confirmed = d.confirmed;
+							districtObj.active = d.active;
+							districtObj.deceased = d.deceased;
+							districtObj.recovered = d.recovered;
 						});
+
+						distMap.push(districtObj);
+						self.heatmapDataMap[districtObj.name] = districtObj;
 					} else {
 						if (disVal[disVal.length - 1].active > 0) {
 							// count += 1;
-							console.log(
-								disLow,
-								disVal[disVal.length - 1].active,
-								state
-							);
+							// console.log(
+							// 	disLow,
+							// 	disVal[disVal.length - 1].active,
+							// 	state
+							// );
 						}
 					}
 				}
 			}
 
 			self.formattedCovidData = self.formatData(dateBuckets);
-			console.log(self.formattedCovidData);
-			self.animateCovid(self.formattedCovidData);
+			// console.log(self.formattedCovidData);
+			// self.animateCovid(self.formattedCovidData);
 			self.covidDistrictData = distMap;
 			self.dataRange = activeRange;
 			self.searchItems = Object.keys(self.heatmapDataMap);
-
+			// console.log(JSON.stringify(tempDistMap));
+			self.updateCounters();
 			self.timelineData = self.selectedCounter;
+			console.log(self.timelineData);
 		},
 
 		// searchGeoLocation (geoLocation) {
 		// 	this.getDistrictTimelineData(val);
 		// },
 
-		async getDistrictWiseDailyData() {
-			try {
-				let response = await getDistrictWiseDailyData();
-				return response;
-			} catch (e) {
-				console.error(e);
-			}
-		},
+		// async getDistrictWiseDailyData() {
+		// 	try {
+		// 		let response = await getDistrictWiseDailyData();
+		// 		return response;
+		// 	} catch (e) {
+		// 		console.error(e);
+		// 	}
+		// },
 
-		async getIndianCities() {
-			try {
-				let response = await getIndianCities();
-				return response;
-			} catch (e) {
-				console.error(e);
-			}
-		},
+		// async getIndianCities() {
+		// 	try {
+		// 		let response = await getIndianCities();
+		// 		return response;
+		// 	} catch (e) {
+		// 		console.error(e);
+		// 	}
+		// },
 
 		getDistrictTimelineData(dist) {
 			console.log(
@@ -273,11 +277,52 @@ export default {
 			);
 		},
 
+		updateCounters() {
+			let self = this;
+			self.clearCounters();
+			self.formattedCovidData.forEach(function (d) {
+				self.counters[0].data.push({
+					value: d.confirmed,
+				});
+				self.counters[1].data.push({
+					value: d.active,
+				});
+				self.counters[2].data.push({
+					value: d.deceased,
+				});
+				self.counters[3].data.push({
+					value: d.recovered,
+				});
+			});
+		},
+
+		clearCounters() {
+			this.counters[0].data = [];
+			this.counters[1].data = [];
+			this.counters[2].data = [];
+			this.counters[3].data = [];
+		},
+
+		startTimelineAnimation() {
+			this.animflag = true;
+			this.clearCounters();
+			this.animateCovid(this.formattedCovidData);
+		},
+
+		stopTimelineAnimation() {
+			let self = this;
+			self.animflag = false;
+			self.updateTimelineData();
+		},
+
 		animateCovid(covidData) {
 			let self = this;
 			let playIndex = 0;
 
 			function Play() {
+				if (!self.animflag) {
+					return;
+				}
 				if (!covidData[playIndex]) {
 					console.log(self.heatmapDataMap["mumbai"]);
 					return;

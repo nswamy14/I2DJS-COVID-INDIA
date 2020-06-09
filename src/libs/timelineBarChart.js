@@ -1,16 +1,28 @@
 import * as i2d from "i2djs";
-import * as d3 from "d3";
+// import * as d3 from "d3";
 export default function () {
+	let scaleRange = [0, 0];
+	let scaleDomain = [0, 0];
+	function scaleFun(count) {
+		return (
+			scaleRange[0] +
+			((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
+				(scaleRange[1] - scaleRange[0])
+		);
+	}
+
 	let Chart = function () {
-		this.heightScale = d3.scaleLinear().range([0, 0]).domain([0, 0]);
+		// this.heightScale = d3.scaleLinear().range([0, 0]).domain([0, 0]);
 	};
 	Chart.prototype.dataRange = function (range) {
-		this.heightScale.domain([0, range[1]]);
+		scaleDomain = [0, range[1]];
+		// this.heightScale.domain([0, range[1]]);
 	};
 	Chart.prototype.initialize = function (data) {
 		let self = this;
 		this.timelineLayer = i2d.canvasLayer("#timeline-container", {}, {});
-		this.heightScale.range([5, this.timelineLayer.height - 20]);
+		scaleRange = [5, this.timelineLayer.height - 20];
+		// this.heightScale.range([5, this.timelineLayer.height - 20]);
 		this.gradColor = this.timelineLayer.createLinearGradient({
 			x1: 0,
 			y1: 100,
@@ -57,15 +69,16 @@ export default function () {
 				update: function (nodes) {
 					nodes["rect"].forEach(function (d, i) {
 						this.setAttr("x", i * 7);
-						this.setAttr("y", -self.heightScale(d.value));
-						this.setAttr("height", self.heightScale(d.value));
+						this.setAttr("y", -scaleFun(d.value));
+						this.setAttr("height", scaleFun(d.value));
 					});
 				},
 			},
 		});
+
+		this.barHref.update();
 	};
 	Chart.prototype.update = function (data) {
-		// console.log(data);
 		this.barHref.join(data);
 		this.barHref.update();
 	};
