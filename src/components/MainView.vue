@@ -1,54 +1,72 @@
 <template>
 	<div>
-		<v-app-bar :dark="!$vuetify.theme.dark" :light="$vuetify.theme.dark"
-				   app
-				   color="deep-orange"
-				   elevate-on-scroll>
-			<v-img alt="I2Djs Covid India logo"
-				   class="mr-4"
-				   contain
-				   max-height="50px"
-				   max-width="50px"
-				   src="~assets/img/logo.png">
+		<v-app-bar
+			:dark="!$vuetify.theme.dark"
+			:light="$vuetify.theme.dark"
+			app
+			color="deep-orange"
+			elevate-on-scroll
+		>
+			<v-img
+				alt="I2Djs Covid India logo"
+				class="mr-4"
+				contain
+				max-height="50px"
+				max-width="50px"
+				src="~assets/img/logo.png"
+			>
 			</v-img>
-			<v-toolbar-title class="mr-auto">District Level Impact Of Covid-19 In India</v-toolbar-title>
+			<v-toolbar-title class="mr-auto"
+				>District Level Impact Of Covid-19 In India
+			</v-toolbar-title>
 			<v-spacer></v-spacer>
-			<v-autocomplete :items="searchItems"
-							chips
-							class="ml-4"
-							clearable
-							hide-details
-							hide-selected
-							label="Search by State or District"
-							prepend-inner-icon="$mapSearch"
-							solo
-							v-model="search">
-			</v-autocomplete>
-			<v-select :items="counters"
-					  :menu-props="{offsetY: true}"
-					  class="ml-4 counters"
-					  hide-details
-					  item-text="label"
-					  item-value="key"
-					  label="Chips"
-					  return-object
-					  solo
-					  v-model="selectedCounter">
-			</v-select>
+			<template v-slot:extension>
+				<v-autocomplete
+					:items="searchItems"
+					chips
+					class="ml-4 search"
+					clearable
+					hide-details
+					hide-selected
+					label="Search by State or District"
+					prepend-inner-icon="$mapSearch"
+					solo
+					v-model="search"
+				>
+				</v-autocomplete>
+				<v-select
+					:items="counters"
+					:menu-props="{ offsetY: true }"
+					class="ml-4 counters"
+					hide-details
+					item-text="label"
+					item-value="key"
+					label="Chips"
+					return-object
+					solo
+					v-model="selectedCounter"
+				>
+				</v-select>
+			</template>
 		</v-app-bar>
 		<v-content>
-			<v-container fluid class="fill-height">
+			<v-container class="fill-height" fluid>
 				<div class="map-container">
-					<map-container :covidDistrictData="covidDistrictData"
-								   :dataRange="dataRange"
-								   :dataType="dataType"
-								   id="map-container"
-								   v-if="covidDistrictData.length !== 0">
+					<map-container
+						:covidDistrictData="covidDistrictData"
+						:dataRange="dataRange"
+						:dataType="dataType"
+						id="map-container"
+						v-if="covidDistrictData.length !== 0"
+					>
 					</map-container>
 				</div>
 				<div class="timeline-container">
-					<timeline-view :timelineData="timelineData" id="timeline-container"
-								   v-if="timelineData.data.length !== 0">
+					<timeline-view
+						:timelineData="timelineData"
+						id="timeline-container"
+						v-if="timelineData.data.length !== 0"
+					>
 					</timeline-view>
 				</div>
 				<!--			<district-view class="info-window"></district-view>-->
@@ -61,79 +79,101 @@
 </template>
 
 <script>
-import DistrictView from './DistrictView';
-import TimelineView from './TimelineView';
-import CountersView from './CountersView';
-import MapContainer from './MapContainer';
-import IndianCities from '@/assets/data/IndianCitiesLatLong';
-import { getDistrictWiseDailyData } from '@/api/CovidServices';
+import TimelineView from "./TimelineView";
+import MapContainer from "./MapContainer";
+import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
 
 export default {
-	name: 'MainView',
-	components: { DistrictView, TimelineView, CountersView, MapContainer },
-	data () {
+	name: "MainView",
+	components: { TimelineView, MapContainer },
+	data() {
 		return {
-			search: 'Bellary',
-			searchItems: ['Bellary'],
+			search: "Bellary",
+			searchItems: ["Bellary"],
 			selectedCounter: {},
-			counters: [{
-				label: 'Confirmed', key: 'confirmed', data: [], color: '#ff3d3d', scale: [Infinity, -Infinity]
-			}, {
-				label: 'Active', key: 'active', data: [], color: '#36a4ff', scale: [Infinity, -Infinity]
-			}, {
-				label: 'Deceased', key: 'death', data: [], color: '#dba9a9', scale: [Infinity, -Infinity]
-			}, {
-				label: 'Recovered', key: 'recovered', data: [], color: '#0be059', scale: [Infinity, -Infinity]
-			}],
+			counters: [
+				{
+					label: "Confirmed",
+					key: "confirmed",
+					data: [],
+					color: "#ff3d3d",
+					scale: [Infinity, -Infinity],
+				},
+				{
+					label: "Active",
+					key: "active",
+					data: [],
+					color: "#36a4ff",
+					scale: [Infinity, -Infinity],
+				},
+				{
+					label: "Deceased",
+					key: "death",
+					data: [],
+					color: "#dba9a9",
+					scale: [Infinity, -Infinity],
+				},
+				{
+					label: "Recovered",
+					key: "recovered",
+					data: [],
+					color: "#0be059",
+					scale: [Infinity, -Infinity],
+				},
+			],
 			covidDistrictData: [],
 			heatmapDataMap: {},
 			dataRange: [],
 			timelineData: {
-				data: []
+				data: [],
 			},
 			formattedCovidData: [],
-			dataType: 'Active'
+			dataType: "Active",
 		};
 	},
 
 	watch: {
-		selectedCounter (val) {
+		selectedCounter(val) {
 			// N: Change it to key
 			this.dataType = val.label;
 			this.timelineData = val;
 		},
 
-		search (val) {
+		search(val) {
 			this.getDistrictTimelineData(val);
-		}
+		},
 	},
 
-	mounted () {
+	mounted() {
 		this.selectedCounter = this.counters[0];
 		this.initialize();
 	},
 
 	methods: {
-		async initialize () {
+		async initialize() {
 			let self = this;
 
-			let covidData = await this.getDistrictWiseDailyData();
+			let [IndianCities, covidData] = Promise.all(
+				await this.getIndianCities(),
+				await this.getDistrictWiseDailyData()
+			);
 
 			let activeRange = [Infinity, -Infinity];
 			let dateBuckets = {};
 			let distMap = [];
-			let count = 0;
 
 			for (let state in covidData.districtsDaily) {
-				let state_val = covidData.districtsDaily[state];
-				for (let dis in state_val) {
-					let dis_val = state_val[dis];
+				let stateVal = covidData.districtsDaily[state];
+				for (let dis in stateVal) {
+					let disVal = stateVal[dis];
 					let disLow = dis.toLowerCase();
-					dis_val.forEach(function (dt) {
+					disVal.forEach(function (dt) {
 						dt.visible = false;
 					});
 					// console.log(disLow);
-					let dd = IndianCities[disLow] || IndianCities[state.toLowerCase()];
+					let dd =
+						IndianCities[disLow] ||
+						IndianCities[state.toLowerCase()];
 					//  || (IndianCities[state.toLowerCase()])
 					if (IndianCities[disLow]) {
 						let d = {
@@ -143,13 +183,13 @@ export default {
 							confirmed: 0,
 							recovered: 0,
 							longitude: dd.longitude,
-							latitude: dd.latitude
+							latitude: dd.latitude,
 						};
 
 						distMap.push(d);
 						self.heatmapDataMap[d.name] = d;
 
-						dis_val.forEach(function (d) {
+						disVal.forEach(function (d) {
 							if (!dateBuckets[d.date]) {
 								dateBuckets[d.date] = [];
 							}
@@ -159,14 +199,20 @@ export default {
 							if (Math.sqrt(d.active) > activeRange[1]) {
 								activeRange[1] = Math.sqrt(d.active);
 							}
-							if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
+							if (
+								Math.sqrt(d.active) <= activeRange[0] &&
+								d.active > 0
+							) {
 								activeRange[0] = Math.sqrt(d.active);
 							}
 						});
 					} else {
-						if (dis_val[dis_val.length - 1].active > 0) {
-							count += 1;
-							console.log(disLow, dis_val[dis_val.length - 1].active, state);
+						if (disVal[disVal.length - 1].active > 0) {
+							console.log(
+								disLow,
+								disVal[disVal.length - 1].active,
+								state
+							);
 						}
 					}
 				}
@@ -180,7 +226,7 @@ export default {
 			self.timelineData = self.selectedCounter;
 		},
 
-		async getDistrictWiseDailyData () {
+		async getDistrictWiseDailyData() {
 			try {
 				let response = await getDistrictWiseDailyData();
 				return response;
@@ -189,47 +235,61 @@ export default {
 			}
 		},
 
-		getDistrictTimelineData (dist) {
-			console.log(this.formattedCovidData.map(function (d) {
-				return d.filter(function (d) {
-					return d.name === dist;
-				});
-			}));
+		async getIndianCities() {
+			try {
+				let response = await getIndianCities();
+				return response;
+			} catch (e) {
+				console.error(e);
+			}
 		},
 
-		animateCovid (covidData) {
+		getDistrictTimelineData(dist) {
+			console.log(
+				this.formattedCovidData.map(function (d) {
+					return d.filter(function (d) {
+						return d.name === dist;
+					});
+				})
+			);
+		},
+
+		animateCovid(covidData) {
 			let self = this;
 			let playIndex = 0;
 
-			function Play () {
+			function Play() {
 				if (!covidData[playIndex]) {
 					return;
 				}
 				let currData = covidData[playIndex];
 
 				self.counters[0].data.push({
-					value: currData.confirmed
+					value: currData.confirmed,
 				});
 
 				self.counters[1].data.push({
-					value: currData.active
+					value: currData.active,
 				});
 
 				self.counters[2].data.push({
-					value: currData.deceased
+					value: currData.deceased,
 				});
 
 				self.counters[3].data.push({
-					value: currData.recovered
+					value: currData.recovered,
 				});
 
 				let distList = currData.distList;
 				distList.forEach(function (item) {
-					if (self.heatmapDataMap[item['dis']]) {
-						self.heatmapDataMap[item['dis']].active = item.active;
-						self.heatmapDataMap[item['dis']].confirmed = item.confirmed;
-						self.heatmapDataMap[item['dis']].deceased = item.deceased;
-						self.heatmapDataMap[item['dis']].recovered = item.recovered;
+					if (self.heatmapDataMap[item["dis"]]) {
+						self.heatmapDataMap[item["dis"]].active = item.active;
+						self.heatmapDataMap[item["dis"]].confirmed =
+							item.confirmed;
+						self.heatmapDataMap[item["dis"]].deceased =
+							item.deceased;
+						self.heatmapDataMap[item["dis"]].recovered =
+							item.recovered;
 					}
 				});
 
@@ -240,7 +300,7 @@ export default {
 			Play();
 		},
 
-		formatData (dateBuckets) {
+		formatData(dateBuckets) {
 			let self = this;
 			let dtKeys = Object.keys(dateBuckets);
 			let dateData = [];
@@ -253,15 +313,15 @@ export default {
 					active: 0,
 					recovered: 0,
 					deceased: 0,
-					distList: curr
+					distList: curr,
 				};
-				let barData = curr.reduce(function (p, c) {
-					p.active += c.active;
-					p.recovered += c.recovered;
-					p.deceased += c.deceased;
-					p.confirmed += c.confirmed;
-					return p;
-				}, dataObj);
+				// let barData = curr.reduce(function (p, c) {
+				// 	p.active += c.active;
+				// 	p.recovered += c.recovered;
+				// 	p.deceased += c.deceased;
+				// 	p.confirmed += c.confirmed;
+				// 	return p;
+				// }, dataObj);
 
 				confirmScale[0] = Math.min(confirmScale[0], dataObj.confirmed);
 				confirmScale[1] = Math.max(confirmScale[1], dataObj.confirmed);
@@ -278,26 +338,30 @@ export default {
 			});
 
 			return dateData;
-		}
-	}
+		},
+	},
 };
 </script>
 <style scoped>
-	.counters {
-		max-width: 150px;
-	}
+.counters {
+	max-width: 150px;
+}
 
-	.map-container {
-		flex: 1 1 70%;
-		height: 100%;
-		width: 100%;
-	}
+.search {
+	max-width: 300px;
+}
 
-	.timeline-container {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		height: 100px;
-	}
+.map-container {
+	flex: 1 1 70%;
+	height: 100%;
+	width: 100%;
+}
+
+.timeline-container {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100px;
+}
 </style>
