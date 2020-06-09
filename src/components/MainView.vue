@@ -16,38 +16,36 @@
 				src="~assets/img/logo.png"
 			>
 			</v-img>
-			<v-toolbar-title class="mr-auto"
-				>District Level Impact Of Covid-19 In India
+			<v-toolbar-title class="mr-auto">
+				District Level Impact Of Covid-19 In India
 			</v-toolbar-title>
 			<v-spacer></v-spacer>
-			<template v-slot:extension>
-				<v-autocomplete
-					:items="searchItems"
-					chips
-					class="ml-4 search"
-					clearable
-					hide-details
-					hide-selected
-					label="Search by State or District"
-					prepend-inner-icon="$mapSearch"
-					solo
-					v-model="search"
-				>
-				</v-autocomplete>
-				<v-select
-					:items="counters"
-					:menu-props="{ offsetY: true }"
-					class="ml-4 counters"
-					hide-details
-					item-text="label"
-					item-value="key"
-					label="Chips"
-					return-object
-					solo
-					v-model="selectedCounter"
-				>
-				</v-select>
-			</template>
+			<v-autocomplete
+				:items="searchItems"
+				chips
+				class="ml-4 search"
+				clearable
+				hide-details
+				hide-selected
+				label="Search by State or District"
+				prepend-inner-icon="$mapSearch"
+				solo
+				v-model="search"
+			>
+			</v-autocomplete>
+			<v-select
+				:items="counters"
+				:menu-props="{ offsetY: true }"
+				class="ml-4 counters"
+				hide-details
+				item-text="label"
+				item-value="key"
+				label="Chips"
+				return-object
+				solo
+				v-model="selectedCounter"
+			>
+			</v-select>
 		</v-app-bar>
 		<v-content>
 			<v-container class="fill-height" fluid>

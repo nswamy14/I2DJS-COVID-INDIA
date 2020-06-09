@@ -8710,9 +8710,9 @@ vm-browserify@^1.0.1:
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
 vue-cli-plugin-vuetify-preset-responsive@~0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-vuetify-preset-responsive/-/vue-cli-plugin-vuetify-preset-responsive-0.0.1.tgz#41a089ae67f6102d825462bf44503009a8e59b5a"
-  integrity sha512-9zrU3/X9ASj98EsPG2Z+aUZz4AJLxDwYOsfEE8PMRInW57KjgD7rdFSlYjZXWEFFDQ5/sdb64ft0AtgMY7pqMQ==
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-vuetify-preset-responsive/-/vue-cli-plugin-vuetify-preset-responsive-0.0.2.tgz#692dbeb61e2b372e9603e5c4bf5881bd1c680893"
+  integrity sha512-dfALgDIckCnepMmrkTnndxQIGqlWCyXRd1h090Zaw0g/5RmJyisgGCMGGvY+XMi5HlIlZ+b0ETQrS4U8nKEoEg==
   dependencies:
     "@vuetify/cli-plugin-utils" "^0.0.4"
 
