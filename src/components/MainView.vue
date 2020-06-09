@@ -61,14 +61,14 @@
           </map-container>
         </div>
         <div class="timeline-container">
-          <timeline-view
-            :timelineData="timelineData"
-            id="timeline-container"
-            v-if="timelineData.data.length !== 0"
-          >
-          </timeline-view>
+          <!--          <timeline-view-->
+          <!--            :timelineData="timelineData"-->
+          <!--            id="timeline-container"-->
+          <!--            v-if="timelineData.data.length !== 0"-->
+          <!--          >-->
+          <!--          </timeline-view>-->
         </div>
-        <!--        			<district-view class="info-window"></district-view>-->
+        <district-view class="info-window"></district-view>
       </v-container>
     </v-content>
     <v-footer app class="footer-content justify-center">
@@ -141,7 +141,7 @@ export default {
   watch: {
     selectedCounter(val) {
       // N: Change it to key
-      this.dataType = val.label;
+      //this.dataType = val.label;
       this.timelineData = val;
     },
 

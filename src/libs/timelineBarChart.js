@@ -11,17 +11,17 @@ export default function () {
     );
   }
   let Chart = function () {
-    //this.heightScale = d3.scaleLinear().range([0, 0]).domain([0, 0]);
+    // this.heightScale = d3.scaleLinear().range([0, 0]).domain([0, 0]);
   };
   Chart.prototype.dataRange = function (range) {
     scaleDomain = [0, range[1]];
-    //this.heightScale.domain([0, range[1]]);
+    // this.heightScale.domain([0, range[1]]);
   };
   Chart.prototype.initialize = function (data) {
     let self = this;
     this.timelineLayer = i2d.canvasLayer("#timeline-container", {}, {});
     scaleRange = [5, this.timelineLayer.height - 20];
-    //this.heightScale.range([5, this.timelineLayer.height - 20]);
+    // this.heightScale.range([5, this.timelineLayer.height - 20]);
     this.gradColor = this.timelineLayer.createLinearGradient({
       x1: 0,
       y1: 100,
