@@ -83,6 +83,7 @@ import MapContainer from "./MapContainer";
 import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
 import DistrictView from "./DistrictView";
+let test;
 
 export default {
   name: "MainView",
