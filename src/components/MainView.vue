@@ -68,7 +68,7 @@
           >
           </timeline-view>
         </div>
-<!--        			<district-view class="info-window"></district-view>-->
+        <!--        			<district-view class="info-window"></district-view>-->
       </v-container>
     </v-content>
     <v-footer app class="footer-content justify-center">
@@ -85,6 +85,7 @@ import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
 import DistrictView from "./DistrictView";
 let test;
 let test2;
+let test3;
 
 export default {
   name: "MainView",
