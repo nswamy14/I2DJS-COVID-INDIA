@@ -84,6 +84,7 @@ import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
 import DistrictView from "./DistrictView";
 let test;
+let test2;
 
 export default {
   name: "MainView",
