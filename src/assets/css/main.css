@@ -1,19 +1,19 @@
 html,
 body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    overflow: hidden;
-    scroll-behavior: smooth;
-    text-rendering: optimizeSpeed;
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  scroll-behavior: smooth;
+  text-rendering: optimizeSpeed;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
 }
 
 /*CSS DEFAULTS*/
@@ -21,12 +21,12 @@ body {
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 ul[class],
 ol[class] {
-    padding: 0;
+  padding: 0;
 }
 
 body,
@@ -43,43 +43,43 @@ figcaption,
 blockquote,
 dl,
 dd {
-    margin: 0;
+  margin: 0;
 }
 
 a:not([class]) {
-    text-decoration-skip-ink: auto;
+  text-decoration-skip-ink: auto;
 }
 
 img {
-    max-width: 100%;
-    display: block;
+  max-width: 100%;
+  display: block;
 }
 
 input,
 button,
 textarea,
 select {
-    font: inherit;
+  font: inherit;
 }
 
 :focus {
-    outline: 0;
+  outline: 0;
 }
 
 a {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 a:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 a.disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .viz-container {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
 }
