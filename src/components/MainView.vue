@@ -167,6 +167,9 @@ export default {
       },
       formattedCovidData: [],
       dataType: "Active",
+        animFlag: false,
+        districtInfo: {},
+        districtTimelineData: [],
     };
   },
 
@@ -361,14 +364,14 @@ export default {
     },
 
     startTimelineAnimation() {
-      this.animflag = true;
+      this.animFlag = true;
       this.clearCounters();
       this.animateCovid(this.formattedCovidData);
     },
 
     stopTimelineAnimation() {
       let self = this;
-      self.animflag = false;
+      self.animFlag = false;
       self.updateTimelineData();
     },
     animateCovid(covidData) {
@@ -376,7 +379,7 @@ export default {
       let playIndex = 0;
 
       function Play() {
-        if (!self.animflag) {
+        if (!self.animFlag) {
           return;
         }
         if (!covidData[playIndex]) {
