@@ -2,22 +2,25 @@ import * as i2d from "i2djs";
 // import * as d3 from "d3";
 export default function () {
   let scaleRange = [0, 0];
-	let scaleDomain = [0, 0];
-	function scaleFun(count) {
-		return (
-			scaleRange[0] +
-			((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
-				(scaleRange[1] - scaleRange[0])
-		);
-	}let Chart = function () {
+  let scaleDomain = [0, 0];
+  function scaleFun(count) {
+    return (
+      scaleRange[0] +
+      ((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
+        (scaleRange[1] - scaleRange[0])
+    );
+  }
+  let Chart = function () {
     //this.heightScale = d3.scaleLinear().range([0, 0]).domain([0, 0]);
   };
-  Chart.prototype.dataRange = function (range) {scaleDomain = [0, range[1]];
+  Chart.prototype.dataRange = function (range) {
+    scaleDomain = [0, range[1]];
     //this.heightScale.domain([0, range[1]]);
   };
   Chart.prototype.initialize = function (data) {
     let self = this;
-    this.timelineLayer = i2d.canvasLayer("#timeline-container", {}, {});scaleRange = [5, this.timelineLayer.height - 20];
+    this.timelineLayer = i2d.canvasLayer("#timeline-container", {}, {});
+    scaleRange = [5, this.timelineLayer.height - 20];
     //this.heightScale.range([5, this.timelineLayer.height - 20]);
     this.gradColor = this.timelineLayer.createLinearGradient({
       x1: 0,
@@ -72,9 +75,9 @@ export default function () {
       },
     });
 
-  this.barHref.update();
-	};
-	Chart.prototype.update = function (data) {
+    this.barHref.update();
+  };
+  Chart.prototype.update = function (data) {
     this.barHref.join(data);
     this.barHref.update();
   };

@@ -57,8 +57,8 @@ export default {
       this.geoHeatmapInstance.dataType(this.dataType);
 
       this.geoHeatmapInstance.dataRange(this.dataRange);
-    this.geoHeatmapInstance.initialize(covidDistData);
-		},
+      this.geoHeatmapInstance.initialize(covidDistData);
+    },
 
     update() {
       this.geoHeatmapInstance.update();
