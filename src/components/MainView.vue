@@ -80,7 +80,7 @@
                       @click="stopTimelineAnimation"
                       class="play-btn"
               >
-                  <v-icon color="blue" size="6rem">
+                  <v-icon color="#7197b9" size="6rem">
                       $pauseCircle
                   </v-icon>
               </v-btn>
