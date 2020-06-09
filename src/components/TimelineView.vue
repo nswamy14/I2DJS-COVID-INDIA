@@ -1,41 +1,42 @@
 <template>
-  <div class="viz-container"></div>
+	<div class="viz-container"></div>
 </template>
 
 <script>
-import timelineBarChart from './../libs/timelineBarChart.js';
+import timelineBarChart from "./../libs/timelineBarChart.js";
 export default {
-	name: 'TimelineView',
-	data () {
+	name: "TimelineView",
+	data() {
 		return {};
 	},
 	props: {
 		timelineData: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
-	mounted () {
+	mounted() {
 		this.initialize(this.timelineData);
 	},
 	watch: {
 		timelineData: {
-			handler (val) {
+			handler(val) {
 				this.update();
 			},
-			deep: true
-		}
+			deep: true,
+		},
 	},
 	methods: {
-		initialize (data) {
+		initialize(data) {
 			console.log(this.timelineData);
 			this.timelineInstance = timelineBarChart();
 			this.timelineInstance.dataRange(this.timelineData.scale);
 			this.timelineInstance.initialize(this.timelineData.data);
 		},
-		update () {
+
+		update() {
 			this.timelineInstance.update(this.timelineData.data);
-		}
-	}
+		},
+	},
 };
 </script>

@@ -1,67 +1,67 @@
 <template>
-  <div class="viz-container"></div>
+	<div class="viz-container"></div>
 </template>
 
 <script>
-import geoHeatmap from './../libs/viz.js';
+import geoHeatmap from "./../libs/viz.js";
 export default {
-	name: 'MapContainer',
-	data () {
+	name: "MapContainer",
+	data() {
 		return {};
 	},
 	props: {
 		dataType: {
 			type: String,
-			required: true
+			required: true,
 		},
-    searchGeoLocation: {
-      type: Object,
-      required: false
-    },
+		searchGeoLocation: {
+			type: Object,
+			required: false,
+		},
 		covidDistrictData: {
 			type: Array,
-			required: true
+			required: true,
 		},
 		dataRange: {
 			type: Array,
-			required: true
-		}
+			required: true,
+		},
 	},
-	mounted () {
+	mounted() {
 		this.initialize(this.covidDistrictData);
 	},
 
 	watch: {
-    covidDistrictData: {
-			handler (val) {
+		covidDistrictData: {
+			handler(val) {
 				this.update();
 			},
-			deep: true
+			deep: true,
 		},
-    searchGeoLocation (val) {
-      this.geoHeatmapInstance.zoomToLocation(val);
-    },
-		dataRange (range) {
+		searchGeoLocation(val) {
+			this.geoHeatmapInstance.zoomToLocation(val);
+		},
+		dataRange(range) {
 			// console.log(range);
 			this.geoHeatmapInstance.dataRange(range);
 		},
-		dataType (val) {
+		dataType(val) {
 			this.geoHeatmapInstance.dataType(this.dataType);
 			this.geoHeatmapInstance.update();
-		}
+		},
 	},
 
 	methods: {
-    initialize (covidDistData) {
+		initialize(covidDistData) {
 			this.geoHeatmapInstance = geoHeatmap();
 			this.geoHeatmapInstance.dataType(this.dataType);
-      this.geoHeatmapInstance.initialize(covidDistData);
+			this.geoHeatmapInstance.initialize(covidDistData);
 			this.geoHeatmapInstance.dataRange(this.dataRange);
-    },
+		},
 
-		update () {
+		update() {
 			this.geoHeatmapInstance.update();
-		}
-	}
+		},
+	},
 };
 </script>

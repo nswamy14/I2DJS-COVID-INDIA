@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     height: 100%;
     width: 100%;
     margin: 0;
@@ -17,7 +18,9 @@ html, body {
 
 /*CSS DEFAULTS*/
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -73,7 +76,7 @@ a:hover {
 
 a.disabled {
     cursor: not-allowed;
-    opacity: .65;
+    opacity: 0.65;
 }
 
 .viz-container {
