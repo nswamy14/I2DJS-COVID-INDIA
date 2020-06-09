@@ -61,12 +61,12 @@
           </map-container>
         </div>
         <div class="timeline-container">
-          <!--          <timeline-view-->
-          <!--            :timelineData="timelineData"-->
-          <!--            id="timeline-container"-->
-          <!--            v-if="timelineData.data.length !== 0"-->
-          <!--          >-->
-          <!--          </timeline-view>-->
+          <timeline-view
+            :timelineData="timelineData"
+            id="timeline-container"
+            v-if="timelineData.data.length !== 0"
+          >
+          </timeline-view>
         </div>
         <district-view class="info-window"></district-view>
       </v-container>
@@ -83,10 +83,6 @@ import MapContainer from "./MapContainer";
 import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
 import DistrictView from "./DistrictView";
-let test;
-let test2;
-let test3;
-let test4;
 
 export default {
   name: "MainView",
@@ -141,7 +137,7 @@ export default {
   watch: {
     selectedCounter(val) {
       // N: Change it to key
-      //this.dataType = val.label;
+      this.dataType = val.label;
       this.timelineData = val;
     },
 
