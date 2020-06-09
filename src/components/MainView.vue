@@ -54,7 +54,8 @@
 						:covidDistrictData="covidDistrictData"
 						:dataRange="dataRange"
 						:dataType="dataType"
-						:searchGeoLocation="searchGeoLocation"id="map-container"
+						:searchGeoLocation="searchGeoLocation"
+						id="map-container"
 						v-if="covidDistrictData.length !== 0"
 					>
 					</map-container>
@@ -79,7 +80,7 @@
 <script>
 import TimelineView from "./TimelineView";
 import MapContainer from "./MapContainer";
-import pastCovidData from '@/assets/data/pastCovidData';
+import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
 
 export default {
@@ -87,9 +88,9 @@ export default {
 	components: { TimelineView, MapContainer },
 	data() {
 		return {
-			search: '',
+			search: "",
 			searchGeoLocation: {},
-			searchItems: ['Ballari', 'Jodhpur'],
+			searchItems: ["Ballari", "Jodhpur"],
 			selectedCounter: {},
 			counters: [
 				{
@@ -143,7 +144,7 @@ export default {
 			if (val && this.heatmapDataMap[val.toLowerCase()]) {
 				this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
 			} else {
-				this.searchGeoLocation = '';
+				this.searchGeoLocation = "";
 			}
 			// this.searchGeoLocation(val);
 		},
@@ -158,16 +159,16 @@ export default {
 		async initialize() {
 			let self = this;
 
-			let [IndianCities, covidData] = Promise.all(
-				await this.getIndianCities(),
-				await this.getDistrictWiseDailyData()
-			);
+			let [IndianCities, covidData] = await Promise.all([
+				this.getIndianCities(),
+				this.getDistrictWiseDailyData(),
+			]);
 
 			let activeRange = [Infinity, -Infinity];
 			let dateBuckets = {};
 			let distMap = [];
 
-			let pastData = pastCovidData['districtsDaily'];
+			let pastData = pastCovidData["districtsDaily"];
 			let visitedStates = {};
 			for (let state in covidData.districtsDaily) {
 				visitedStates[state] = {};
@@ -220,7 +221,11 @@ export default {
 					} else {
 						if (disVal[disVal.length - 1].active > 0) {
 							// count += 1;
-							console.log(disLow, disVal[disVal.length - 1].active, state);
+							console.log(
+								disLow,
+								disVal[disVal.length - 1].active,
+								state
+							);
 						}
 					}
 				}
@@ -274,7 +279,7 @@ export default {
 
 			function Play() {
 				if (!covidData[playIndex]) {
-					console.log(self.heatmapDataMap['mumbai']);
+					console.log(self.heatmapDataMap["mumbai"]);
 					return;
 				}
 				let currData = covidData[playIndex];

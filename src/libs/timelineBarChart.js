@@ -44,7 +44,7 @@ export default function () {
 							x: 0,
 							y: 5,
 							height: 0,
-							width: 5
+							width: 5,
 						},
 						style: {
 							fillStyle: self.gradColor,

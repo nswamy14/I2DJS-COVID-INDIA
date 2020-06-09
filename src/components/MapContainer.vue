@@ -15,9 +15,10 @@ export default {
 			required: true,
 		},
 		searchGeoLocation: {
-      type: Object,
-      required: false
-    },covidDistrictData: {
+			type: Object,
+			required: false,
+		},
+		covidDistrictData: {
 			type: Array,
 			required: true,
 		},
@@ -37,9 +38,10 @@ export default {
 			},
 			deep: true,
 		},
-		searchGeoLocation (val) {
-      this.geoHeatmapInstance.zoomToLocation(val);
-    },dataRange(range) {
+		searchGeoLocation(val) {
+			this.geoHeatmapInstance.zoomToLocation(val);
+		},
+		dataRange(range) {
 			// console.log(range);
 			this.geoHeatmapInstance.dataRange(range);
 		},
@@ -51,7 +53,6 @@ export default {
 
 	methods: {
 		initialize(covidDistData) {
-
 			this.geoHeatmapInstance = geoHeatmap();
 			this.geoHeatmapInstance.dataType(this.dataType);
 			this.geoHeatmapInstance.initialize(covidDistData);
