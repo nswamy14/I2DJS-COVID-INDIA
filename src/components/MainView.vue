@@ -68,7 +68,7 @@
           >
           </timeline-view>
         </div>
-        <!--			<district-view class="info-window"></district-view>-->
+<!--        			<district-view class="info-window"></district-view>-->
       </v-container>
     </v-content>
     <v-footer app class="footer-content justify-center">
@@ -82,10 +82,11 @@ import TimelineView from "./TimelineView";
 import MapContainer from "./MapContainer";
 import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
+import DistrictView from "./DistrictView";
 
 export default {
   name: "MainView",
-  components: { TimelineView, MapContainer },
+  components: { DistrictView, TimelineView, MapContainer },
   data() {
     return {
       search: "",
