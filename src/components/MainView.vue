@@ -86,6 +86,7 @@ import DistrictView from "./DistrictView";
 let test;
 let test2;
 let test3;
+let test4;
 
 export default {
   name: "MainView",
