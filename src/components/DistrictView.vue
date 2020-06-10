@@ -1,5 +1,5 @@
 <template>
-    <div class="toolbar-containerpx-4 py-2">
+    <v-card light class="mt-2">
         <div class="toolbar-header d-flex justify-center pb-2">
             {{ districtName | titleCase }}
         </div>
@@ -43,7 +43,7 @@
         <div class="toolbar-timeline-container pt-2">
             Timeline goes here
         </div>
-    </div>
+    </v-card>
 </template>
 
 <script>
@@ -103,10 +103,6 @@ export default {
 };
 </script>
 <style scoped>
-.toolbar-container {
-    border-radius: 1rem;
-}
-
 .toolbar-header {
     font-size: 1.3rem;
     font-weight: 500;

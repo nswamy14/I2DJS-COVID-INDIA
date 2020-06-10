@@ -1,54 +1,92 @@
 <template>
-    <div>
-        <v-app-bar
-            :dark="!$vuetify.theme.dark"
-            :light="$vuetify.theme.dark"
-            app
-            color="deep-orange"
-            elevate-on-scroll
-        >
-            <v-img
-                alt="I2Djs Covid India logo"
-                class="mr-4"
-                contain
-                max-height="50px"
-                max-width="50px"
-                src="~assets/img/logo.png"
-            >
-            </v-img>
-            <v-toolbar-title class="mr-auto">
-                District Level Impact Of Covid-19 In India
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-autocomplete
-                :items="searchItems"
-                chips
-                class="ml-4 search"
-                clearable
-                hide-details
-                hide-selected
-                label="Search by State or District"
-                prepend-inner-icon="$mapSearch"
-                solo
-                v-model="search"
-            >
-            </v-autocomplete>
-            <v-select
-                :items="counters"
-                :menu-props="{ offsetY: true }"
-                class="ml-4 counters"
-                hide-details
-                item-text="label"
-                item-value="key"
-                label="Chips"
-                return-object
-                solo
-                v-model="selectedCounter"
-            >
-            </v-select>
-        </v-app-bar>
+    <div class="main-container">
         <v-content>
             <v-container class="fill-height" fluid>
+                <div class="header--floater ma-4 d-flex align-center">
+                    <v-img
+                        alt="I2Djs Covid India logo"
+                        class="mr-4"
+                        contain
+                        max-height="4rem"
+                        max-width="4rem"
+                        src="~assets/img/logo.png"
+                    >
+                    </v-img>
+                    <div class="d-flex flex-column">
+                        <div class="title"><strong>COVID-19</strong> INDIA</div>
+                        <div class="subtitle-2 text--secondary">
+                            Showing district level data of
+                            <span
+                                class="font-weight-bold primary--text text-uppercase"
+                            >
+                                {{ selectedCounter.label }}
+                            </span>
+                            cases
+                        </div>
+                    </div>
+                </div>
+
+                <div class="counters--floater ma-4">
+                    <counters-view :counters="mainCounter"></counters-view>
+                </div>
+
+                <div class="info-window">
+                    <div class="toolbar d-flex align-center flex-wrap">
+                        <v-autocomplete
+                            :items="searchItems"
+                            light
+                            dense
+                            class="mr-2 search"
+                            clearable
+                            hide-details
+                            hide-selected
+                            label="Search by State or District"
+                            prepend-inner-icon="$mapSearch"
+                            :menu-props="{ light: true, nudgeBottom: 5 }"
+                            solo
+                            v-model="search"
+                        >
+                        </v-autocomplete>
+                        <v-menu :close-on-click="true">
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                    color="teal"
+                                    dark
+                                    width="8rem"
+                                    height="2.5rem"
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                    <span class="body-2">{{
+                                        selectedCounter.label
+                                    }}</span>
+                                </v-btn>
+                            </template>
+
+                            <v-list dense width="8rem" color="teal">
+                                <v-list-item
+                                    v-for="(item, index) in counters"
+                                    :key="index"
+                                    @click="selectedCounter = item"
+                                >
+                                    <v-list-item-title
+                                        class="body-2 text-uppercase"
+                                        >{{ item.label }}</v-list-item-title
+                                    >
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+                    </div>
+                    <v-expand-transition>
+                        <district-view
+                            v-if="search"
+                            :districtInfo="districtInfo"
+                            :districtTimelineData="districtTimelineData"
+                        >
+                        </district-view>
+                    </v-expand-transition>
+                </div>
+
                 <div class="map-container">
                     <map-container
                         :covidDistrictData="covidDistrictData"
@@ -60,30 +98,32 @@
                     >
                     </map-container>
                 </div>
-                <div class="counter-window">
-                    <counters-view :counters="mainCounter"></counters-view>
-                </div>
-                <div class="timeline-container px-2">
-                    <v-btn
-                        v-if="!animFlag"
-                        icon
-                        @click="startTimelineAnimation"
-                        class="play-btn"
-                    >
-                        <v-icon color="#7197b9" size="6rem">
-                            $playCircle
-                        </v-icon>
-                    </v-btn>
-                    <v-btn
-                        v-else
-                        icon
-                        @click="stopTimelineAnimation"
-                        class="play-btn"
-                    >
-                        <v-icon color="#7197b9" size="6rem">
-                            $pauseCircle
-                        </v-icon>
-                    </v-btn>
+
+                <div class="timeline-container--floater px-4 d-flex align-end">
+                    <v-fab-transition>
+                        <v-btn
+                            v-if="!animFlag"
+                            key="play"
+                            fab
+                            @click="startTimelineAnimation"
+                            color="black"
+                        >
+                            <v-icon color="orange" size="4rem">
+                                $playCircle
+                            </v-icon>
+                        </v-btn>
+                        <v-btn
+                            v-else
+                            fab
+                            key="pause"
+                            color="black"
+                            @click="stopTimelineAnimation"
+                        >
+                            <v-icon color="deep-orange" size="4rem">
+                                $pauseCircle
+                            </v-icon>
+                        </v-btn>
+                    </v-fab-transition>
                     <timeline-view
                         :timelineData="timelineData"
                         id="timeline-container"
@@ -91,23 +131,22 @@
                     >
                     </timeline-view>
                 </div>
-                <transition
-                    mode="out-in"
-                    enter-active-class="animated fadeIn speed-m"
-                    leave-active-class="animated fadeOut speed-m"
-                >
-                    <district-view
-                        v-if="search"
-                        :districtInfo="districtInfo"
-                        :districtTimelineData="districtTimelineData"
-                        class="info-window"
-                    >
-                    </district-view>
-                </transition>
             </v-container>
         </v-content>
-        <v-footer app class="footer-content justify-center">
-            <span class="subtitle-2"> Made with &#10084; in I2Djs</span>
+        <v-footer app class="justify-center transparent">
+            <span class="subtitle-2">
+                Made with
+                <span class="red--text text--darken-4">&#10084;</span> in
+                <a
+                    target="_blank"
+                    href="https://github.com/I2Djs/I2Djs"
+                    class=""
+                    >I2Djs
+                </a>
+            </span>
+            <span class="overline text--secondary time-container ma-2">
+                Last updated on {{ formattedDate }}
+            </span>
         </v-footer>
     </div>
 </template>
@@ -170,6 +209,7 @@ export default {
             animFlag: false,
             districtInfo: {},
             districtTimelineData: [],
+            lastUpdatedTime: new Date(),
         };
     },
 
@@ -200,6 +240,16 @@ export default {
                     data[data.length - 1] && data[data.length - 1].value;
             });
             return obj;
+        },
+
+        formattedDate() {
+            if (this.lastUpdatedTime) {
+                return `${this.lastUpdatedTime.getDate()}-${
+                    this.lastUpdatedTime.getMonth() + 1
+                }-${this.lastUpdatedTime.getFullYear()}`;
+            } else {
+                return "";
+            }
         },
     },
     mounted() {
@@ -475,51 +525,57 @@ export default {
 };
 </script>
 <style scoped>
-.counters {
-    max-width: 150px;
-}
-
-.search {
-    max-width: 300px;
-}
-
-.map-container {
-    flex: 1 1 70%;
+.main-container {
+    width: 100%;
     height: 100%;
-    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-flow: column nowrap;
 }
 
-.timeline-container {
+.main-container:hover {
+    overflow: auto;
+}
+
+.header--floater {
+    z-index: 1;
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
-    width: 100%;
-    height: 100px;
-    display: grid;
-    grid-template-columns: 6rem calc(100% - 7rem);
-    grid-gap: 1rem;
-    align-items: center;
 }
 
-.play-btn {
-    justify-self: center;
-}
-
-.counter-window {
+.counters--floater {
+    z-index: 1;
     position: absolute;
-    top: 2rem;
+    top: 0;
     right: 0;
-    width: 30rem;
-    height: auto;
 }
 
 .info-window {
     position: absolute;
-    bottom: 8rem;
-    left: 2rem;
-    width: 25rem;
-    height: 20rem;
-    /*background: hsla(0, 1%, 22%, 0.5);*/
-    background-color: hsla(0, 0%, 12%, 0.7);
+    z-index: 1;
+    top: 15vh;
+}
+
+.search {
+    max-width: 18rem;
+}
+
+.map-container {
+    height: 100%;
+    width: 100%;
+}
+
+.timeline-container--floater {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 5rem;
+}
+
+.time-container {
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <v-app class="app">
-        <router-view class="app-content"></router-view>
+        <router-view></router-view>
     </v-app>
 </template>
 
@@ -44,17 +44,8 @@ export default {
 .app {
     height: 100%;
     width: 100%;
-}
-
-.app-content {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-flow: column nowrap;
-}
-
-.app-content:hover {
-    overflow: auto;
+    background-color: #2d3436;
+    /*background-image: radial-gradient(315deg, #2d3436 0%, #000000 74%);*/
+    background: radial-gradient(#2d3436, #000000);
 }
 </style>
