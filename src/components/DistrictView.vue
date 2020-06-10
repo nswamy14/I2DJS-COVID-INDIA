@@ -4,41 +4,24 @@
 			{{ districtName | titleCase }}
 		</div>
 		<div class="d-flex flex-column">
-			<div class="ind-row-content">
-				<span class="d-flex justify-end active-label-color">
-					Active:
-				</span>
-				<span class="active-count-color toolbar-count">
-					{{ counterObj.Active }}
-				</span>
-			</div>
-
-			<div class="ind-row-content">
-				<span class="d-flex justify-end confirmed-label-color">
-					Confirmed:
-				</span>
-				<span class="confirmed-count-color toolbar-count">
-					{{ counterObj.Confirmed }}
-				</span>
-			</div>
-
-			<div class="ind-row-content">
-				<span class="d-flex justify-end death-label-color">
-					Death:
-				</span>
-				<span class="death-count-color toolbar-count">
-					{{ counterObj.Death }}
-				</span>
-			</div>
-
-			<div class="ind-row-content">
-				<span class="d-flex justify-end recovered-label-color">
-					Recovered:
-				</span>
-				<span class="recovered-count-color toolbar-count">
-					{{ counterObj.Recovered }}
-				</span>
-			</div>
+            <div v-for="counter in countersArr" :key="counter.key" class="ind-row-content">
+                <span :class="['d-flex', 'justify-end', counter.key + '-label-color']">
+                    {{ counter.label }}:
+                </span>
+                <div :class="counter.key + '-count-color'">
+                    <span class="toolbar-count">
+                        {{ counter.total }}
+                    </span>
+                    <template v-if="counter.increase">
+                        <v-icon size="1rem" :class="[counter.key + '-count-color', 'ml-n1']">
+                            $arrowUp
+                        </v-icon>
+                        <span class="ml-n1 font-min">
+                            {{ counter.increase || 0 }}
+                        </span>
+                    </template>
+                </div>
+            </div>
 		</div>
 		<div class="toolbar-timeline-container pt-2">
 			Timeline goes here
@@ -47,12 +30,14 @@
 </template>
 
 <script>
+import _ from "lodash";
+import { convertToIndianFormat } from "./helper";
 export default {
 	name: "DistrictView",
 	data() {
 		return {
 			districtName: "",
-			counterObj: {},
+            countersArr: [],
 		};
 	},
 	props: {
@@ -89,15 +74,40 @@ export default {
 
 	methods: {
 		initializeDistrictData() {
-			console.log(this.districtInfo);
 			let districtInfo = this.districtInfo || {};
+			let length = this.districtTimelineData.length;
+			let previousDayRecord = (this.districtTimelineData[length - 2] &&
+                    this.districtTimelineData[length - 2][0]) || {};
+			if (_.isEmpty(previousDayRecord)) {
+                previousDayRecord = {
+                    'confirmed': 0,
+                    'active': 0,
+                    'death': 0,
+                    'recovered': 0
+                };
+            }
 			this.districtName = districtInfo.dis;
-			this.counterObj = {
-				Active: districtInfo.active,
-				Confirmed: districtInfo.confirmed,
-				Death: districtInfo.deceased,
-				Recovered: districtInfo.recovered,
-			};
+			this.countersArr = [{
+                'label': 'Confirmed',
+                'key': 'confirmed',
+                'total': convertToIndianFormat(districtInfo.confirmed),
+                'increase': convertToIndianFormat(districtInfo.confirmed - previousDayRecord.confirmed)
+            }, {
+			    'label': 'Active',
+                'key': 'active',
+                'total': convertToIndianFormat(districtInfo.active),
+                'increase': convertToIndianFormat(districtInfo.active - previousDayRecord.active)
+            }, {
+                'label': 'Deceased',
+                'key': 'death',
+                'total': convertToIndianFormat(districtInfo.deceased),
+                'increase': convertToIndianFormat(districtInfo.deceased - previousDayRecord.deceased)
+            }, {
+			    'label': 'Recovered',
+                'key': 'recovered',
+                'total': convertToIndianFormat(districtInfo.recovered),
+                'increase': convertToIndianFormat(districtInfo.recovered - previousDayRecord.recovered)
+            }];
 		},
 	},
 };
@@ -153,6 +163,10 @@ export default {
 }
 
 .toolbar-count {
-	font-weight: bold;
+	/*font-weight: bold;*/
+}
+
+.font-min {
+    font-size: 0.8rem;
 }
 </style>
