@@ -1,5 +1,5 @@
 <template>
-  <div>
+    <div>
     <v-app-bar
       :dark="!$vuetify.theme.dark"
       :light="$vuetify.theme.dark"
@@ -60,15 +60,50 @@
           >
           </map-container>
         </div>
-        <div class="timeline-container">
-          <timeline-view
-            :timelineData="timelineData"
-            id="timeline-container"
-            v-if="timelineData.data.length !== 0"
+          <div class="counter-window">
+              <counters-view :counters="mainCounter"></counters-view>
+          </div>
+          <div class="timeline-container px-2">
+              <v-btn
+                      v-if="!animFlag"
+                      icon
+                      @click="startTimelineAnimation"
+                      class="play-btn"
+              >
+                  <v-icon color="#7197b9" size="6rem">
+                      $playCircle
+                  </v-icon>
+              </v-btn>
+              <v-btn
+                      v-else
+                      icon
+                      @click="stopTimelineAnimation"
+                      class="play-btn"
+              >
+                  <v-icon color="#7197b9" size="6rem">
+                      $pauseCircle
+                  </v-icon>
+              </v-btn>
+              <timeline-view
+                      :timelineData="timelineData"
+                      id="timeline-container"
+                      v-if="timelineData.data.length !== 0"
+              >
+              </timeline-view>
+          </div>
+          <transition
+                  mode="out-in"
+                  enter-active-class="animated fadeIn speed-m"
+                  leave-active-class="animated fadeOut speed-m"
           >
-          </timeline-view>
-        </div>
-        <district-view class="info-window"></district-view>
+              <district-view
+                      v-if="search"
+                      :districtInfo="districtInfo"
+                      :districtTimelineData="districtTimelineData"
+                      class="info-window"
+              >
+              </district-view>
+          </transition>
       </v-container>
     </v-content>
     <v-footer app class="footer-content justify-center">
@@ -80,13 +115,14 @@
 <script>
 import TimelineView from "./TimelineView";
 import MapContainer from "./MapContainer";
+import DistrictView from "./DistrictView";
+import CountersView from "./CountersView";
 import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
-import DistrictView from "./DistrictView";
 
 export default {
   name: "MainView",
-  components: { DistrictView, TimelineView, MapContainer },
+  components: { DistrictView, TimelineView, MapContainer, CountersView },
   data() {
     return {
       search: "",
@@ -131,6 +167,9 @@ export default {
       },
       formattedCovidData: [],
       dataType: "Active",
+        animFlag: false,
+        districtInfo: {},
+        districtTimelineData: [],
     };
   },
 
@@ -144,12 +183,25 @@ export default {
     search(val) {
       if (val && this.heatmapDataMap[val.toLowerCase()]) {
         this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
+        this.getDistrictTimelineData(val.toLowerCase());
       } else {
         this.searchGeoLocation = "";
       }
       // this.searchGeoLocation(val);
     },
   },
+
+    computed: {
+        mainCounter() {
+            let obj = {};
+            this.counters.forEach((counter) => {
+                let data = counter.data || [];
+                obj[counter.label] =
+                        data[data.length - 1] && data[data.length - 1].value;
+            });
+            return obj;
+        },
+    },
 
   mounted() {
     this.selectedCounter = this.counters[1];
@@ -266,15 +318,24 @@ export default {
       }
     },
 
-    getDistrictTimelineData(dist) {
-      console.log(
-        this.formattedCovidData.map(function (d) {
-          return d.filter(function (d) {
-            return d.name === dist;
+      getDistrictTimelineData(dist) {
+          let data = this.formattedCovidData.map((date) => {
+              return date["distList"].filter((distObj) => {
+                  return distObj["dis"] === dist;
+              });
           });
-        })
-      );
-    },
+          data = data.filter((d) => d.length !== 0);
+          if (data.length !== 0) {
+              this.districtInfo =
+                      data[data.length - 1] && data[data.length - 1][0];
+              this.districtTimelineData = data;
+          } else {
+              this.districtInfo = {
+                  dis: dist,
+              };
+              this.districtTimelineData = [];
+          }
+      },
 
     updateCounters() {
       let self = this;
@@ -303,14 +364,14 @@ export default {
     },
 
     startTimelineAnimation() {
-      this.animflag = true;
+      this.animFlag = true;
       this.clearCounters();
       this.animateCovid(this.formattedCovidData);
     },
 
     stopTimelineAnimation() {
       let self = this;
-      self.animflag = false;
+      self.animFlag = false;
       self.updateTimelineData();
     },
     animateCovid(covidData) {
@@ -318,7 +379,7 @@ export default {
       let playIndex = 0;
 
       function Play() {
-        if (!self.animflag) {
+        if (!self.animFlag) {
           return;
         }
         if (!covidData[playIndex]) {
@@ -422,10 +483,36 @@ export default {
 }
 
 .timeline-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100px;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100px;
+	display: grid;
+	grid-template-columns: 6rem calc(100% - 7rem);
+	grid-gap: 1rem;
+	align-items: center;
+}
+
+.play-btn {
+	justify-self: center;
+}
+
+.counter-window {
+	position: absolute;
+	top: 2rem;
+	right: 0;
+	width: 30rem;
+	height: auto;
+}
+
+.info-window {
+	position: absolute;
+	bottom: 8rem;
+	left: 2rem;
+	width: 25rem;
+	height: 20rem;
+	/*background: hsla(0, 1%, 22%, 0.5);*/
+	background-color: hsla(0, 0%, 12%, 0.7);
 }
 </style>
