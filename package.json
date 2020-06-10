@@ -1,57 +1,61 @@
 {
-  "name": "i2djs-covid-india",
-  "version": "0.0.1",
-  "description": "Dashboard showcasing state and district wise impact of Covid-19 in India created using I2Djs",
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --modern",
-    "lint": "vue-cli-service lint",
-    "build-m": "vue-cli-service build",
-    "build-m-r": "vue-cli-service build --report",
-    "build-r": "vue-cli-service build --modern --report",
-    "dev": "vue-cli-service serve"
-  },
-  "dependencies": {
-    "axios": "^0.19.0",
-    "core-js": "^3.6.5",
-    "d3": "^5.12.0",
-    "i2djs": "git+https://github.com/I2Djs/I2Djs.git",
-    "lodash": "^4.17.15",
-    "vue": "^2.6.10",
-    "vue-router": "^3.1.3",
-    "vuetify": "^2.1.0"
-  },
-  "devDependencies": {
-    "@mdi/js": "^5.0.45",
-    "@vue/cli-plugin-babel": "^4.1.0",
-    "@vue/cli-plugin-eslint": "^4.1.0",
-    "@vue/cli-plugin-router": "^4.1.0",
-    "@vue/cli-service": "^4.1.0",
-    "@vue/eslint-config-standard": "^4.0.0",
-    "babel-eslint": "^10.0.3",
-    "eslint": "^5.16.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.3",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-vue": "^5.2.3",
-    "husky": "^4.2.5",
-    "lint-staged": ">=10",
-    "prettier": "2.0.5",
-    "sass": "^1.26.8",
-    "sass-loader": "^8.0.2",
-    "serve": "^11.3.2",
-    "vue-cli-plugin-vuetify": "^2.0.3",
-    "vue-cli-plugin-vuetify-preset-responsive": "~0.0.1",
-    "vue-template-compiler": "^2.6.10",
-    "vuetify-loader": "^1.3.0"
-  },
-  "license": "MIT",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{vue,js,jsx,ts,tsx,md,html,css,scss,sass}": ["eslint --cache --fix", "prettier --write"]
-  }
+	"name": "i2djs-covid-india",
+	"version": "0.0.1",
+	"description": "Dashboard showcasing state and district wise impact of Covid-19 in India created using I2Djs",
+	"scripts": {
+		"serve": "vue-cli-service serve",
+		"build": "vue-cli-service build --modern",
+		"lint": "vue-cli-service lint",
+		"build-m": "vue-cli-service build",
+		"build-m-r": "vue-cli-service build --report",
+		"build-r": "vue-cli-service build --modern --report",
+		"dev": "vue-cli-service serve"
+	},
+	"dependencies": {
+		"axios": "^0.19.0",
+		"core-js": "^3.6.5",
+		"d3": "^5.12.0",
+		"i2djs": "git+https://github.com/I2Djs/I2Djs.git",
+		"lodash": "^4.17.15",
+		"vue": "^2.6.10",
+		"vue-router": "^3.1.3",
+		"vuetify": "^2.1.0"
+	},
+	"devDependencies": {
+		"@mdi/js": "^5.0.45",
+		"@vue/cli-plugin-babel": "^4.1.0",
+		"@vue/cli-plugin-eslint": "^4.1.0",
+		"@vue/cli-plugin-router": "^4.1.0",
+		"@vue/cli-service": "^4.1.0",
+		"@vue/eslint-config-standard": "^4.0.0",
+		"babel-eslint": "^10.0.3",
+		"eslint": "^5.16.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-prettier": "^3.1.3",
+		"eslint-plugin-promise": "^4.2.1",
+		"eslint-plugin-vue": "^5.2.3",
+		"husky": "^4.2.5",
+		"lint-staged": ">=10",
+		"prettier": "2.0.5",
+		"sass": "^1.26.8",
+		"sass-loader": "^8.0.2",
+		"serve": "^11.3.2",
+		"vue-cli-plugin-vuetify": "^2.0.3",
+		"vue-cli-plugin-vuetify-preset-responsive": "~0.0.1",
+		"vue-template-compiler": "^2.6.10",
+		"vuetify-loader": "^1.3.0"
+	},
+	"license": "MIT",
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"lint-staged": {
+		"*.{vue,js}": [
+			"prettier --write",
+			"eslint --cache --fix"
+		],
+		"*.{html,css,scss,sass,md}": "prettier --write"
+	}
 }

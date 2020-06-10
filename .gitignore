@@ -26,3 +26,4 @@ info.log
 *.sw*
 
 /dist
+.eslintcache
