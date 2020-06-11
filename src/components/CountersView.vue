@@ -19,10 +19,20 @@
                     class="mt-n1 d-flex align-center"
                 >
                     <v-icon
+                        v-if="counter.direction === 'up'"
+                        key="up"
                         size="1rem"
                         :class="[counter.color + '--text', 'text--lighten-1']"
                     >
                         $arrowUp
+                    </v-icon>
+                    <v-icon
+                        v-else
+                        key="down"
+                        size="1rem"
+                        :class="[counter.color + '--text', 'text--lighten-1']"
+                    >
+                        $arrowDown
                     </v-icon>
                     <span
                         :class="[
@@ -50,6 +60,9 @@ export default {
 };
 </script>
 <style scoped>
+.counter-content {
+    height: 2rem;
+}
 .sparkline-chart {
     height: 2rem;
 }

@@ -120,7 +120,7 @@
                             @click="stopTimelineAnimation"
                         >
                             <v-icon color="deep-orange" size="4rem">
-                                $pauseCircle
+                                $stopCircle
                             </v-icon>
                         </v-btn>
                     </v-fab-transition>
@@ -130,6 +130,47 @@
                         v-if="timelineData.data.length !== 0"
                     >
                     </timeline-view>
+                </div>
+
+                <div class="btn-container">
+                    <div class="d-flex flex-column">
+                        <v-btn
+                            width="0.8rem"
+                            min-width="40"
+                            flat
+                            small
+                            @click="zoomIn"
+                            class="zoom-btn-class plus-class"
+                        >
+                            <v-icon>
+                                $plus
+                            </v-icon>
+                        </v-btn>
+                        <v-btn
+                            width="0.8rem"
+                            min-width="40"
+                            flat
+                            small
+                            @click="zoomOut"
+                            class="zoom-btn-class minus-class"
+                        >
+                            <v-icon>
+                                $minus
+                            </v-icon>
+                        </v-btn>
+                    </div>
+
+                    <v-btn
+                        width="0.8rem"
+                        min-width="40"
+                        small
+                        @click="zoomReset"
+                        class="mt-2"
+                    >
+                        <v-icon>
+                            $globe
+                        </v-icon>
+                    </v-btn>
                 </div>
             </v-container>
         </v-content>
@@ -248,7 +289,10 @@ export default {
                     label: counter.label,
                     key: counter.key,
                     total: convertToIndianFormat(total),
-                    increaseCount: convertToIndianFormat(increaseCount),
+                    direction: increaseCount < 0 ? "down" : "up",
+                    increaseCount: convertToIndianFormat(
+                        Math.abs(increaseCount)
+                    ),
                 });
             });
             return countersArr;
@@ -565,6 +609,12 @@ export default {
 
             return dateData;
         },
+
+        zoomIn() {},
+
+        zoomOut() {},
+
+        zoomReset() {},
     },
 };
 </script>
@@ -617,9 +667,27 @@ export default {
     height: 5rem;
 }
 
+.btn-container {
+    position: absolute;
+    right: 2rem;
+    top: 15rem;
+}
+
 .time-container {
     position: absolute;
     right: 0;
     top: 0;
+}
+
+.zoom-btn-class {
+    border: 1px solid hsl(0, 1%, 25%);
+}
+
+.plus-class {
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.minus-class {
+    border-radius: 0 0 0.25rem 0.25rem;
 }
 </style>
