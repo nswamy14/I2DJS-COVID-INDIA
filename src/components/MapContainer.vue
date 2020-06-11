@@ -64,7 +64,7 @@ export default {
             this.geoHeatmapInstance.dataRange(this.dataRange);
             this.geoHeatmapInstance.initialize(covidDistData);
             this.geoHeatmapInstance.showTooltip(this.showTooltip);
-            this.geoHeatmapInstance.hideToolTip(this.hideTooltip);
+            this.geoHeatmapInstance.hideTooltip(this.hideTooltip);
         },
 
         update() {

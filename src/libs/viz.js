@@ -106,29 +106,42 @@ export default function () {
         }
     };
 
+    // let prevZoom = {
+    // 	loc: null,
+    // 	transform: null
+    // };
     Chart.prototype.zoomToLocation = function (location) {
         let translate = this.zoomInstance.event.transform.translate;
-        let scale = this.zoomInstance.event.transform.scale[0];
+        let scale = this.zoomInstance.event.transform.scale[0]; // console.log(this.zoomInstance.event.transform.scale);
         if (location) {
             let xy = this.projection([location.longitude, location.latitude]);
+            console.log(scale, translate[0], translate[1]);
             xy[0] *= scale;
             xy[1] *= scale;
             xy[0] += translate[0];
             xy[1] += translate[1];
-            this.webglRenderer.scaleTo(8, xy);
+            // prevLoc = location;
+            // prevZoom.loc = location;
+            // prevZoom.scale = scale;this.webglRenderer.scaleTo(8, xy);
+            this.zoomInstance.zoomTarget(
+                this.projection([location.longitude, location.latitude])
+            );
         } else {
-            let xy = this.projection([78.96288, 20.593684]);
-            // xy[0] -= (translate[0]);
-            // xy[1] -= (translate[1]);
-            // xy[0] /= scale;
-            // xy[1] /= scale
-            this.webglRenderer.scaleTo(1, xy);
+            // this.createEl
+            this.webglRenderer.scaleTo(1, [
+                this.webglRenderer.width / 2,
+                this.webglRenderer.height / 2,
+            ]);
+            this.zoomInstance.zoomTarget([
+                this.webglRenderer.width / 2,
+                this.webglRenderer.height / 2,
+            ]);
         }
     };
 
     Chart.prototype.dataRange = function (range) {
         // heatmapLinearScale.domain(range);
-        scaleDomain = range;
+        // scaleDomain = range;
     };
 
     Chart.prototype.initialize = function (districtData) {
@@ -156,6 +169,7 @@ export default function () {
         function onZoom(event) {
             var scale = event.transform.scale[0];
             var sqrtScale = sqrt(1 / scale);
+            console.log(scale);
             self.geoGroup.setAttr("transform", event.transform);
             self.heatmapHref.setAttr("transform", event.transform);
             self.labelHref.setAttr("transform", event.transform);
@@ -367,9 +381,10 @@ export default function () {
                 enableResize: false,
             }
         );
+        this.webglRenderer = webglRenderer;
         let dimMin = Math.min(webglRenderer.width, webglRenderer.height);
         // heatmapLinearScale.range([dimMin * 0.01, dimMin * 0.1]);
-        scaleRange = [dimMin * 0.01, dimMin * 0.1];
+        // scaleRange = [dimMin * 0.01, dimMin * 0.1];
         webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
         self.zoomInstance.zoomTarget([
             webglRenderer.width / 2,
