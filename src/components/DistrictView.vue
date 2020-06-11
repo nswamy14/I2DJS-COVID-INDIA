@@ -1,23 +1,11 @@
 <template>
     <v-card light class="mt-2">
-        <div
-            class="toolbar-header d-flex justify-center pb-2 font-weight-bold secondary--text"
-        >
+        <div class="toolbar-header d-flex justify-center pb-2 font-weight-bold secondary--text">
             {{ districtName | titleCase }}
         </div>
         <div class="d-flex flex-column">
-            <div
-                v-for="counter in countersArr"
-                :key="counter.key"
-                class="ind-row-content"
-            >
-                <span
-                    :class="[
-                        'd-flex',
-                        'justify-end',
-                        counter.key + '-label-color',
-                    ]"
-                >
+            <div v-for="counter in countersArr" :key="counter.key" class="ind-row-content">
+                <span :class="['d-flex', 'justify-end', counter.key + '-label-color']">
                     {{ counter.label }}:
                 </span>
                 <div :class="counter.key + '-count-color'">
@@ -120,9 +108,7 @@ export default {
                     key: "confirmed",
                     total: convertToIndianFormat(districtInfo.confirmed),
                     direction:
-                        districtInfo.confirmed - previousDayRecord.confirmed < 0
-                            ? "down"
-                            : "up",
+                        districtInfo.confirmed - previousDayRecord.confirmed < 0 ? "down" : "up",
                     increase: convertToIndianFormat(
                         districtInfo.confirmed - previousDayRecord.confirmed
                     ),
@@ -131,22 +117,15 @@ export default {
                     label: "Active",
                     key: "active",
                     total: convertToIndianFormat(districtInfo.active),
-                    direction:
-                        districtInfo.active - previousDayRecord.active < 0
-                            ? "down"
-                            : "up",
-                    increase: convertToIndianFormat(
-                        districtInfo.active - previousDayRecord.active
-                    ),
+                    direction: districtInfo.active - previousDayRecord.active < 0 ? "down" : "up",
+                    increase: convertToIndianFormat(districtInfo.active - previousDayRecord.active),
                 },
                 {
                     label: "Deceased",
                     key: "death",
                     total: convertToIndianFormat(districtInfo.deceased),
                     direction:
-                        districtInfo.deceased - previousDayRecord.deceased < 0
-                            ? "down"
-                            : "up",
+                        districtInfo.deceased - previousDayRecord.deceased < 0 ? "down" : "up",
                     increase: convertToIndianFormat(
                         districtInfo.deceased - previousDayRecord.deceased
                     ),
@@ -156,9 +135,7 @@ export default {
                     key: "recovered",
                     total: convertToIndianFormat(districtInfo.recovered),
                     direction:
-                        districtInfo.recovered - previousDayRecord.recovered < 0
-                            ? "down"
-                            : "up",
+                        districtInfo.recovered - previousDayRecord.recovered < 0 ? "down" : "up",
                     increase: convertToIndianFormat(
                         districtInfo.recovered - previousDayRecord.recovered
                     ),

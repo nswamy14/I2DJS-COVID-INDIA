@@ -1,5 +1,5 @@
 <template functional>
-    <div class="d-flex">
+    <div class="d-flex justify-space-around">
         <div
             v-for="counter in props.counters"
             :key="counter.key"
@@ -8,38 +8,15 @@
             <span :class="[counter.color + '--text', 'text-uppercase']">
                 {{ counter.label }}
             </span>
-            <div
-                class="d-flex flex-column justify-start align-center counter-content body-2"
-            >
+            <div class="d-flex flex-column justify-start align-center counter-content body-2">
                 <span :class="[counter.color + '--text', 'text--lighten-1']">
                     {{ counter.total }}
                 </span>
-                <div
-                    v-if="counter.increaseCount"
-                    class="mt-n1 d-flex align-center"
-                >
-                    <v-icon
-                        v-if="counter.direction === 'up'"
-                        key="up"
-                        size="1rem"
-                        :class="[counter.color + '--text', 'text--lighten-1']"
-                    >
-                        $arrowUp
+                <div v-if="counter.increaseCount" class="mt-n1 d-flex align-center">
+                    <v-icon size="1rem" :class="[counter.color + '--text', 'text--accent-4']">
+                        {{ counter.direction === "up" ? "$arrowUp" : "$arrowDown" }}
                     </v-icon>
-                    <v-icon
-                        v-else
-                        key="down"
-                        size="1rem"
-                        :class="[counter.color + '--text', 'text--lighten-1']"
-                    >
-                        $arrowDown
-                    </v-icon>
-                    <span
-                        :class="[
-                            counter.color + '--text',
-                            'text--lighten-2 caption',
-                        ]"
-                    >
+                    <span :class="[counter.color + '--text', 'text--accent-4 caption']">
                         {{ counter.increaseCount }}
                     </span>
                 </div>

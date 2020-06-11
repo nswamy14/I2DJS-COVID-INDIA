@@ -1,10 +1,7 @@
 import { geoMercator, geoPath } from "d3";
 import * as i2d from "i2djs";
 import { vertexShader, fragmentShader } from "./shaders";
-import {
-    getIndianDistrictGeoJson,
-    getIndianStatesGeoJson,
-} from "@/api/CovidServices";
+import { getIndianDistrictGeoJson, getIndianStatesGeoJson } from "@/api/CovidServices";
 
 export default function () {
     // var heatmapLinearScale = d3.scaleLinear();
@@ -124,9 +121,7 @@ export default function () {
             // prevZoom.loc = location;
             // prevZoom.scale = scale;this.webglRenderer.scaleTo(8, xy);
             this.webglRenderer.scaleTo(8, xy);
-            this.zoomInstance.zoomTarget(
-                this.projection([location.longitude, location.latitude])
-            );
+            this.zoomInstance.zoomTarget(this.projection([location.longitude, location.latitude]));
         } else {
             // this.createEl
             this.webglRenderer.scaleTo(1, [
@@ -387,10 +382,7 @@ export default function () {
         // heatmapLinearScale.range([dimMin * 0.01, dimMin * 0.1]);
         scaleRange = [dimMin * 0.01, dimMin * 0.1];
         webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
-        self.zoomInstance.zoomTarget([
-            webglRenderer.width / 2,
-            webglRenderer.height / 2,
-        ]);
+        self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
         webglRenderer.on("zoom", self.zoomInstance);
         this.webglRenderer = webglRenderer;
         // var opacity = 1.0;
@@ -438,20 +430,7 @@ export default function () {
 
         var meshgeome = webglRenderer.MeshGeometry();
         meshgeome.setAttr("a_texCoord", {
-            value: new Float32Array([
-                0.0,
-                0.0,
-                1.0,
-                0.0,
-                0.0,
-                1.0,
-                0.0,
-                1.0,
-                1.0,
-                0.0,
-                1.0,
-                1.0,
-            ]),
+            value: new Float32Array([0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
             size: 2,
         });
         meshgeome.setDrawRange(0, 6);
