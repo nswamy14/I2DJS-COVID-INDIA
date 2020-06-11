@@ -1,23 +1,23 @@
 import {
+    mdiArrowDown,
     mdiArrowUp,
-    mdiCheckboxMarkedCircleOutline,
-    mdiMagnify,
+    mdiEarth,
     mdiMapSearch,
     mdiPause,
     mdiPlay,
     mdiPlus,
     mdiMinus,
-    mdiStopCircle,
+    mdiStop,
 } from "@mdi/js";
 
 export default {
+    arrowDown: mdiArrowDown,
     arrowUp: mdiArrowUp,
-    checkboxMarkedCircleOutline: mdiCheckboxMarkedCircleOutline,
+    globe: mdiEarth,
     mapSearch: mdiMapSearch,
     pause: mdiPause,
     play: mdiPlay,
     plus: mdiPlus,
     minus: mdiMinus,
-    search: mdiMagnify,
-    stopCircle: mdiStopCircle,
+    stop: mdiStop,
 };
