@@ -84,7 +84,9 @@ export default function () {
     var colorGradMap = ActiveColorGradMap;
     var heatmapShader;
     var dataType = "";
-    // var tooltip;
+    var showTooltipFunc;
+    var hideTooltipFunc;
+    // vartooltip;
     let Chart = function () {};
 
     Chart.prototype.dataType = function (val) {
@@ -494,11 +496,15 @@ export default function () {
                     })
                         .on("zoom", self.zoomInstance)
                         .on("mousemove", function (e) {
-                            // var d = this.data();
-                            // tooltip(d, e);
+                            var d = this.data();
+                            if (showTooltipFunc) {
+                                showTooltipFunc(d, e);
+                            }
                         })
                         .on("mouseout", function (e) {
-                            // tooltip();
+                            if (hideTooltipFunc) {
+                                hideTooltipFunc();
+                            }
                         });
                 },
                 update: function (nodes) {
@@ -586,6 +592,15 @@ export default function () {
         this.labelHref.update();
     };
 
+    Chart.prototype.showTooltip = function (_) {
+        showTooltipFunc = _;
+        return this;
+    };
+
+    Chart.prototype.hideTooltip = function (_) {
+        hideTooltipFunc = _;
+        return this;
+    };
     function getGradientImage() {
         var radialGrad = i2d.canvasLayer(null, {}, {});
         radialGrad.setPixelRatio(1);

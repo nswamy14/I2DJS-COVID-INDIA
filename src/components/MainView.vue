@@ -158,6 +158,7 @@ import DistrictView from "./DistrictView";
 import CountersView from "./CountersView";
 import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
+import { convertToIndianFormat } from "./helper";
 
 export default {
     name: "MainView",
@@ -233,13 +234,22 @@ export default {
 
     computed: {
         mainCounter() {
-            let obj = {};
+            let countersArr = [];
             this.counters.forEach((counter) => {
                 let data = counter.data || [];
-                obj[counter.label] =
-                    data[data.length - 1] && data[data.length - 1].value;
+                let total =
+                    (data[data.length - 1] && data[data.length - 1].value) || 0;
+                let previousDayCount =
+                    (data[data.length - 2] && data[data.length - 2].value) || 0;
+                let increaseCount = total - previousDayCount;
+                countersArr.push({
+                    label: counter.label,
+                    key: counter.key,
+                    total: convertToIndianFormat(total),
+                    increaseCount: convertToIndianFormat(increaseCount),
+                });
             });
-            return obj;
+            return countersArr;
         },
 
         formattedDate() {

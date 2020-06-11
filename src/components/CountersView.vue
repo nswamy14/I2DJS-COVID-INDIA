@@ -1,43 +1,42 @@
 <template functional>
-    <div class="d-flex">
+    <div v-if="props.counters" class="counters-container">
         <div
-            class="ind-counter pa-2 d-flex flex-column align-center justify-start subtitle-2"
+            v-for="counter in props.counters"
+            :key="counter.key"
+            class="ind-counter pa-2 d-flex flex-column align-center justify-start"
         >
-            <span class="red--text">CONFIRMED</span>
-            <span class="red--text text--lighten-1">
-                {{ props.counters && props.counters.Confirmed }}
+            <span :class="counter.key + '-label-color'">
+                {{ counter.label }}
             </span>
-            <div class="sparkline-chart"></div>
-        </div>
-
-        <div
-            class="ind-counter pa-2 d-flex flex-column align-center subtitle-2"
-        >
-            <span class="light-blue--text">ACTIVE</span>
-            <span class="light-blue--text text--lighten-1">
-                {{ props.counters && props.counters.Active }}
-            </span>
-            <div class="sparkline-chart"></div>
-        </div>
-
-        <div
-            class="ind-counter pa-2 d-flex flex-column align-center subtitle-2"
-        >
-            <span class="green--text">RECOVERED</span>
-            <span class="green--text text--lighten-1">
-                {{ props.counters && props.counters.Recovered }}
-            </span>
-            <div class="sparkline-chart"></div>
-        </div>
-
-        <div
-            class="ind-counter pa-2 d-flex flex-column align-center subtitle-2"
-        >
-            <span class="grey--text">DECEASED</span>
-            <span class="grey--text text--lighten-1">
-                {{ props.counters && props.counters.Deceased }}
-            </span>
-            <div class="sparkline-chart"></div>
+            <div
+                v-if="counter.total"
+                class="d-flex flex-column justify-start counter-content"
+            >
+                <span :class="counter.key + '-count-color'">
+                    {{ counter.total }}
+                </span>
+                <div v-if="counter.increaseCount" class="mt-n2">
+                    <v-icon
+                        size="1rem"
+                        :class="[counter.key + '-count-color', 'ml-n1']"
+                    >
+                        $arrowUp
+                    </v-icon>
+                    <span
+                        :class="[
+                            counter.key + '-count-color',
+                            'font-min',
+                            'ml-n1',
+                        ]"
+                    >
+                        {{ counter.increaseCount }}
+                    </span>
+                </div>
+            </div>
+            <div v-else class="counter-content"></div>
+            <div class="sparkline-chart">
+                Spark Line
+            </div>
         </div>
     </div>
 </template>
@@ -50,3 +49,57 @@ export default {
     },
 };
 </script>
+<style scoped>
+.counters-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 6rem);
+    grid-gap: 1rem;
+}
+.ind-counter {
+    background-color: hsla(0, 0%, 12%, 0.7);
+    border-radius: 0.5rem;
+}
+
+.active-label-color {
+    color: hsl(210, 100%, 50%);
+}
+
+.active-count-color {
+    color: hsl(210, 100%, 65%);
+}
+
+.confirmed-label-color {
+    color: hsl(0, 100%, 60%);
+}
+
+.confirmed-count-color {
+    color: hsl(0, 100%, 70%);
+}
+
+.death-label-color {
+    color: hsla(0, 0%, 55%, 1);
+}
+
+.death-count-color {
+    color: hsla(0, 0%, 70%, 1);
+}
+
+.recovered-label-color {
+    color: hsl(120, 89%, 35%);
+}
+
+.recovered-count-color {
+    color: hsl(120, 89%, 45%);
+}
+.font-min {
+    font-size: 0.8rem;
+}
+
+.counter-content {
+    height: 2.5rem;
+}
+
+.sparkline-chart {
+    height: 2rem;
+}
+</style>
