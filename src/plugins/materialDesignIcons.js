@@ -1,6 +1,8 @@
 import {
+    mdiArrowDown,
     mdiArrowUp,
     mdiCheckboxMarkedCircleOutline,
+    mdiEarth,
     mdiMagnify,
     mdiMapSearch,
     mdiPauseCircle,
@@ -12,8 +14,10 @@ import {
 } from "@mdi/js";
 
 export default {
+    arrowDown: mdiArrowDown,
     arrowUp: mdiArrowUp,
     checkboxMarkedCircleOutline: mdiCheckboxMarkedCircleOutline,
+    globe: mdiEarth,
     mapSearch: mdiMapSearch,
     pauseCircle: mdiPauseCircle,
     playBox: mdiPlayBox,
