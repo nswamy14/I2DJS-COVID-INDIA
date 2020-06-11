@@ -63,22 +63,24 @@
         <div class="counter-window">
           <counters-view :counters="mainCounter"></counters-view>
         </div>
-        <div class="timeline-container px-2">
-          <v-btn
-            v-if="!animFlag"
-            icon
-            @click="startTimelineAnimation"
-            class="play-btn"
-          >
-            <v-icon color="#7197b9" size="6rem">
-              $playCircle
-            </v-icon>
-          </v-btn>
-          <v-btn v-else icon @click="stopTimelineAnimation" class="play-btn">
-            <v-icon color="#7197b9" size="6rem">
-              $pauseCircle
-            </v-icon>
-          </v-btn>
+        <div class="timeline-container px-2 d-flex align-center">
+          <div class="px-4 pt-4">
+            <v-btn
+              v-if="!animFlag"
+              icon
+              @click="startTimelineAnimation"
+              class="play-btn"
+            >
+              <v-icon color="#7197b9" size="4rem">
+                $playCircle
+              </v-icon>
+            </v-btn>
+            <v-btn v-else icon @click="stopTimelineAnimation" class="play-btn">
+              <v-icon color="#7197b9" size="4rem">
+                $stopCircle
+              </v-icon>
+            </v-btn>
+          </div>
           <timeline-view
             :timelineData="timelineData"
             id="timeline-container"
@@ -86,6 +88,21 @@
           >
           </timeline-view>
         </div>
+
+        <!--          <div class="d-flex flex-column">-->
+        <!--              <v-btn tile small>-->
+        <!--                <v-icon>-->
+        <!--                    $plus-->
+        <!--                </v-icon>-->
+        <!--              </v-btn>-->
+        <!--              <v-divider></v-divider>-->
+        <!--              <v-btn tile small>-->
+        <!--                  <v-icon>-->
+        <!--                      $minus-->
+        <!--                  </v-icon>-->
+        <!--              </v-btn>-->
+        <!--          </div>-->
+
         <transition
           mode="out-in"
           enter-active-class="animated fadeIn speed-m"
@@ -114,6 +131,7 @@ import DistrictView from "./DistrictView";
 import CountersView from "./CountersView";
 import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
+import { convertToIndianFormat } from "./helper";
 
 export default {
   name: "MainView",
@@ -185,19 +203,25 @@ export default {
       // this.searchGeoLocation(val);
     },
   },
-
   computed: {
     mainCounter() {
-      let obj = {};
+      let countersArr = [];
       this.counters.forEach((counter) => {
         let data = counter.data || [];
-        obj[counter.label] =
-          data[data.length - 1] && data[data.length - 1].value;
+        let total = (data[data.length - 1] && data[data.length - 1].value) || 0;
+        let previousDayCount =
+          (data[data.length - 2] && data[data.length - 2].value) || 0;
+        let increaseCount = total - previousDayCount;
+        countersArr.push({
+          label: counter.label,
+          key: counter.key,
+          total: convertToIndianFormat(total),
+          increaseCount: convertToIndianFormat(increaseCount),
+        });
       });
-      return obj;
+      return countersArr;
     },
   },
-
   mounted() {
     this.selectedCounter = this.counters[1];
     this.initialize();
@@ -507,10 +531,6 @@ export default {
   left: 0;
   width: 100%;
   height: 100px;
-  display: grid;
-  grid-template-columns: 6rem calc(100% - 7rem);
-  grid-gap: 1rem;
-  align-items: center;
 }
 
 .play-btn {
@@ -529,7 +549,7 @@ export default {
   position: absolute;
   bottom: 8rem;
   left: 2rem;
-  width: 25rem;
+  width: 22rem;
   height: 20rem;
   /*background: hsla(0, 1%, 22%, 0.5);*/
   background-color: hsla(0, 0%, 12%, 0.7);
