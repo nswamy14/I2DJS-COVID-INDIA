@@ -26,7 +26,7 @@
                     </div>
                 </div>
 
-                <div class="counters--floater ma-4">
+                <div class="counters--floater ma-4" v-if="mainCounter">
                     <counters-view :counters="mainCounter"></counters-view>
                 </div>
 
@@ -174,28 +174,28 @@ export default {
                     label: "Confirmed",
                     key: "confirmed",
                     data: [],
-                    color: "#ff3d3d",
+                    color: "red",
                     scale: [Infinity, -Infinity],
                 },
                 {
                     label: "Active",
                     key: "active",
                     data: [],
-                    color: "#36a4ff",
-                    scale: [Infinity, -Infinity],
-                },
-                {
-                    label: "Deceased",
-                    key: "death",
-                    data: [],
-                    color: "#dba9a9",
+                    color: "light-blue",
                     scale: [Infinity, -Infinity],
                 },
                 {
                     label: "Recovered",
                     key: "recovered",
                     data: [],
-                    color: "#0be059",
+                    color: "green",
+                    scale: [Infinity, -Infinity],
+                },
+                {
+                    label: "Deceased",
+                    key: "death",
+                    data: [],
+                    color: "grey",
                     scale: [Infinity, -Infinity],
                 },
             ],
@@ -243,6 +243,7 @@ export default {
                     (data[data.length - 2] && data[data.length - 2].value) || 0;
                 let increaseCount = total - previousDayCount;
                 countersArr.push({
+                    color: counter.color,
                     label: counter.label,
                     key: counter.key,
                     total: convertToIndianFormat(total),
