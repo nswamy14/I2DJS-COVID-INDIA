@@ -1,8 +1,15 @@
 <template>
     <div class="main-container">
         <v-content>
-            <v-container class="fill-height" fluid>
-                <div class="header--floater ma-4 d-flex align-center">
+            <v-container class="fill-height align-content-start" fluid>
+                <div
+                    class="d-flex align-center"
+                    :class="[
+                        $vuetify.breakpoint.smAndDown
+                            ? 'flex-fill  my-2 align-self-start px-2'
+                            : 'header--floater ma-4',
+                    ]"
+                >
                     <v-img
                         alt="I2Djs Covid India logo"
                         class="mr-4"
@@ -16,9 +23,7 @@
                         <div class="title"><strong>COVID-19</strong> INDIA</div>
                         <div class="subtitle-2 text--secondary">
                             Showing district level data of
-                            <span
-                                class="font-weight-bold primary--text text-uppercase"
-                            >
+                            <span class="font-weight-bold primary--text text-uppercase">
                                 {{ selectedCounter.label }}
                             </span>
                             cases
@@ -26,12 +31,19 @@
                     </div>
                 </div>
 
-                <div class="counters--floater ma-4" v-if="mainCounter">
+                <div
+                    :class="[
+                        $vuetify.breakpoint.smAndDown
+                            ? 'flex-fill px-4 mt-2'
+                            : 'counters--floater ma-4',
+                    ]"
+                    v-if="mainCounter"
+                >
                     <counters-view :counters="mainCounter"></counters-view>
                 </div>
 
-                <div class="info-window">
-                    <div class="toolbar d-flex align-center flex-wrap">
+                <div :class="[$vuetify.breakpoint.smAndDown ? 'flex-fill' : 'info-window']">
+                    <div class="toolbar d-flex align-center flex-wrap justify-center">
                         <v-autocomplete
                             :items="searchItems"
                             light
@@ -57,9 +69,7 @@
                                     v-bind="attrs"
                                     v-on="on"
                                 >
-                                    <span class="body-2">{{
-                                        selectedCounter.label
-                                    }}</span>
+                                    <span class="body-2">{{ selectedCounter.label }}</span>
                                 </v-btn>
                             </template>
 
@@ -69,10 +79,9 @@
                                     :key="index"
                                     @click="selectedCounter = item"
                                 >
-                                    <v-list-item-title
-                                        class="body-2 text-uppercase"
-                                        >{{ item.label }}</v-list-item-title
-                                    >
+                                    <v-list-item-title class="body-2 text-uppercase">{{
+                                        item.label
+                                    }}</v-list-item-title>
                                 </v-list-item>
                             </v-list>
                         </v-menu>
@@ -87,7 +96,7 @@
                     </v-expand-transition>
                 </div>
 
-                <div class="map-container">
+                <div :class="['map-container', [this.$vuetify.breakpoint.name]]">
                     <map-container
                         :covidDistrictData="covidDistrictData"
                         :dataRange="dataRange"
@@ -99,29 +108,34 @@
                     </map-container>
                 </div>
 
-                <div class="timeline-container--floater px-4 d-flex align-end">
+                <div
+                    class="px-4 d-flex align-end timeline-container"
+                    :class="[{ floater: $vuetify.breakpoint.smAndUp }]"
+                >
                     <v-fab-transition>
                         <v-btn
                             v-if="!animFlag"
                             key="play"
                             fab
+                            :small="$vuetify.breakpoint.md"
+                            :x-small="$vuetify.breakpoint.smAndDown"
+                            light
                             @click="startTimelineAnimation"
-                            color="black"
+                            color="orange"
                         >
-                            <v-icon color="orange" size="4rem">
-                                $playCircle
-                            </v-icon>
+                            <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$play</v-icon>
                         </v-btn>
                         <v-btn
                             v-else
                             fab
+                            light
+                            :small="$vuetify.breakpoint.md"
+                            :x-small="$vuetify.breakpoint.smAndDown"
                             key="pause"
-                            color="black"
+                            color="deep-orange"
                             @click="stopTimelineAnimation"
                         >
-                            <v-icon color="deep-orange" size="4rem">
-                                $pauseCircle
-                            </v-icon>
+                            <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$pause</v-icon>
                         </v-btn>
                     </v-fab-transition>
                     <timeline-view
@@ -133,19 +147,17 @@
                 </div>
             </v-container>
         </v-content>
-        <v-footer app class="justify-center transparent">
+        <v-footer app class="flex-wrap justify-center transparent">
+            <div
+                class="overline text--secondary"
+                :class="[$vuetify.breakpoint.xs ? 'flex-fill' : 'update-time-floater ma-2']"
+            >
+                Last updated on {{ formattedDate }}
+            </div>
             <span class="subtitle-2">
                 Made with
                 <span class="red--text text--darken-4">&#10084;</span> in
-                <a
-                    target="_blank"
-                    href="https://github.com/I2Djs/I2Djs"
-                    class=""
-                    >I2Djs
-                </a>
-            </span>
-            <span class="overline text--secondary time-container ma-2">
-                Last updated on {{ formattedDate }}
+                <a target="_blank" href="https://github.com/I2Djs/I2Djs" class="">I2Djs </a>
             </span>
         </v-footer>
     </div>
@@ -237,10 +249,8 @@ export default {
             let countersArr = [];
             this.counters.forEach((counter) => {
                 let data = counter.data || [];
-                let total =
-                    (data[data.length - 1] && data[data.length - 1].value) || 0;
-                let previousDayCount =
-                    (data[data.length - 2] && data[data.length - 2].value) || 0;
+                let total = (data[data.length - 1] && data[data.length - 1].value) || 0;
+                let previousDayCount = (data[data.length - 2] && data[data.length - 2].value) || 0;
                 let increaseCount = total - previousDayCount;
                 countersArr.push({
                     color: counter.color,
@@ -325,20 +335,14 @@ export default {
                             if (Math.sqrt(d.active) > activeRange[1]) {
                                 activeRange[1] = Math.sqrt(d.active);
                             }
-                            if (
-                                Math.sqrt(d.active) <= activeRange[0] &&
-                                d.active > 0
-                            ) {
+                            if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
                                 activeRange[0] = Math.sqrt(d.active);
                             }
                         });
-                        districtObj.confirmed =
-                            disVal[disVal.length - 1].confirmed;
+                        districtObj.confirmed = disVal[disVal.length - 1].confirmed;
                         districtObj.active = disVal[disVal.length - 1].active;
-                        districtObj.deceased =
-                            disVal[disVal.length - 1].deceased;
-                        districtObj.recovered =
-                            disVal[disVal.length - 1].recovered;
+                        districtObj.deceased = disVal[disVal.length - 1].deceased;
+                        districtObj.recovered = disVal[disVal.length - 1].recovered;
 
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
@@ -350,11 +354,9 @@ export default {
                                     dateBuckets[d.date] = [];
                                 }
 
-                                let dtObj = dateBuckets[d.date].filter(
-                                    function (dBuc) {
-                                        return dBuc.dis === name;
-                                    }
-                                )[0];
+                                let dtObj = dateBuckets[d.date].filter(function (dBuc) {
+                                    return dBuc.dis === name;
+                                })[0];
 
                                 if (dtObj) {
                                     dtObj.confirmed += d.confirmed;
@@ -368,11 +370,7 @@ export default {
                         } else {
                             if (disVal[disVal.length - 1].active > 0) {
                                 count += disVal[disVal.length - 1].confirmed;
-                                console.log(
-                                    disLow,
-                                    disVal[disVal.length - 1].active,
-                                    state
-                                );
+                                console.log(disLow, disVal[disVal.length - 1].active, state);
                             }
                         }
                     }
@@ -421,8 +419,7 @@ export default {
             });
             data = data.filter((d) => d.length !== 0);
             if (data.length !== 0) {
-                this.districtInfo =
-                    data[data.length - 1] && data[data.length - 1][0];
+                this.districtInfo = data[data.length - 1] && data[data.length - 1][0];
                 this.districtTimelineData = data;
             } else {
                 this.districtInfo = {
@@ -469,6 +466,7 @@ export default {
             self.animFlag = false;
             self.updateTimelineData();
         },
+
         animateCovid(covidData) {
             let self = this;
             let playIndex = 0;
@@ -504,12 +502,9 @@ export default {
                 distList.forEach(function (item) {
                     if (self.heatmapDataMap[item["dis"]]) {
                         self.heatmapDataMap[item["dis"]].active = item.active;
-                        self.heatmapDataMap[item["dis"]].confirmed =
-                            item.confirmed;
-                        self.heatmapDataMap[item["dis"]].deceased =
-                            item.deceased;
-                        self.heatmapDataMap[item["dis"]].recovered =
-                            item.recovered;
+                        self.heatmapDataMap[item["dis"]].confirmed = item.confirmed;
+                        self.heatmapDataMap[item["dis"]].deceased = item.deceased;
+                        self.heatmapDataMap[item["dis"]].recovered = item.recovered;
                     }
                 });
 
@@ -596,7 +591,7 @@ export default {
 .info-window {
     position: absolute;
     z-index: 1;
-    top: 15vh;
+    top: 8rem;
 }
 
 .search {
@@ -608,14 +603,25 @@ export default {
     width: 100%;
 }
 
-.timeline-container--floater {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 5rem;
+.map-container.sm {
+    height: calc(100% - 10rem);
 }
 
-.time-container {
+.map-container.xs {
+    height: 100vmin;
+}
+
+.timeline-container {
+    width: 100%;
+    height: 4rem;
+}
+
+.timeline-container.floater {
+    position: absolute;
+    bottom: 0;
+}
+
+.update-time-floater {
     position: absolute;
     right: 0;
     top: 0;

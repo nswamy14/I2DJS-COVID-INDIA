@@ -1,12 +1,9 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-const MainView = () =>
-    import(/* webpackChunkName: "main-views-group" */ "@/components/MainView");
+const MainView = () => import(/* webpackChunkName: "main-views-group" */ "@/components/MainView");
 const NotSupportedView = () =>
-    import(
-        /* webpackChunkName: "other-views-group" */ "@/components/NotSupportedView"
-    );
+    import(/* webpackChunkName: "main-views-group" */ "@/components/NotSupportedView");
 
 Vue.use(VueRouter);
 
