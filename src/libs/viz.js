@@ -123,6 +123,7 @@ export default function () {
             // prevLoc = location;
             // prevZoom.loc = location;
             // prevZoom.scale = scale;this.webglRenderer.scaleTo(8, xy);
+            this.webglRenderer.scaleTo(8, xy);
             this.zoomInstance.zoomTarget(
                 this.projection([location.longitude, location.latitude])
             );
@@ -141,7 +142,7 @@ export default function () {
 
     Chart.prototype.dataRange = function (range) {
         // heatmapLinearScale.domain(range);
-        // scaleDomain = range;
+        scaleDomain = range;
     };
 
     Chart.prototype.initialize = function (districtData) {
@@ -384,7 +385,7 @@ export default function () {
         this.webglRenderer = webglRenderer;
         let dimMin = Math.min(webglRenderer.width, webglRenderer.height);
         // heatmapLinearScale.range([dimMin * 0.01, dimMin * 0.1]);
-        // scaleRange = [dimMin * 0.01, dimMin * 0.1];
+        scaleRange = [dimMin * 0.01, dimMin * 0.1];
         webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
         self.zoomInstance.zoomTarget([
             webglRenderer.width / 2,

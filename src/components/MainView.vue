@@ -223,6 +223,7 @@ export default {
 
         search(val) {
             if (val && this.heatmapDataMap[val.toLowerCase()]) {
+                console.log(val);
                 this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
                 this.getDistrictTimelineData(val.toLowerCase());
             } else {
@@ -383,6 +384,7 @@ export default {
             // console.log(self.formattedCovidData);
             // self.animateCovid(self.formattedCovidData);
             self.covidDistrictData = distMap;
+            console.log(distMap);
             self.dataRange = activeRange;
             self.searchItems = Object.keys(self.heatmapDataMap);
             // console.log(JSON.stringify(tempDistMap));
