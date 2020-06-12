@@ -87,12 +87,7 @@
                         </v-menu>
                     </div>
                     <v-expand-transition>
-                        <district-view
-                            v-if="search"
-                            :districtInfo="districtInfo"
-                            :districtTimelineData="districtTimelineData"
-                        >
-                        </district-view>
+                        <district-view v-if="search" :districtInfo="districtInfo"> </district-view>
                     </v-expand-transition>
                 </div>
 
@@ -257,7 +252,7 @@ export default {
             dataType: "Active",
             animFlag: false,
             districtInfo: {},
-            districtTimelineData: [],
+            // districtTimelineData: [],
             lastUpdatedTime: new Date(),
         };
     },
@@ -455,14 +450,27 @@ export default {
                 });
             });
             data = data.filter((d) => d.length !== 0);
+            data = data.map(function (d) {
+                return d[0];
+            });
             if (data.length !== 0) {
-                this.districtInfo = data[data.length - 1] && data[data.length - 1][0];
-                this.districtTimelineData = data;
+                let obj = data[data.length - 1];
+                this.districtInfo = {
+                    dis: obj.dis,
+                    confirmed: obj.confirmed,
+                    active: obj.active,
+                    deceased: obj.deceased,
+                    recovered: obj.recovered,
+                    data: data.length > 45 ? data.splice(data.length - 45, 45) : data,
+                };
+
+                // this.districtTimelineData = data;
             } else {
                 this.districtInfo = {
                     dis: dist,
+                    data: [],
                 };
-                this.districtTimelineData = [];
+                // this.districtTimelineData = [];
             }
         },
 

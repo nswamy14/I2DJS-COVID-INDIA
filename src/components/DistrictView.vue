@@ -37,16 +37,20 @@
             </div>
         </div>
         <div class="toolbar-timeline-container pt-2">
-            Timeline goes here
+            Last 45 days Timeline:
+            <stack-bar-chart :timelineData="districtInfo" :id="districtInfo.dis + '_stackline'">
+            </stack-bar-chart>
         </div>
     </v-card>
 </template>
 
 <script>
+import StackBarChart from "./StackBarChart";
 import _ from "lodash";
 import { convertToIndianFormat } from "./helper";
 export default {
     name: "DistrictView",
+    components: { StackBarChart },
     data() {
         return {
             districtName: "",
@@ -58,10 +62,10 @@ export default {
             type: Object,
             required: true,
         },
-        districtTimelineData: {
-            type: Array,
-            required: true,
-        },
+        // districtTimelineData: {
+        //     type: Array,
+        //     required: true,
+        // },
     },
     watch: {
         districtInfo(newVal, oldVal) {
@@ -87,12 +91,9 @@ export default {
 
     methods: {
         initializeDistrictData() {
-            let districtInfo = this.districtInfo || {};
-            let length = this.districtTimelineData.length;
-            let previousDayRecord =
-                (this.districtTimelineData[length - 2] &&
-                    this.districtTimelineData[length - 2][0]) ||
-                {};
+            let districtInfo = this.districtInfo || { data: [] };
+            let length = districtInfo.data.length;
+            let previousDayRecord = districtInfo.data[length - 2] || {};
             if (_.isEmpty(previousDayRecord)) {
                 previousDayRecord = {
                     confirmed: 0,
@@ -157,6 +158,10 @@ export default {
     grid-template-columns: 1fr 1fr;
     grid-gap: 0.5rem;
     font-size: 1.1rem;
+}
+
+.toolbar-timeline-container {
+    height: 10rem;
 }
 
 .active-label-color {

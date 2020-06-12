@@ -83,6 +83,7 @@ export default function () {
     var dataType = "";
     var showTooltipFunc;
     var hideTooltipFunc;
+    var fontSize = 10;
     // vartooltip;
     let Chart = function () {};
 
@@ -223,10 +224,11 @@ export default function () {
             var sqrtScale = sqrt(1 / scale);
             var nodes = self.labelHref.children;
             if (scale >= 3.5) {
+                var defaultFontSize = getDefaultFontSize();
                 self.labelHref.setStyle("display", true);
                 for (var i = nodes.length - 1; i >= 0; i--) {
                     var d = nodes[i].data();
-                    nodes[i].setStyle("font", 11 * sqrtScale + "px Arial");
+                    nodes[i].setStyle("font", defaultFontSize[0] * 0.75 * sqrtScale + "px Arial");
                     var width = nodes[i].attr.width;
                     var val = d.d[dataType];
                     val = val <= 0 ? 0 : scaleFun(sqrt(val));
@@ -558,7 +560,8 @@ export default function () {
                 },
             },
         });
-
+        var defaultFontSize = getDefaultFontSize();
+        // console.log(defaultFontSize);
         this.labelHref = labelGroup.join(data, "text", {
             action: {
                 enter: function (data) {
@@ -576,7 +579,7 @@ export default function () {
                             },
                         },
                         style: {
-                            font: "11px Arial",
+                            font: defaultFontSize[0] * 0.75 + "px Arial",
                             fillStyle: "#dba9a9",
                             // opacity: 0.5
                         },
@@ -675,6 +678,20 @@ export default function () {
             length: gradLength,
             offset: new Float32Array(offSetsArray),
         };
+    }
+
+    function getDefaultFontSize(pa) {
+        pa = document.body;
+        var who = document.createElement("div");
+
+        who.style.cssText =
+            "display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1 rem";
+
+        who.appendChild(document.createTextNode("M"));
+        pa.appendChild(who);
+        var fs = [who.offsetWidth, who.offsetHeight];
+        pa.removeChild(who);
+        return fs;
     }
 
     return new Chart();
