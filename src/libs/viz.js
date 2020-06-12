@@ -21,11 +21,11 @@ export default function () {
             offset: 0,
         },
         {
-            color: [102, 150, 74, 0.5],
+            color: [102, 150, 74, 0.3],
             offset: 0.2,
         },
         {
-            color: [166, 255, 115, 0.8],
+            color: [166, 255, 115, 0.6],
             offset: 0.45,
         },
         {
@@ -155,15 +155,14 @@ export default function () {
             this.webglRenderer.scaleTo(8, xy);
             this.zoomInstance.zoomTarget(this.projection([location.longitude, location.latitude]));
         } else {
-            // this.createEl
-            this.webglRenderer.scaleTo(1, [
-                this.webglRenderer.width / 2,
-                this.webglRenderer.height / 2,
-            ]);
-            this.zoomInstance.zoomTarget([
-                this.webglRenderer.width / 2,
-                this.webglRenderer.height / 2,
-            ]);
+            // this.webglRenderer.scaleTo(1, [
+            //     this.webglRenderer.width / 2,
+            //     this.webglRenderer.height / 2,
+            // ]);
+            // this.zoomInstance.zoomTarget([
+            //     this.webglRenderer.width / 2,
+            //     this.webglRenderer.height / 2,
+            // ]);
         }
     };
 
@@ -223,11 +222,11 @@ export default function () {
             var scale = event.transform.scale[0];
             var sqrtScale = sqrt(1 / scale);
             var nodes = self.labelHref.children;
-            if (scale >= 3.0) {
+            if (scale >= 3.5) {
                 self.labelHref.setStyle("display", true);
                 for (var i = nodes.length - 1; i >= 0; i--) {
                     var d = nodes[i].data();
-                    nodes[i].setStyle("font", 13 * sqrtScale + "px Arial");
+                    nodes[i].setStyle("font", 11 * sqrtScale + "px Arial");
                     var width = nodes[i].attr.width;
                     var val = d.d[dataType];
                     val = val <= 0 ? 0 : scaleFun(sqrt(val));
@@ -577,7 +576,7 @@ export default function () {
                             },
                         },
                         style: {
-                            font: "13px Arial",
+                            font: "11px Arial",
                             fillStyle: "#dba9a9",
                             // opacity: 0.5
                         },
