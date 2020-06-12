@@ -219,6 +219,7 @@ export default {
                     key: "confirmed",
                     data: [],
                     color: "red",
+                    hexa: "red",
                     scale: [Infinity, -Infinity],
                 },
                 {
@@ -226,6 +227,7 @@ export default {
                     key: "active",
                     data: [],
                     color: "light-blue",
+                    hexa: "#29b6f6",
                     scale: [Infinity, -Infinity],
                 },
                 {
@@ -233,6 +235,7 @@ export default {
                     key: "recovered",
                     data: [],
                     color: "green",
+                    hexa: "green",
                     scale: [Infinity, -Infinity],
                 },
                 {
@@ -240,6 +243,7 @@ export default {
                     key: "death",
                     data: [],
                     color: "grey",
+                    hexa: "grey",
                     scale: [Infinity, -Infinity],
                 },
             ],
@@ -286,11 +290,14 @@ export default {
                 let increaseCount = total - previousDayCount;
                 countersArr.push({
                     color: counter.color,
+                    hexa: counter.hexa,
                     label: counter.label,
                     key: counter.key,
                     total: convertToIndianFormat(total),
                     direction: increaseCount < 0 ? "down" : "up",
                     increaseCount: convertToIndianFormat(Math.abs(increaseCount)),
+                    data: data,
+                    scale: counter.scale,
                 });
             });
             return countersArr;
@@ -339,6 +346,9 @@ export default {
                     disVal.forEach(function (dt) {
                         dt.visible = false;
                     });
+                    // if (stateLow !== 'maharashtra') {
+                    // 	continue;
+                    // }
                     let name = IndianCities[disLow]
                         ? disLow
                         : IndianCities[stateLow]
@@ -470,10 +480,10 @@ export default {
                     value: d.active,
                 });
                 self.counters[2].data.push({
-                    value: d.deceased,
+                    value: d.recovered,
                 });
                 self.counters[3].data.push({
-                    value: d.recovered,
+                    value: d.deceased,
                 });
             });
         },
@@ -578,6 +588,7 @@ export default {
             let dtKeys = Object.keys(dateBuckets);
             let dateData = [];
             let confirmScale = [Infinity, -Infinity];
+            let totalDateItems = 0;
             dtKeys.forEach(function (dt) {
                 let curr = dateBuckets[dt];
                 let dataObj = {
@@ -604,6 +615,7 @@ export default {
                 // 	d.scale[1] =  Math.max(d.scale[1], dataObj[d.key]);
                 // });
                 dateData.push(dataObj);
+                totalDateItems += 1;
             });
 
             dateData = dateData.sort(function (a, b) {
@@ -612,6 +624,7 @@ export default {
 
             self.counters.forEach(function (d) {
                 d.scale = confirmScale;
+                d.dateCount = totalDateItems;
             });
 
             return dateData;

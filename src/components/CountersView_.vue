@@ -1,7 +1,7 @@
-<template>
+<template functional>
     <div class="d-flex justify-space-around">
         <div
-            v-for="counter in counters"
+            v-for="counter in props.counters"
             :key="counter.key"
             class="ind-counter pa-2 d-flex flex-column align-center justify-start subtitle-2"
         >
@@ -37,21 +37,13 @@ export default {
     data() {
         return {};
     },
-
-    props: {
-        counters: {
-            type: Array,
-            required: true,
-        },
-    },
 };
 </script>
 <style scoped>
-. .counter-content {
+.counter-content {
     height: 2rem;
 }
 .sparkline-chart {
     height: 2rem;
-    width: 100%;
 }
 </style>

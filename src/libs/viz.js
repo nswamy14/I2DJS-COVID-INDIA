@@ -60,7 +60,7 @@ export default function () {
         },
         {
             color: [255, 255, 0, 0.5],
-            offset: 0.2,
+            offset: 0.3,
         },
         {
             color: [255, 255, 0, 1.0],

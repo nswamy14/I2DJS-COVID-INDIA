@@ -31,6 +31,7 @@ export default {
             console.log(this.timelineData);
             this.timelineInstance = timelineBarChart();
             this.timelineInstance.dataRange(this.timelineData.scale);
+            this.timelineInstance.dateCount(this.timelineData.dateCount);
             this.timelineInstance.initialize(this.timelineData.data);
         },
 

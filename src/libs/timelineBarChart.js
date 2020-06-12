@@ -3,6 +3,9 @@ import * as i2d from "i2djs";
 export default function () {
     let scaleRange = [0, 0];
     let scaleDomain = [0, 0];
+    let width = 0;
+    let widthPerBar = 0;
+    let dateCount = 0;
     function scaleFun(count) {
         return (
             scaleRange[0] +
@@ -15,13 +18,16 @@ export default function () {
     };
     Chart.prototype.dataRange = function (range) {
         scaleDomain = [0, range[1]];
-        // this.heightScale.domain([0, range[1]]);
+    };
+    Chart.prototype.dateCount = function (count) {
+        dateCount = count;
     };
     Chart.prototype.initialize = function (data) {
         let self = this;
         this.timelineLayer = i2d.canvasLayer("#timeline-container", {}, {});
-        scaleRange = [5, this.timelineLayer.height - 20];
-        // this.heightScale.range([5, this.timelineLayer.height - 20]);
+        width = this.timelineLayer.width;
+        widthPerBar = width / dateCount;
+        scaleRange = [5, this.timelineLayer.height - 10];
         this.gradColor = this.timelineLayer.createLinearGradient({
             x1: 0,
             y1: 100,
@@ -55,7 +61,7 @@ export default function () {
                             x: 0,
                             y: 5,
                             height: 0,
-                            width: 5,
+                            width: widthPerBar * 0.7,
                         },
                         style: {
                             fillStyle: self.gradColor,
@@ -67,7 +73,7 @@ export default function () {
                 },
                 update: function (nodes) {
                     nodes["rect"].forEach(function (d, i) {
-                        this.setAttr("x", i * 7);
+                        this.setAttr("x", i * widthPerBar * 0.8);
                         this.setAttr("y", -scaleFun(d.value));
                         this.setAttr("height", scaleFun(d.value));
                     });
