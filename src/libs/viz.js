@@ -107,12 +107,45 @@ export default function () {
     // 	loc: null,
     // 	transform: null
     // };
+
+    Chart.prototype.mapRest = function () {
+        console.log("mapRest caalled");
+        let translate = this.zoomInstance.event.transform.translate;
+        let scale = this.zoomInstance.event.transform.scale[0];
+        this.webglRenderer.scaleTo(1, [
+            (this.webglRenderer.width / 2 - translate[0]) / scale,
+            (this.webglRenderer.height / 2 - translate[1]) / scale,
+        ]);
+        this.zoomInstance.zoomTarget([this.webglRenderer.width / 2, this.webglRenderer.height / 2]);
+    };
+
+    Chart.prototype.zoomIn = function () {
+        let scale = this.zoomInstance.event.transform.scale[0];
+        if (scale + 1 > 15) {
+            return;
+        }
+        this.webglRenderer.scaleTo(scale + 1, [
+            this.webglRenderer.width / 2,
+            this.webglRenderer.height / 2,
+        ]);
+    };
+
+    Chart.prototype.zoomOut = function () {
+        let scale = this.zoomInstance.event.transform.scale[0];
+        if (scale - 1 < 1) {
+            return;
+        }
+        this.webglRenderer.scaleTo(scale - 1, [
+            this.webglRenderer.width / 2,
+            this.webglRenderer.height / 2,
+        ]);
+    };
+
     Chart.prototype.zoomToLocation = function (location) {
         let translate = this.zoomInstance.event.transform.translate;
         let scale = this.zoomInstance.event.transform.scale[0]; // console.log(this.zoomInstance.event.transform.scale);
         if (location) {
             let xy = this.projection([location.longitude, location.latitude]);
-            console.log(scale, translate[0], translate[1]);
             xy[0] *= scale;
             xy[1] *= scale;
             xy[0] += translate[0];
@@ -138,6 +171,7 @@ export default function () {
     Chart.prototype.dataRange = function (range) {
         // heatmapLinearScale.domain(range);
         scaleDomain = range;
+        console.log(range);
     };
 
     Chart.prototype.initialize = function (districtData) {
@@ -148,7 +182,7 @@ export default function () {
         self.zoomInstance.zoomStart(zoomStart);
         self.zoomInstance.zoom(onZoom);
         self.zoomInstance.zoomEnd(zoomEnd);
-        self.zoomInstance.duration(1000);
+        self.zoomInstance.duration(500);
 
         self.zoomInstance.panExtent([
             [-10000, -10000],
@@ -165,7 +199,7 @@ export default function () {
         function onZoom(event) {
             var scale = event.transform.scale[0];
             var sqrtScale = sqrt(1 / scale);
-            console.log(scale);
+            console.log(sqrtScale);
             self.geoGroup.setAttr("transform", event.transform);
             self.heatmapHref.setAttr("transform", event.transform);
             self.labelHref.setAttr("transform", event.transform);
@@ -196,13 +230,13 @@ export default function () {
                 self.labelHref.setStyle("display", true);
                 for (var i = nodes.length - 1; i >= 0; i--) {
                     var d = nodes[i].data();
-                    nodes[i].setStyle("font", 10 * sqrtScale + "px Arial");
+                    nodes[i].setStyle("font", 13 * sqrtScale + "px Arial");
                     var width = nodes[i].attr.width;
                     var val = d.d[dataType];
                     val = val <= 0 ? 0 : scaleFun(sqrt(val));
 
                     nodes[i]
-                        .setAttr("x", d.xy[0] - width * 0.5)
+                        .setAttr("x", d.xy[0] - width * 0.25)
                         .setAttr("y", d.xy[1] - (val * 0.5) / scale);
                 }
             } else {
@@ -323,10 +357,10 @@ export default function () {
             renderer.createEl({
                 el: "rect",
                 attr: {
-                    x: renderer.width - 300,
-                    y: renderer.height - 150,
-                    width: 200,
-                    height: 20,
+                    x: renderer.width - renderer.width * 0.2,
+                    y: renderer.height - renderer.height * 0.15,
+                    width: renderer.width * 0.15,
+                    height: renderer.height * 0.03,
                 },
                 style: {
                     fillStyle: linearGradiant,
@@ -336,8 +370,8 @@ export default function () {
             renderer.createEl({
                 el: "text",
                 attr: {
-                    x: renderer.width - 300,
-                    y: renderer.height - 130 + 20,
+                    x: renderer.width - renderer.width * 0.2,
+                    y: renderer.height - renderer.height * 0.1,
                     text: "Low",
                 },
                 style: {
@@ -349,8 +383,8 @@ export default function () {
             renderer.createEl({
                 el: "text",
                 attr: {
-                    x: renderer.width - 100,
-                    y: renderer.height - 130 + 20,
+                    x: renderer.width - renderer.width * 0.05,
+                    y: renderer.height - renderer.height * 0.1,
                     text: "High",
                 },
                 style: {
@@ -503,21 +537,23 @@ export default function () {
                         });
                 },
                 update: function (nodes) {
+                    var scale = self.zoomInstance.event.transform.scale[0];
+                    var sqrtScale = sqrt(1 / scale);
+                    console.log(sqrtScale);
                     nodes["image"].forEach(function (dd) {
                         var d = dd.d;
                         var val = d[dataType];
                         val = val <= 0 ? 0 : scaleFun(sqrt(val));
                         var op = Math.log(val || 1) / 5;
                         op = op > 1.0 ? 1.0 : op;
-                        var scale = self.zoomInstance.event.transform.scale[0];
-                        var sqrtScale = sqrt(1 / scale);
+
                         this.animateTo({
                             duration: 100,
                             attr: {
-                                width: val / sqrtScale,
-                                height: val / sqrtScale,
-                                x: dd.xy[0] - (val * 0.5) / sqrtScale,
-                                y: dd.xy[1] - (val * 0.5) / sqrtScale,
+                                width: val * sqrtScale,
+                                height: val * sqrtScale,
+                                x: dd.xy[0] - val * 0.5 * sqrtScale,
+                                y: dd.xy[1] - val * 0.5 * sqrtScale,
                             },
                             style: {
                                 opacity: op,
@@ -535,17 +571,17 @@ export default function () {
                         el: "text",
                         attr: {
                             x: function (d) {
-                                return d.xy[0] - d.d.name.length;
+                                return d.xy[0];
                             },
                             y: function (d) {
                                 return d.xy[1] + 10;
                             },
                             text: function (d) {
-                                return d.d.name;
+                                return d.d.label;
                             },
                         },
                         style: {
-                            font: "10px Arial",
+                            font: "13px Arial",
                             fillStyle: "#dba9a9",
                             // opacity: 0.5
                         },

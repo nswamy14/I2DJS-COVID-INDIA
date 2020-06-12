@@ -146,7 +146,7 @@
                     </timeline-view>
                 </div>
 
-                <div class="btn-container ma-4 d-flex flex-column align-center">
+                <!-- <div class="btn-container ma-4 d-flex flex-column align-center">
                     <div class="d-flex flex-column justify-center">
                         <v-btn
                             :small="$vuetify.breakpoint.md"
@@ -176,7 +176,7 @@
                     >
                         <v-icon>$globe</v-icon>
                     </v-btn>
-                </div>
+                </div> -->
             </v-container>
         </v-content>
         <v-footer app class="flex-wrap justify-center transparent">
@@ -349,6 +349,7 @@ export default {
                     if (name && dd && !self.heatmapDataMap[name]) {
                         let districtObj = {
                             name: name,
+                            label: name.charAt(0).toUpperCase() + name.substr(1, name.length - 1),
                             state: state,
                             active: 0,
                             deceased: 0,
@@ -372,11 +373,6 @@ export default {
                                 activeRange[0] = Math.sqrt(d.active);
                             }
                         });
-                        districtObj.confirmed = disVal[disVal.length - 1].confirmed;
-                        districtObj.active = disVal[disVal.length - 1].active;
-                        districtObj.deceased = disVal[disVal.length - 1].deceased;
-                        districtObj.recovered = disVal[disVal.length - 1].recovered;
-
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
                     } else {
@@ -418,6 +414,7 @@ export default {
             self.searchItems = Object.keys(self.heatmapDataMap);
             // console.log(JSON.stringify(tempDistMap));
             self.updateCounters();
+            self.updateHeatmapData();
             self.timelineData = self.selectedCounter;
             console.log(count);
         },
@@ -481,6 +478,21 @@ export default {
             });
         },
 
+        updateHeatmapData() {
+            let self = this;
+            let d = this.formattedCovidData[this.formattedCovidData.length - 1];
+            let distData = d.distList;
+            for (var i = 0; i < distData.length; i++) {
+                let item = distData[i];
+                if (self.heatmapDataMap[item["dis"]]) {
+                    self.heatmapDataMap[item["dis"]].active = item.active;
+                    self.heatmapDataMap[item["dis"]].confirmed = item.confirmed;
+                    self.heatmapDataMap[item["dis"]].deceased = item.deceased;
+                    self.heatmapDataMap[item["dis"]].recovered = item.recovered;
+                }
+            }
+        },
+
         clearCounters() {
             this.counters[0].data = [];
             this.counters[1].data = [];
@@ -488,17 +500,30 @@ export default {
             this.counters[3].data = [];
         },
 
+        clearHeatMapData() {
+            for (let key in this.heatmapDataMap) {
+                this.heatmapDataMap[key].confirmed = 0;
+                this.heatmapDataMap[key].active = 0;
+                this.heatmapDataMap[key].deceased = 0;
+                this.heatmapDataMap[key].recovered = 0;
+            }
+        },
+
         startTimelineAnimation() {
             this.animFlag = true;
             this.clearCounters();
+            this.clearHeatMapData();
             this.animateCovid(this.formattedCovidData);
         },
 
         stopTimelineAnimation() {
             let self = this;
             self.animFlag = false;
-            self.updateTimelineData();
+            self.updateCounters();
+            self.updateHeatmapData();
         },
+
+        resetTimelineData() {},
 
         animateCovid(covidData) {
             let self = this;
@@ -591,12 +616,6 @@ export default {
 
             return dateData;
         },
-
-        zoomIn() {},
-
-        zoomOut() {},
-
-        zoomReset() {},
     },
 };
 </script>
@@ -666,7 +685,7 @@ export default {
     top: 0;
 }
 
-.btn-container {
+/*.btn-container {
     position: absolute;
     right: 0;
     top: 15rem;
@@ -682,5 +701,5 @@ export default {
 
 .minus-class {
     border-radius: 0 0 0.25rem 0.25rem;
-}
+}*/
 </style>
