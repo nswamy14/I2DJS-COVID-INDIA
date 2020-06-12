@@ -84,7 +84,8 @@ export default {
 
     methods: {
         showTooltip(data, event) {
-            console.log(data, event);
+            // console.log(data, event);
+            console.log(data.d.name);
         },
 
         hideTooltip() {},

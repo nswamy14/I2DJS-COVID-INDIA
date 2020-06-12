@@ -109,7 +109,6 @@ export default function () {
     // };
 
     Chart.prototype.mapRest = function () {
-        console.log("mapRest caalled");
         let translate = this.zoomInstance.event.transform.translate;
         let scale = this.zoomInstance.event.transform.scale[0];
         this.webglRenderer.scaleTo(1, [
@@ -143,7 +142,7 @@ export default function () {
 
     Chart.prototype.zoomToLocation = function (location) {
         let translate = this.zoomInstance.event.transform.translate;
-        let scale = this.zoomInstance.event.transform.scale[0]; // console.log(this.zoomInstance.event.transform.scale);
+        let scale = this.zoomInstance.event.transform.scale[0];
         if (location) {
             let xy = this.projection([location.longitude, location.latitude]);
             xy[0] *= scale;
@@ -171,7 +170,6 @@ export default function () {
     Chart.prototype.dataRange = function (range) {
         // heatmapLinearScale.domain(range);
         scaleDomain = range;
-        console.log(range);
     };
 
     Chart.prototype.initialize = function (districtData) {
@@ -199,7 +197,6 @@ export default function () {
         function onZoom(event) {
             var scale = event.transform.scale[0];
             var sqrtScale = sqrt(1 / scale);
-            console.log(sqrtScale);
             self.geoGroup.setAttr("transform", event.transform);
             self.heatmapHref.setAttr("transform", event.transform);
             self.labelHref.setAttr("transform", event.transform);
@@ -539,7 +536,6 @@ export default function () {
                 update: function (nodes) {
                     var scale = self.zoomInstance.event.transform.scale[0];
                     var sqrtScale = sqrt(1 / scale);
-                    console.log(sqrtScale);
                     nodes["image"].forEach(function (dd) {
                         var d = dd.d;
                         var val = d[dataType];

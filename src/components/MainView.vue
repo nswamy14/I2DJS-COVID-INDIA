@@ -346,9 +346,6 @@ export default {
                     disVal.forEach(function (dt) {
                         dt.visible = false;
                     });
-                    // if (stateLow !== 'maharashtra') {
-                    // 	continue;
-                    // }
                     let name = IndianCities[disLow]
                         ? disLow
                         : IndianCities[stateLow]
