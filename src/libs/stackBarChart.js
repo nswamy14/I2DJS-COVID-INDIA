@@ -124,12 +124,10 @@ export default function () {
                     nodes["g"].remove();
                 },
                 update: function (nodes) {
-                    console.log(scaleDomain);
                     nodes["g"].forEach(function (d, i) {
                         let h1 = -scaleFun(d.deceased);
                         let h2 = -scaleFun(d.recovered);
                         let h3 = -scaleFun(d.active);
-                        console.log(h1, h2, h3);
                         this.setAttr("transform", {
                             translate: [i * widthPerBar, 0],
                         });
@@ -151,7 +149,6 @@ export default function () {
     };
     Chart.prototype.update = function (data) {
         scaleDomain = [0, fetchDomainRange(data)[1]];
-        console.log(scaleDomain);
         this.barHref.join(data);
         this.barHref.update();
     };
