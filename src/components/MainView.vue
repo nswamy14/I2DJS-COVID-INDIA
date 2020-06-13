@@ -345,7 +345,7 @@ export default {
                         ? disLow
                         : IndianCities[stateLow]
                         ? stateLow
-                        : null;
+                        : stateLow;
                     let dd = IndianCities[name];
 
                     if (name && dd && !self.heatmapDataMap[name]) {
@@ -400,8 +400,33 @@ export default {
                             });
                         } else {
                             if (disVal[disVal.length - 1].active > 0) {
-                                count += disVal[disVal.length - 1].confirmed;
-                                console.log(disLow, disVal[disVal.length - 1].active, state);
+                                let districtObj = {
+                                    name: name,
+                                    label:
+                                        name.charAt(0).toUpperCase() +
+                                        name.substr(1, name.length - 1),
+                                    state: state,
+                                    active: 0,
+                                    deceased: 0,
+                                    confirmed: 0,
+                                    recovered: 0,
+                                };
+
+                                disVal.forEach(function (d) {
+                                    if (!dateBuckets[d.date]) {
+                                        dateBuckets[d.date] = [];
+                                    }
+                                    d.dis = name;
+                                    dateBuckets[d.date].push(d);
+                                    // if (Math.sqrt(d.active) > activeRange[1]) {
+                                    //     activeRange[1] = Math.sqrt(d.active);
+                                    // }
+                                    // if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
+                                    //     activeRange[0] = Math.sqrt(d.active);
+                                    // }
+                                });
+                                // count += disVal[disVal.length - 1].confirmed;
+                                // console.log(disLow, disVal[disVal.length - 1].active, state);
                             }
                         }
                     }

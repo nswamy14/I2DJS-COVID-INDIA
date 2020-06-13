@@ -14,7 +14,35 @@ export default function () {
                 (scaleRange[1] - scaleRange[0])
         );
     }
-    // var indiaDist;
+    var citiesToHide = [
+        "kodarma",
+        "baleshwar",
+        "medchal malkajgiri",
+        "bengaluru urban",
+        "bengaluru rural",
+        "kanyakumari",
+        "bid",
+        "ahmadnagar",
+        "buldhana",
+        "ahmedabad",
+        "mehsana",
+        "charkhi dadri",
+        "north delhi",
+        "north west delhi",
+        "north east delhi",
+        "west delhi",
+        "east delhi",
+        "south east delhi",
+        "south west delhi",
+        "south delhi",
+        ,
+        "new delhi",
+        ,
+        "central delhi",
+        "y.s.r. kadapa",
+        "chhota udaipur",
+        "chittaurgam",
+    ];
     var ActiveColorGrad = [
         {
             color: [0, 0, 0, 0.0],
@@ -174,7 +202,7 @@ export default function () {
 
     Chart.prototype.initialize = function (districtData) {
         let self = this;
-
+        self.districtData = districtData;
         self.zoomInstance = i2d.behaviour.zoom();
         self.zoomInstance.scaleExtent([1, 15]);
         self.zoomInstance.zoomStart(zoomStart);
@@ -233,14 +261,42 @@ export default function () {
                     var val = d.d[dataType];
                     val = val <= 0 ? 0 : scaleFun(sqrt(val));
 
-                    nodes[i]
-                        .setAttr("x", d.xy[0] - width * 0.25)
-                        .setAttr("y", d.xy[1] - (val * 0.5) / scale);
+                    nodes[i].setAttr("x", d.xy[0] - width * 0.25).setAttr("y", d.xy[1] - 3);
                 }
             } else {
                 self.labelHref.setStyle("display", "none");
             }
         }
+    };
+
+    Chart.prototype.resize = function () {
+        let self = this;
+        let mindim = Math.min(self.GeoMaprenderer.height, self.GeoMaprenderer.width);
+        self.projection
+            .translate([self.GeoMaprenderer.width / 2, mindim / 2 + 50])
+            .scale([mindim * 1.65]);
+
+        self.stateG.fetchEls("path").forEach(function (d) {
+            this.setAttr("d", self.path(d));
+        });
+        self.distG.fetchEls("path").forEach(function (d) {
+            this.setAttr("d", self.path(d));
+        });
+
+        scaleRange = [mindim * 0.01, mindim * 0.1];
+        self.zoomInstance.zoomTarget([self.webglRenderer.width / 2, self.webglRenderer.height / 2]);
+
+        this.Texture.setAttr({
+            width: self.webglRenderer.width * self.webglRenderer.pixelRatio,
+            height: self.webglRenderer.height * self.webglRenderer.pixelRatio,
+        });
+
+        self.heatmapHref.data.forEach(function (d) {
+            d.xy = self.projection([d.d.longitude, d.d.latitude]);
+        });
+
+        self.heatmapHref.update();
+        self.labelHref.update();
     };
 
     Chart.prototype.update = function (argument) {
@@ -251,12 +307,13 @@ export default function () {
         var self = this;
         var GeoMaprenderer = i2d.canvasLayer("#map-container", {}, {});
         var mindim = Math.min(GeoMaprenderer.height, GeoMaprenderer.width);
+        self.GeoMaprenderer = GeoMaprenderer;
         self.projection = geoMercator()
             .translate([GeoMaprenderer.width / 2, mindim / 2 + 50])
             .center([81, 20.593684])
             .scale([mindim * 1.65]);
 
-        var path = geoPath().projection(self.projection);
+        self.path = geoPath().projection(self.projection);
 
         renderLegend(GeoMaprenderer);
 
@@ -303,22 +360,22 @@ export default function () {
                 getIndianStatesGeoJson(),
             ]);
 
-            stateGeoData.features.forEach(function (state) {
-                self.stateG.createEl({
-                    el: "path",
-                    attr: {
-                        d: path(state),
+            self.stateG.createEls(stateGeoData.features, {
+                el: "path",
+                attr: {
+                    d: function (d) {
+                        return self.path(d);
                     },
-                });
+                },
             });
 
-            districtGeoData.features.forEach(function (dist) {
-                self.distG.createEl({
-                    el: "path",
-                    attr: {
-                        d: path(dist),
+            self.distG.createEls(districtGeoData.features, {
+                el: "path",
+                attr: {
+                    d: function (d) {
+                        return self.path(d);
                     },
-                });
+                },
             });
         }
 
@@ -406,7 +463,7 @@ export default function () {
             },
             {
                 enableEvents: true,
-                enableResize: false,
+                enableResize: true,
             }
         );
         this.webglRenderer = webglRenderer;
@@ -417,9 +474,12 @@ export default function () {
         self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
         webglRenderer.on("zoom", self.zoomInstance);
         this.webglRenderer = webglRenderer;
+        this.webglRenderer.onResize(function () {
+            self.resize();
+        });
         // var opacity = 1.0;
 
-        var Texture = webglRenderer.TextureObject({
+        this.Texture = webglRenderer.TextureObject({
             width: webglRenderer.width * webglRenderer.pixelRatio,
             height: webglRenderer.height * webglRenderer.pixelRatio,
             border: 0,
@@ -433,7 +493,7 @@ export default function () {
         });
 
         var renderTarget = webglRenderer.RenderTarget({
-            texture: Texture,
+            texture: this.Texture,
         });
 
         var labelGroup = webglRenderer.createEl({
@@ -480,7 +540,7 @@ export default function () {
                     size: 1,
                 },
                 u_framebuffer: {
-                    value: Texture,
+                    value: this.Texture,
                 },
             },
             bbox: false,
@@ -544,13 +604,14 @@ export default function () {
                         var op = Math.log(val || 1) / 5;
                         op = op > 1.0 ? 1.0 : op;
 
+                        this.setAttr("x", dd.xy[0] - val * 0.5 * sqrtScale);
+                        this.setAttr("y", dd.xy[1] - val * 0.5 * sqrtScale);
+
                         this.animateTo({
                             duration: 100,
                             attr: {
                                 width: val * sqrtScale,
                                 height: val * sqrtScale,
-                                x: dd.xy[0] - val * 0.5 * sqrtScale,
-                                y: dd.xy[1] - val * 0.5 * sqrtScale,
                             },
                             style: {
                                 opacity: op,
@@ -575,13 +636,15 @@ export default function () {
                                 return d.xy[1] + 10;
                             },
                             text: function (d) {
-                                return d.d.label;
+                                return citiesToHide.indexOf(d.d.name) === -1 ? d.d.label : "";
                             },
                         },
                         style: {
                             font: defaultFontSize[0] * 0.75 + "px Arial",
                             fillStyle: "#dba9a9",
-                            // opacity: 0.5
+                            opacity: function (d) {
+                                return citiesToHide.indexOf(d.d.name) === -1 ? 1 : 0;
+                            },
                         },
                     })
                         .on("zoom", self.zoomInstance)
@@ -594,6 +657,10 @@ export default function () {
                         });
                 },
                 update: function (nodes) {
+                    nodes["text"].forEach(function (d) {
+                        this.setAttr("x", d.xy[0]);
+                        this.setAttr("y", d.xy[1] + 10);
+                    });
                     // nodes['text'].forEach(function (d) {
                     // 	var active = d.active;
                     // 	active = active <= 0 ? 0 : heatmapLinearScale(Math.sqrt(active));

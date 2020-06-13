@@ -33,9 +33,10 @@ export default function () {
         this.timelineLayer = i2d.svgLayer("#" + containerId, {}, {});
         width = this.timelineLayer.width;
         height = this.timelineLayer.height;
+        this.timelineLayer.setAttr("viewBox", "0 0 " + 500 + " " + (height / width) * 500);
         height *= 0.8;
-        widthPerBar = (width * 0.8) / 45;
-        scaleRange = [5, height - 10];
+        widthPerBar = (500 * 0.8) / 45;
+        scaleRange = [5, (height / width) * 500 - 10];
         // this.gradColor = this.timelineLayer.createLinearGradient({
         //     x1: 0,
         //     y1: 100,
@@ -57,7 +58,7 @@ export default function () {
             el: "g",
             attr: {
                 transform: {
-                    translate: [width * 0.1, height],
+                    translate: [500 * 0.1, (height / width) * 500],
                 },
             },
         });
@@ -87,7 +88,7 @@ export default function () {
                                 class: "deceased",
                             },
                             style: {
-                                fill: "#999",
+                                fill: "hsla(0, 0%, 70%, 1)",
                             },
                         });
 
@@ -101,7 +102,7 @@ export default function () {
                                 class: "recovered",
                             },
                             style: {
-                                fill: "#090",
+                                fill: "hsl(120, 89%, 45%)",
                             },
                         });
 
@@ -115,7 +116,7 @@ export default function () {
                                 class: "active",
                             },
                             style: {
-                                fill: "#009",
+                                fill: "hsl(210, 100%, 65%)",
                             },
                         });
                     });

@@ -4,6 +4,8 @@ export default function () {
     let scaleRange = [0, 0];
     let scaleDomain = [0, 0];
     let width = 0;
+    let height = 0;
+    let newHeight = 0;
     let widthPerBar = 0;
     let dateCount = 0;
     function scaleFun(count) {
@@ -24,10 +26,13 @@ export default function () {
     };
     Chart.prototype.initialize = function (data) {
         let self = this;
-        this.timelineLayer = i2d.canvasLayer("#timeline-container", {}, {});
+        this.timelineLayer = i2d.svgLayer("#timeline-container", {}, {});
         width = this.timelineLayer.width;
-        widthPerBar = width / dateCount;
-        scaleRange = [5, this.timelineLayer.height - 10];
+        height = this.timelineLayer.height;
+        this.timelineLayer.setAttr("viewBox", "0 0 " + 500 + " " + (height / width) * 500);
+        newHeight = (height / width) * 500;
+        widthPerBar = (500 * 0.8) / dateCount;
+        scaleRange = [2.5, newHeight - 5];
         this.gradColor = this.timelineLayer.createLinearGradient({
             x1: 0,
             y1: 100,
@@ -48,7 +53,7 @@ export default function () {
             el: "group",
             attr: {
                 transform: {
-                    translate: [100, this.timelineLayer.height],
+                    translate: [500 * 0.1, newHeight - 2.5],
                 },
             },
         });
@@ -64,7 +69,7 @@ export default function () {
                             width: widthPerBar * 0.7,
                         },
                         style: {
-                            fillStyle: self.gradColor,
+                            fill: self.gradColor,
                         },
                     });
                 },
@@ -73,7 +78,7 @@ export default function () {
                 },
                 update: function (nodes) {
                     nodes["rect"].forEach(function (d, i) {
-                        this.setAttr("x", i * widthPerBar * 0.8);
+                        this.setAttr("x", i * widthPerBar);
                         this.setAttr("y", -scaleFun(d.value));
                         this.setAttr("height", scaleFun(d.value));
                     });
