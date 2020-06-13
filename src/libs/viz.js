@@ -604,14 +604,13 @@ export default function () {
                         var op = Math.log(val || 1) / 5;
                         op = op > 1.0 ? 1.0 : op;
 
-                        this.setAttr("x", dd.xy[0] - val * 0.5 * sqrtScale);
-                        this.setAttr("y", dd.xy[1] - val * 0.5 * sqrtScale);
-
                         this.animateTo({
                             duration: 100,
                             attr: {
                                 width: val * sqrtScale,
                                 height: val * sqrtScale,
+                                x: dd.xy[0] - val * 0.5 * sqrtScale,
+                                y: dd.xy[1] - val * 0.5 * sqrtScale,
                             },
                             style: {
                                 opacity: op,

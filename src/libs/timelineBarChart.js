@@ -8,6 +8,8 @@ export default function () {
     let newHeight = 0;
     let widthPerBar = 0;
     let dateCount = 0;
+    let showTooltipFunc;
+    let hideTooltipFunc;
     function scaleFun(count) {
         return (
             scaleRange[0] +
@@ -71,7 +73,18 @@ export default function () {
                         style: {
                             fill: self.gradColor,
                         },
-                    });
+                    })
+                        .on("mousemove", function (e) {
+                            var d = this.data();
+                            if (showTooltipFunc) {
+                                showTooltipFunc(d, e);
+                            }
+                        })
+                        .on("mouseout", function (e) {
+                            if (hideTooltipFunc) {
+                                hideTooltipFunc();
+                            }
+                        });
                 },
                 exit: function (nodes) {
                     nodes["rect"].remove();
@@ -87,6 +100,15 @@ export default function () {
         });
 
         this.barHref.update();
+    };
+    Chart.prototype.showTooltip = function (_) {
+        showTooltipFunc = _;
+        return this;
+    };
+
+    Chart.prototype.hideTooltip = function (_) {
+        hideTooltipFunc = _;
+        return this;
     };
     Chart.prototype.update = function (data) {
         this.barHref.join(data);

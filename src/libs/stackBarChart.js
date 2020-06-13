@@ -7,6 +7,8 @@ export default function () {
     let height = 0;
     let widthPerBar = 0;
     let containerId;
+    let showTooltipFunc;
+    let hideTooltipFunc;
     // let dateCount = 0;
     function scaleFun(count) {
         return (
@@ -74,52 +76,64 @@ export default function () {
                                 };
                             },
                         },
-                    }).forEach(function (d) {
-                        let h1 = -scaleFun(d.deceased);
-                        let h2 = -scaleFun(d.recovered);
-                        let h3 = -scaleFun(d.active);
-                        this.createEl({
-                            el: "rect",
-                            attr: {
-                                x: 0,
-                                y: h1,
-                                height: h1 * -1,
-                                width: widthPerBar * 0.7,
-                                class: "deceased",
-                            },
-                            style: {
-                                fill: "hsla(0, 0%, 70%, 1)",
-                            },
-                        });
+                    })
+                        .forEach(function (d) {
+                            let h1 = -scaleFun(d.deceased);
+                            let h2 = -scaleFun(d.recovered);
+                            let h3 = -scaleFun(d.active);
+                            this.createEl({
+                                el: "rect",
+                                attr: {
+                                    x: 0,
+                                    y: h1,
+                                    height: h1 * -1,
+                                    width: widthPerBar * 0.7,
+                                    class: "deceased",
+                                },
+                                style: {
+                                    fill: "hsla(0, 0%, 70%, 1)",
+                                },
+                            });
 
-                        this.createEl({
-                            el: "rect",
-                            attr: {
-                                x: 0,
-                                y: h1 + h2,
-                                height: h2 * -1,
-                                width: widthPerBar * 0.7,
-                                class: "recovered",
-                            },
-                            style: {
-                                fill: "hsl(120, 89%, 45%)",
-                            },
-                        });
+                            this.createEl({
+                                el: "rect",
+                                attr: {
+                                    x: 0,
+                                    y: h1 + h2,
+                                    height: h2 * -1,
+                                    width: widthPerBar * 0.7,
+                                    class: "recovered",
+                                },
+                                style: {
+                                    fill: "hsl(120, 89%, 45%)",
+                                },
+                            });
 
-                        this.createEl({
-                            el: "rect",
-                            attr: {
-                                x: 0,
-                                y: h1 + h2 + h3,
-                                height: h3 * -1,
-                                width: widthPerBar * 0.7,
-                                class: "active",
-                            },
-                            style: {
-                                fill: "hsl(210, 100%, 65%)",
-                            },
+                            this.createEl({
+                                el: "rect",
+                                attr: {
+                                    x: 0,
+                                    y: h1 + h2 + h3,
+                                    height: h3 * -1,
+                                    width: widthPerBar * 0.7,
+                                    class: "active",
+                                },
+                                style: {
+                                    fill: "hsl(210, 100%, 65%)",
+                                },
+                            });
+                        })
+                        .on("mousemove", function (e) {
+                            var d = this.data();
+                            if (showTooltipFunc) {
+                                showTooltipFunc(d, e);
+                            }
+                        })
+                        .on("mouseout", function (e) {
+                            if (hideTooltipFunc) {
+                                hideTooltipFunc();
+                            }
                         });
-                    });
                 },
                 exit: function (nodes) {
                     nodes["g"].remove();
@@ -152,6 +166,15 @@ export default function () {
         scaleDomain = [0, fetchDomainRange(data)[1]];
         this.barHref.join(data);
         this.barHref.update();
+    };
+    Chart.prototype.showTooltip = function (_) {
+        showTooltipFunc = _;
+        return this;
+    };
+
+    Chart.prototype.hideTooltip = function (_) {
+        hideTooltipFunc = _;
+        return this;
     };
 
     function fetchDomainRange(data) {
