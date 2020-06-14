@@ -664,7 +664,7 @@ export default function () {
                 enter: function (data) {
                     this.createEls(
                         data["text"].filter(function (d) {
-                            return citiesToHide.indexOf(d.d.name) !== -1;
+                            return citiesToHide.indexOf(d.d.name) === -1;
                         }),
                         {
                             el: "text",
