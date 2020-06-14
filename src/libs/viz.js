@@ -632,7 +632,6 @@ export default function () {
             },
         });
         var defaultFontSize = getDefaultFontSize();
-        // console.log(defaultFontSize);
         this.labelHref = labelGroup.join(data, "text", {
             action: {
                 enter: function (data) {

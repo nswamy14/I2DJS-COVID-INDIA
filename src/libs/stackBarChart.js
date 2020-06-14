@@ -91,7 +91,7 @@ export default function () {
                                     class: "deceased",
                                 },
                                 style: {
-                                    fill: "hsla(0, 0%, 70%, 1)",
+                                    fill: "#616161",
                                 },
                             });
 
@@ -105,7 +105,7 @@ export default function () {
                                     class: "recovered",
                                 },
                                 style: {
-                                    fill: "hsl(120, 89%, 45%)",
+                                    fill: "#388e3c",
                                 },
                             });
 
@@ -119,7 +119,7 @@ export default function () {
                                     class: "active",
                                 },
                                 style: {
-                                    fill: "hsl(210, 100%, 65%)",
+                                    fill: "#0d47a1",
                                 },
                             });
                         })

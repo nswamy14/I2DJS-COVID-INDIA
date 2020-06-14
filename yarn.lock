@@ -4841,7 +4841,7 @@ husky@^4.2.5:
 
 "i2djs@git+https://github.com/I2Djs/I2Djs.git":
   version "3.1.0"
-  resolved "git+https://github.com/I2Djs/I2Djs.git#35b09c2e4171d4adef68806b8f180ebd7029bb90"
+  resolved "git+https://github.com/I2Djs/I2Djs.git#5a5734f443c8f6ac0332f23ee03bca89eb313454"
   dependencies:
     earcut "^2.1.5"
 

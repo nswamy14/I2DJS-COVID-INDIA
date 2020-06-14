@@ -8,7 +8,7 @@
             <span :class="[counter.color + '--text', 'text-uppercase']">
                 {{ counter.label }}
             </span>
-            <div class="d-flex flex-column justify-start align-center counter-content body-2">
+            <div class="d-flex flex-column justify-start align-center counter-content body-2 mb-1">
                 <span :class="[counter.color + '--text', 'text--lighten-1']">
                     {{ counter.total }}
                 </span>
@@ -47,7 +47,10 @@ export default {
 };
 </script>
 <style scoped>
-. .counter-content {
+.ind-counter {
+    min-width: 6rem;
+}
+.counter-content {
     height: 2rem;
 }
 .sparkline-chart {

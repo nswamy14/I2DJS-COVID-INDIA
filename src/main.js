@@ -1,4 +1,5 @@
 import Vue from "vue";
+import CustomPopover from "@/components/CustomPopover";
 
 import vuetify from "@/plugins/vuetify";
 
@@ -15,3 +16,5 @@ new Vue({
     vuetify,
     render: (h) => h(App),
 }).$mount("#app");
+
+Vue.component(CustomPopover.name, CustomPopover);
