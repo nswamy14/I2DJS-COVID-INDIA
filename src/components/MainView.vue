@@ -1,5 +1,6 @@
 <template>
     <div class="main-container">
+        <v-progress-linear :active="showProgress" indeterminate color="orange"> </v-progress-linear>
         <v-content>
             <v-container class="fill-height align-content-start" fluid>
                 <div
@@ -45,7 +46,11 @@
                     <div class="toolbar d-flex align-center flex-wrap justify-center mt-2">
                         <v-autocomplete
                             :items="searchItems"
-                            :menu-props="{ light: true, nudgeBottom: 5 }"
+                            :menu-props="{
+                                light: true,
+                                nudgeBottom: 5,
+                                contentClass: 'text-capitalize',
+                            }"
                             class="mr-2 search"
                             clearable
                             dense
@@ -172,6 +177,7 @@ export default {
     components: { DistrictView, TimelineView, MapContainer, CountersView },
     data() {
         return {
+            showProgress: false,
             search: "",
             searchGeoLocation: {},
             searchItems: [],
@@ -283,6 +289,8 @@ export default {
     methods: {
         async initialize() {
             let self = this;
+
+            self.showProgress = true;
 
             let [IndianCities, covidData] = await Promise.all([
                 this.getIndianCities(),
@@ -407,11 +415,8 @@ export default {
             self.updateCounters();
             self.updateHeatmapData();
             self.timelineData = self.selectedCounter;
+            self.showProgress = false;
         },
-
-        // searchGeoLocation (geoLocation) {
-        // 	this.getDistrictTimelineData(val);
-        // },
 
         async getDistrictWiseDailyData() {
             try {
@@ -599,10 +604,6 @@ export default {
                 confirmScale[0] = Math.min(confirmScale[0], dataObj.confirmed);
                 confirmScale[1] = Math.max(confirmScale[1], dataObj.confirmed);
 
-                // timelineData.forEach(function (d) {
-                // 	d.scale[0] =  Math.min(d.scale[0], dataObj[d.key]);
-                // 	d.scale[1] =  Math.max(d.scale[1], dataObj[d.key]);
-                // });
                 dateData.push(dataObj);
                 totalDateItems += 1;
             });

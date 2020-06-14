@@ -2,13 +2,46 @@
     <div class="position-relative viz-container">
         <custom-popover
             :position="position"
-            right
+            top
             center
-            content-class="viz-tooltip-arrow-color"
+            content-class="light-theme-arrow"
             v-model="showPopover"
         >
-            <v-card light height="150px" width="300px">
-                <v-card-title class="subtitle-1">Tooltip Details will be displayed</v-card-title>
+            <v-card light width="12rem" class="pa-3">
+                <div class="subtitle-1 text-center text-capitalize">
+                    {{ popoverData.label }}
+                </div>
+                <div class="body-2 font-weight-bold text-center mt-n1 mb-3 text-capitalize">
+                    {{ popoverData.state }}
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color confirmed"></div>
+                    <span class="ml-1">CONFIRMED</span>
+                    <span class="font-weight-bold black--text ml-auto">
+                        {{ popoverData.confirmed }}
+                    </span>
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color active"></div>
+                    <span class="ml-1">ACTIVE</span>
+                    <span class="font-weight-bold black--text ml-auto">
+                        {{ popoverData.active }}
+                    </span>
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color recovered"></div>
+                    <span class="ml-1">RECOVERED</span>
+                    <span class="font-weight-bold black--text ml-auto">
+                        {{ popoverData.recovered }}
+                    </span>
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color deceased"></div>
+                    <span class="ml-1">DECEASED</span>
+                    <span class="font-weight-bold black--text ml-auto">
+                        {{ popoverData.deceased }}
+                    </span>
+                </div>
             </v-card>
         </custom-popover>
         <div
@@ -155,9 +188,8 @@ export default {
         },
 
         showTooltip(data, event) {
-            console.log(data.d.name);
-            this.popoverData = data;
-            this.position = { x: event.clientX, y: event.clientY, offset: 18 };
+            this.popoverData = data.d;
+            this.position = { x: event.clientX, y: event.clientY, offset: 10 };
             this.showPopover = true;
         },
 

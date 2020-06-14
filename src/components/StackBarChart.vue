@@ -1,13 +1,60 @@
 <template>
-    <div class="viz-container" :id="id"></div>
+    <div class="viz-container" :id="id">
+        <custom-popover
+            :position="position"
+            top
+            start
+            content-class="dark-theme-arrow"
+            v-model="showPopover"
+        >
+            <v-card min-width="10rem" class="pa-2">
+                <div class="body-2 font-weight-bold text-center mt-n1 py-2">
+                    {{ popoverData.date }}
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color confirmed"></div>
+                    <span class="ml-1">CONFIRMED</span>
+                    <span class="font-weight-bold ml-auto">
+                        {{ popoverData.confirmed }}
+                    </span>
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color active"></div>
+                    <span class="ml-1">ACTIVE</span>
+                    <span class="font-weight-bold ml-auto">
+                        {{ popoverData.active }}
+                    </span>
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color recovered"></div>
+                    <span class="ml-1">RECOVERED</span>
+                    <span class="font-weight-bold ml-auto">
+                        {{ popoverData.recovered }}
+                    </span>
+                </div>
+                <div class="d-flex align-center px-2 caption">
+                    <div class="color deceased"></div>
+                    <span class="ml-1">DECEASED</span>
+                    <span class="font-weight-bold ml-auto">
+                        {{ popoverData.deceased }}
+                    </span>
+                </div>
+            </v-card>
+        </custom-popover>
+    </div>
 </template>
 
 <script>
 import stackBarChart from "./../libs/stackBarChart.js";
+import { debounce } from "lodash";
 export default {
     name: "TimelineView",
     data() {
-        return {};
+        return {
+            showPopover: false,
+            position: {},
+            popoverData: {},
+        };
     },
     props: {
         timelineData: {
@@ -29,13 +76,27 @@ export default {
     },
     methods: {
         initialize() {
+            this.debouncedMouseOver = debounce(this.showTooltip.bind(this), 300);
             this.timelineInstance = stackBarChart();
             this.timelineInstance.containerId(this.id);
             this.timelineInstance.initialize(this.timelineData);
+            this.timelineInstance.showTooltip(this.debouncedMouseOver);
+            this.timelineInstance.hideTooltip(this.hideTooltip);
         },
 
         update(data) {
             this.timelineInstance.update(data);
+        },
+
+        showTooltip(data, event) {
+            this.popoverData = data;
+            this.position = { x: event.clientX, y: event.clientY, offset: 5 };
+            this.showPopover = true;
+        },
+
+        hideTooltip() {
+            this.showPopover = false;
+            this.debouncedMouseOver.cancel();
         },
     },
 };
