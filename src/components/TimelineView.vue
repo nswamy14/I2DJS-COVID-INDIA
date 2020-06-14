@@ -28,15 +28,15 @@ export default {
     },
     methods: {
         initialize(data) {
-            console.log(this.timelineData);
+            // console.log(this.timelineData);
             this.timelineInstance = timelineBarChart();
             this.timelineInstance.dataRange(this.timelineData.scale);
             this.timelineInstance.dateCount(this.timelineData.dateCount);
-            this.timelineInstance.initialize(this.timelineData.data);
+            this.timelineInstance.initialize(this.timelineData);
         },
 
         update() {
-            this.timelineInstance.update(this.timelineData.data);
+            this.timelineInstance.update(this.timelineData);
         },
     },
 };

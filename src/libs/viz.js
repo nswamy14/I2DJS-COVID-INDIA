@@ -96,11 +96,6 @@ export default function () {
         },
     ];
 
-    // var ConfirmedColorGrad = [{
-    // 	color: [255, 0, 0, 0.1], offset: 0
-    // }, {
-    // 	color: [255, 255, 255, 1.0], offset: 1.0
-    // }];
     var sqrt = Math.sqrt;
     var ActiveColorGradMap = gradientMapper(ActiveColorGrad);
     var RecoveredColorGradMap = gradientMapper(RecoveredColorGrad);
@@ -112,7 +107,6 @@ export default function () {
     var showTooltipFunc;
     var hideTooltipFunc;
     var fontSize = 10;
-    // vartooltip;
     let Chart = function () {};
 
     Chart.prototype.dataType = function (val) {
@@ -172,8 +166,9 @@ export default function () {
     Chart.prototype.zoomToLocation = function (location) {
         let translate = this.zoomInstance.event.transform.translate;
         let scale = this.zoomInstance.event.transform.scale[0];
-        if (location) {
+        if (!_.isEmpty(location)) {
             let xy = this.projection([location.longitude, location.latitude]);
+            let rawXY = [xy[0], xy[1]];
             xy[0] *= scale;
             xy[1] *= scale;
             xy[0] += translate[0];
@@ -181,9 +176,25 @@ export default function () {
             // prevLoc = location;
             // prevZoom.loc = location;
             // prevZoom.scale = scale;this.webglRenderer.scaleTo(8, xy);
+            // console.log(this.distG);
+            let child = this.distG.children;
+            for (var i = 0; i < child.length; i++) {
+                if (child[i].in({ x: rawXY[0], y: rawXY[1] })) {
+                    console.log(child[i]);
+                    child[i].setStyle("lineWidth", 0.25);
+                    child[i].setStyle("strokeStyle", "#33c4cc");
+                } else {
+                    child[i].setStyle("lineWidth", null);
+                    child[i].setStyle("strokeStyle", null);
+                }
+            }
             this.webglRenderer.scaleTo(8, xy);
-            this.zoomInstance.zoomTarget(this.projection([location.longitude, location.latitude]));
+            // this.zoomInstance.zoomTarget(rawXY);
         } else {
+            let child = this.distG.children;
+            for (var i = 0; i < child.length; i++) {
+                child[i].setStyle("fillStyle", null);
+            }
             // this.webglRenderer.scaleTo(1, [
             //     this.webglRenderer.width / 2,
             //     this.webglRenderer.height / 2,
@@ -648,11 +659,15 @@ export default function () {
                     })
                         .on("zoom", self.zoomInstance)
                         .on("mousemove", function (e) {
-                            // var d = this.data();
-                            // tooltip(d, e);
+                            var d = this.data();
+                            if (showTooltipFunc) {
+                                showTooltipFunc(d, e);
+                            }
                         })
                         .on("mouseout", function (e) {
-                            // tooltip();
+                            if (hideTooltipFunc) {
+                                hideTooltipFunc();
+                            }
                         });
                 },
                 update: function (nodes) {

@@ -17,16 +17,14 @@ export default function () {
                 (scaleRange[1] - scaleRange[0])
         );
     }
-    let Chart = function () {
-        // this.heightScale = d3.scaleLinear().range([0, 0]).domain([0, 0]);
-    };
+    let Chart = function () {};
     Chart.prototype.dataRange = function (range) {
         scaleDomain = [0, range[1]];
     };
     Chart.prototype.dateCount = function (count) {
         dateCount = count;
     };
-    Chart.prototype.initialize = function (data) {
+    Chart.prototype.initialize = function (timelinedata) {
         let self = this;
         this.timelineLayer = i2d.svgLayer("#timeline-container", {}, {});
         width = this.timelineLayer.width;
@@ -46,7 +44,7 @@ export default function () {
                     value: 0,
                 },
                 {
-                    color: "rgba(255, 0, 0, 1.0)",
+                    color: timelinedata.hexa,
                     value: 100.0,
                 },
             ],
@@ -59,7 +57,7 @@ export default function () {
                 },
             },
         });
-        this.barHref = g.join(data, "rect", {
+        this.barHref = g.join(timelinedata.data, "rect", {
             action: {
                 enter: function (data) {
                     this.createEls(data["rect"], {
@@ -110,8 +108,18 @@ export default function () {
         hideTooltipFunc = _;
         return this;
     };
-    Chart.prototype.update = function (data) {
-        this.barHref.join(data);
+    Chart.prototype.update = function (timelinedata) {
+        this.gradColor.colorStops([
+            {
+                color: "rgba(0, 0, 0, 0.0)",
+                value: 0,
+            },
+            {
+                color: timelinedata.hexa,
+                value: 100.0,
+            },
+        ]);
+        this.barHref.join(timelinedata.data);
         this.barHref.update();
     };
     return new Chart();

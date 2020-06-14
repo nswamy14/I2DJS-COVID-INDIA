@@ -269,7 +269,7 @@ export default {
                 this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
                 this.getDistrictTimelineData(val.toLowerCase());
             } else {
-                this.searchGeoLocation = "";
+                this.searchGeoLocation = {};
             }
             // this.searchGeoLocation(val);
         },
