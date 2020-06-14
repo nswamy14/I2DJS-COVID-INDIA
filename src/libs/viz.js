@@ -2,6 +2,7 @@ import { geoMercator, geoPath } from "d3";
 import * as i2d from "i2djs";
 import { vertexShader, fragmentShader } from "./shaders";
 import { getIndianDistrictGeoJson, getIndianStatesGeoJson } from "@/api/CovidServices";
+import { debounce } from "lodash";
 
 export default function () {
     // var heatmapLinearScale = d3.scaleLinear();
@@ -162,10 +163,14 @@ export default function () {
             this.webglRenderer.height / 2,
         ]);
     };
-
+    let prevNode;
     Chart.prototype.zoomToLocation = function (location) {
         let translate = this.zoomInstance.event.transform.translate;
         let scale = this.zoomInstance.event.transform.scale[0];
+        if (prevNode) {
+            prevNode.setStyle("lineWidth", null);
+            prevNode.setStyle("strokeStyle", null);
+        }
         if (!_.isEmpty(location)) {
             let xy = this.projection([location.longitude, location.latitude]);
             let rawXY = [xy[0], xy[1]];
@@ -177,24 +182,19 @@ export default function () {
             // prevZoom.loc = location;
             // prevZoom.scale = scale;this.webglRenderer.scaleTo(8, xy);
             // console.log(this.distG);
-            let child = this.distG.children;
-            for (var i = 0; i < child.length; i++) {
-                if (child[i].in({ x: rawXY[0], y: rawXY[1] })) {
-                    console.log(child[i]);
-                    child[i].setStyle("lineWidth", 0.25);
-                    child[i].setStyle("strokeStyle", "#33c4cc");
-                } else {
-                    child[i].setStyle("lineWidth", null);
-                    child[i].setStyle("strokeStyle", null);
-                }
+            let node = this.distG.fetchEl("." + location.name);
+            if (node) {
+                node.setStyle("lineWidth", 0.25);
+                node.setStyle("strokeStyle", "#33c4cc");
+                prevNode = node;
             }
             this.webglRenderer.scaleTo(8, xy);
-            // this.zoomInstance.zoomTarget(rawXY);
         } else {
-            let child = this.distG.children;
-            for (var i = 0; i < child.length; i++) {
-                child[i].setStyle("fillStyle", null);
-            }
+            // let child = this.distG.children;
+            // for (var i = 0; i < child.length; i++) {
+            //     child[i].setStyle("lineWidth", null);
+            //     child[i].setStyle("strokeStyle", null);
+            // }
             // this.webglRenderer.scaleTo(1, [
             //     this.webglRenderer.width / 2,
             //     this.webglRenderer.height / 2,
@@ -316,7 +316,7 @@ export default function () {
 
     Chart.prototype.renderGeoMap = function (argument) {
         var self = this;
-        var GeoMaprenderer = i2d.canvasLayer("#map-container", {}, {});
+        var GeoMaprenderer = i2d.canvasLayer("#map-container", {}, { enableEvents: false });
         var mindim = Math.min(GeoMaprenderer.height, GeoMaprenderer.width);
         self.GeoMaprenderer = GeoMaprenderer;
         self.projection = geoMercator()
@@ -348,7 +348,7 @@ export default function () {
                 strokeStyle: "#c74a4a",
                 lineWidth: 0.2,
             },
-            // bbox: false,
+            bbox: false,
         });
 
         renderGeoJson();
@@ -385,6 +385,9 @@ export default function () {
                 attr: {
                     d: function (d) {
                         return self.path(d);
+                    },
+                    class: function (d) {
+                        return d.properties.DISTRICT.toLowerCase();
                     },
                 },
             });
@@ -485,9 +488,11 @@ export default function () {
         self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
         webglRenderer.on("zoom", self.zoomInstance);
         this.webglRenderer = webglRenderer;
-        this.webglRenderer.onResize(function () {
-            self.resize();
-        });
+        this.webglRenderer.onResize(
+            debounce(function () {
+                self.resize();
+            }, 200)
+        );
         // var opacity = 1.0;
 
         this.Texture = webglRenderer.TextureObject({
