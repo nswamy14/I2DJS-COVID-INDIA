@@ -44,6 +44,7 @@ export default function () {
         "chhota udaipur",
         "chittaurgam",
     ];
+    // var clickEnable = true;
     var ActiveColorGrad = [
         {
             color: [0, 0, 0, 0.0],
@@ -231,6 +232,10 @@ export default function () {
 
         function zoomStart(event) {
             // tooltip();
+            // clickEnable = false;
+            if (hideTooltipFunc) {
+                hideTooltipFunc();
+            }
         }
 
         function onZoom(event) {
@@ -277,6 +282,7 @@ export default function () {
             } else {
                 self.labelHref.setStyle("display", "none");
             }
+            // clickEnable = true;
         }
     };
 
@@ -323,6 +329,12 @@ export default function () {
             .translate([GeoMaprenderer.width / 2, mindim / 2 + 50])
             .center([81, 20.593684])
             .scale([mindim * 1.65]);
+
+        GeoMaprenderer.onResize(
+            debounce(function () {
+                self.resize();
+            }, 250)
+        );
 
         self.path = geoPath().projection(self.projection);
 
@@ -477,7 +489,7 @@ export default function () {
             },
             {
                 enableEvents: true,
-                enableResize: true,
+                enableResize: false,
             }
         );
         this.webglRenderer = webglRenderer;
@@ -488,11 +500,6 @@ export default function () {
         self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
         webglRenderer.on("zoom", self.zoomInstance);
         this.webglRenderer = webglRenderer;
-        this.webglRenderer.onResize(
-            debounce(function () {
-                self.resize();
-            }, 200)
-        );
         // var opacity = 1.0;
 
         this.Texture = webglRenderer.TextureObject({
@@ -598,13 +605,28 @@ export default function () {
                         },
                     })
                         .on("zoom", self.zoomInstance)
+                        .on("click", function (e) {
+                            // if (!clickEnable) {
+                            // 	return;
+                            // }
+                            var d = this.data();
+                            if (showTooltipFunc) {
+                                showTooltipFunc(d, e);
+                            }
+                        })
                         .on("mousemove", function (e) {
+                            if (e.pointerType === "touch") {
+                                return;
+                            }
                             var d = this.data();
                             if (showTooltipFunc) {
                                 showTooltipFunc(d, e);
                             }
                         })
                         .on("mouseout", function (e) {
+                            if (e.pointerType === "touch") {
+                                return;
+                            }
                             if (hideTooltipFunc) {
                                 hideTooltipFunc();
                             }
@@ -640,35 +662,46 @@ export default function () {
         this.labelHref = labelGroup.join(data, "text", {
             action: {
                 enter: function (data) {
-                    this.createEls(data["text"], {
-                        el: "text",
-                        attr: {
-                            x: function (d) {
-                                return d.xy[0];
+                    this.createEls(
+                        data["text"].filter(function (d) {
+                            return citiesToHide.indexOf(d.d.name) !== -1;
+                        }),
+                        {
+                            el: "text",
+                            attr: {
+                                x: function (d) {
+                                    return d.xy[0];
+                                },
+                                y: function (d) {
+                                    return d.xy[1] + 10;
+                                },
+                                text: function (d) {
+                                    return d.d.label;
+                                },
                             },
-                            y: function (d) {
-                                return d.xy[1] + 10;
+                            style: {
+                                font: defaultFontSize[0] * 0.75 + "px Arial",
+                                fillStyle: "#dba9a9",
+                                opacity: function (d) {
+                                    return citiesToHide.indexOf(d.d.name) === -1 ? 1 : 0;
+                                },
                             },
-                            text: function (d) {
-                                return citiesToHide.indexOf(d.d.name) === -1 ? d.d.label : "";
-                            },
-                        },
-                        style: {
-                            font: defaultFontSize[0] * 0.75 + "px Arial",
-                            fillStyle: "#dba9a9",
-                            opacity: function (d) {
-                                return citiesToHide.indexOf(d.d.name) === -1 ? 1 : 0;
-                            },
-                        },
-                    })
+                        }
+                    )
                         .on("zoom", self.zoomInstance)
                         .on("mousemove", function (e) {
                             var d = this.data();
+                            if (e.pointerType === "touch") {
+                                return;
+                            }
                             if (showTooltipFunc) {
                                 showTooltipFunc(d, e);
                             }
                         })
                         .on("mouseout", function (e) {
+                            if (e.pointerType === "touch") {
+                                return;
+                            }
                             if (hideTooltipFunc) {
                                 hideTooltipFunc();
                             }

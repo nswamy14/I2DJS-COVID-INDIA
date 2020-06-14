@@ -548,11 +548,11 @@ export default {
                 });
 
                 self.counters[2].data.push({
-                    value: currData.deceased,
+                    value: currData.recovered,
                 });
 
                 self.counters[3].data.push({
-                    value: currData.recovered,
+                    value: currData.deceased,
                 });
 
                 let distList = currData.distList;
