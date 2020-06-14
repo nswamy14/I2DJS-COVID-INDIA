@@ -87,7 +87,7 @@ export default function () {
                 };
             })
         );
-        this.sparkline.setStyle("strokeStyle", timelineData.hexa);
+        this.sparkline.setStyle("strokeStyle", timelineData.colorHex);
     };
     return new Chart();
 }

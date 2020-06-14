@@ -1,45 +1,88 @@
 <template>
-    <div>
-        <div class="btn-container ma-4 d-flex flex-column align-center">
+    <div class="position-relative viz-container">
+        <custom-popover
+            :position="position"
+            right
+            center
+            content-class="viz-tooltip-arrow-color"
+            v-model="showPopover"
+        >
+            <v-card light height="150px" width="300px">
+                <v-card-title class="subtitle-1">Tooltip Details will be displayed</v-card-title>
+            </v-card>
+        </custom-popover>
+        <div
+            :class="[[this.$vuetify.breakpoint.name]]"
+            class="btn-container d-flex flex-column align-center"
+        >
             <div class="d-flex flex-column justify-center">
-                <v-btn
-                    :small="$vuetify.breakpoint.md"
-                    :x-small="$vuetify.breakpoint.smAndDown"
-                    icon
-                    @click="zoomIn"
-                    class="zoom-btn-class plus-class"
-                >
-                    <v-icon>$plus</v-icon>
-                </v-btn>
-                <v-btn
-                    :small="$vuetify.breakpoint.md"
-                    :x-small="$vuetify.breakpoint.smAndDown"
-                    icon
-                    @click="zoomOut"
-                    class="zoom-btn-class minus-class"
-                >
-                    <v-icon>$minus</v-icon>
-                </v-btn>
+                <v-tooltip :open-delay="200" left transition="fade-transition">
+                    <template v-slot:activator="{ on }">
+                        <v-btn
+                            :small="$vuetify.breakpoint.md"
+                            :x-small="$vuetify.breakpoint.smAndDown"
+                            @click="zoomIn"
+                            class="plus-class"
+                            color="grey lighten-5"
+                            icon
+                            outlined
+                            v-on="on"
+                        >
+                            <v-icon>$plus</v-icon>
+                        </v-btn>
+                    </template>
+                    Zoom In
+                </v-tooltip>
+                <v-tooltip :open-delay="200" left transition="fade-transition">
+                    <template v-slot:activator="{ on }">
+                        <v-btn
+                            :small="$vuetify.breakpoint.md"
+                            :x-small="$vuetify.breakpoint.smAndDown"
+                            @click="zoomOut"
+                            class="minus-class"
+                            color="grey lighten-5"
+                            icon
+                            outlined
+                            v-on="on"
+                        >
+                            <v-icon>$minus</v-icon>
+                        </v-btn>
+                    </template>
+                    Zoom Out
+                </v-tooltip>
             </div>
-            <v-btn
-                icon
-                :small="$vuetify.breakpoint.md"
-                :x-small="$vuetify.breakpoint.smAndDown"
-                @click="zoomReset"
-                class="mt-2"
-            >
-                <v-icon>$globe</v-icon>
-            </v-btn>
+            <v-tooltip :open-delay="200" left transition="fade-transition">
+                <template v-slot:activator="{ on }">
+                    <v-btn
+                        :small="$vuetify.breakpoint.md"
+                        :x-small="$vuetify.breakpoint.smAndDown"
+                        @click="zoomReset"
+                        class="mt-2"
+                        color="grey lighten-5"
+                        icon
+                        v-on="on"
+                    >
+                        <v-icon>$globe</v-icon>
+                    </v-btn>
+                </template>
+                Reset Zoom
+            </v-tooltip>
         </div>
     </div>
 </template>
 
 <script>
-import geoHeatmap from "./../libs/viz.js";
+import geoHeatmap from "@/libs/viz";
+import { debounce } from "lodash";
+
 export default {
     name: "MapContainer",
     data() {
-        return {};
+        return {
+            showPopover: false,
+            position: {},
+            popoverData: {},
+        };
     },
     props: {
         dataType: {
@@ -83,19 +126,15 @@ export default {
     },
 
     methods: {
-        showTooltip(data, event) {
-            // console.log(data, event);
-            console.log(data.d.name);
-        },
-
-        hideTooltip() {},
         initialize(covidDistData) {
+            this.debouncedMouseOver = debounce(this.showTooltip.bind(this), 300);
+
             this.geoHeatmapInstance = geoHeatmap();
             this.geoHeatmapInstance.dataType(this.dataType);
 
             this.geoHeatmapInstance.dataRange(this.dataRange);
             this.geoHeatmapInstance.initialize(covidDistData);
-            this.geoHeatmapInstance.showTooltip(this.showTooltip);
+            this.geoHeatmapInstance.showTooltip(this.debouncedMouseOver);
             this.geoHeatmapInstance.hideTooltip(this.hideTooltip);
         },
 
@@ -114,31 +153,39 @@ export default {
         zoomOut() {
             this.geoHeatmapInstance.zoomOut();
         },
+
+        showTooltip(data, event) {
+            console.log(data.d.name);
+            this.popoverData = data;
+            this.position = { x: event.clientX, y: event.clientY, offset: 18 };
+            this.showPopover = true;
+        },
+
+        hideTooltip() {
+            this.showPopover = false;
+            this.debouncedMouseOver.cancel();
+        },
     },
 };
 </script>
 
 <style scoped>
-#map-container {
-    height: 100%;
-}
-
-.zoom-btn-class {
-    z-index: 100;
-}
-
-.mt-2 {
-    z-index: 100;
-}
-
 .btn-container {
+    z-index: 10;
     position: absolute;
     right: 0;
     top: 15rem;
+    margin: 1rem;
+}
+
+.btn-container.sm,
+.btn-container.xs {
+    top: 0;
+    margin: 0.5rem;
 }
 
 .zoom-btn-class {
-    border: 1px solid hsl(0, 1%, 25%);
+    border: 1px solid;
 }
 
 .plus-class {

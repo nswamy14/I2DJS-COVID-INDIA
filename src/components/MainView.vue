@@ -3,12 +3,12 @@
         <v-content>
             <v-container class="fill-height align-content-start" fluid>
                 <div
-                    class="d-flex align-center"
                     :class="[
                         $vuetify.breakpoint.smAndDown
                             ? 'flex-fill  my-2 align-self-start px-2'
-                            : 'header--floater ma-4',
+                            : 'header--floater header-title ma-4',
                     ]"
+                    class="d-flex align-center"
                 >
                     <v-img
                         alt="I2Djs Covid India logo"
@@ -31,30 +31,29 @@
                     </div>
                 </div>
 
-                <div
+                <counters-view
                     :class="[
                         $vuetify.breakpoint.smAndDown
                             ? 'flex-fill px-4 mt-2'
                             : 'counters--floater ma-4',
                     ]"
+                    :counters="mainCounter"
                     v-if="mainCounter"
-                >
-                    <counters-view :counters="mainCounter"></counters-view>
-                </div>
+                ></counters-view>
 
-                <div :class="[$vuetify.breakpoint.smAndDown ? 'flex-fill' : 'info-window']">
-                    <div class="toolbar d-flex align-center flex-wrap justify-center">
+                <div :class="[[this.$vuetify.breakpoint.name]]" class="info-window">
+                    <div class="toolbar d-flex align-center flex-wrap justify-center mt-2">
                         <v-autocomplete
                             :items="searchItems"
-                            light
-                            dense
+                            :menu-props="{ light: true, nudgeBottom: 5 }"
                             class="mr-2 search"
                             clearable
+                            dense
                             hide-details
                             hide-selected
                             label="Search by State or District"
+                            light
                             prepend-inner-icon="$mapSearch"
-                            :menu-props="{ light: true, nudgeBottom: 5 }"
                             solo
                             v-model="search"
                         >
@@ -62,32 +61,33 @@
                         <v-menu :close-on-click="true">
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn
-                                    color="teal"
-                                    dark
-                                    width="8rem"
+                                    color="text-secondary"
                                     height="2.5rem"
+                                    light
                                     v-bind="attrs"
                                     v-on="on"
+                                    width="7rem"
                                 >
-                                    <span class="body-2">{{ selectedCounter.label }}</span>
+                                    <span :class="selectedCounter.key" class="color mr-1"></span>
+                                    <span class="caption">{{ selectedCounter.label }}</span>
                                 </v-btn>
                             </template>
 
-                            <v-list dense width="8rem" color="teal">
+                            <v-list color="text-secondary" dense light width="7rem">
                                 <v-list-item
-                                    v-for="(item, index) in counters"
                                     :key="index"
                                     @click="selectedCounter = item"
+                                    class="px-2"
+                                    v-for="(item, index) in counters"
                                 >
-                                    <v-list-item-title class="body-2 text-uppercase">{{
-                                        item.label
-                                    }}</v-list-item-title>
+                                    <span :class="item.key" class="color mr-1"></span>
+                                    <span class="caption text-uppercase">{{ item.label }}</span>
                                 </v-list-item>
                             </v-list>
                         </v-menu>
                     </div>
                     <v-expand-transition>
-                        <district-view v-if="search" :districtInfo="districtInfo"> </district-view>
+                        <district-view :districtInfo="districtInfo" v-if="search"></district-view>
                     </v-expand-transition>
                 </div>
 
@@ -104,31 +104,31 @@
                 </div>
 
                 <div
-                    class="px-4 d-flex align-end timeline-container"
                     :class="[{ floater: $vuetify.breakpoint.smAndUp }]"
+                    class="mx-4 d-flex align-end timeline-container"
                 >
                     <v-fab-transition>
                         <v-btn
-                            v-if="!animFlag"
-                            key="play"
-                            fab
                             :small="$vuetify.breakpoint.md"
                             :x-small="$vuetify.breakpoint.smAndDown"
-                            light
                             @click="startTimelineAnimation"
                             color="orange"
+                            fab
+                            key="play"
+                            light
+                            v-if="!animFlag"
                         >
                             <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$play</v-icon>
                         </v-btn>
                         <v-btn
-                            v-else
-                            fab
-                            light
                             :small="$vuetify.breakpoint.md"
                             :x-small="$vuetify.breakpoint.smAndDown"
-                            key="pause"
-                            color="deep-orange"
                             @click="stopTimelineAnimation"
+                            color="deep-orange"
+                            fab
+                            key="pause"
+                            light
+                            v-else
                         >
                             <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$stop</v-icon>
                         </v-btn>
@@ -140,51 +140,19 @@
                     >
                     </timeline-view>
                 </div>
-
-                <!-- <div class="btn-container ma-4 d-flex flex-column align-center">
-                    <div class="d-flex flex-column justify-center">
-                        <v-btn
-                            :small="$vuetify.breakpoint.md"
-                            :x-small="$vuetify.breakpoint.smAndDown"
-                            icon
-                            @click="zoomIn"
-                            class="zoom-btn-class plus-class"
-                        >
-                            <v-icon>$plus</v-icon>
-                        </v-btn>
-                        <v-btn
-                            :small="$vuetify.breakpoint.md"
-                            :x-small="$vuetify.breakpoint.smAndDown"
-                            icon
-                            @click="zoomOut"
-                            class="zoom-btn-class minus-class"
-                        >
-                            <v-icon>$minus</v-icon>
-                        </v-btn>
-                    </div>
-                    <v-btn
-                        icon
-                        :small="$vuetify.breakpoint.md"
-                        :x-small="$vuetify.breakpoint.smAndDown"
-                        @click="zoomReset"
-                        class="mt-2"
-                    >
-                        <v-icon>$globe</v-icon>
-                    </v-btn>
-                </div> -->
             </v-container>
         </v-content>
         <v-footer app class="flex-wrap justify-center transparent">
             <div
-                class="overline text--secondary"
                 :class="[$vuetify.breakpoint.xs ? 'flex-fill' : 'update-time-floater ma-2']"
+                class="overline text--secondary"
             >
-                Last updated on {{ formattedDate }}
+                Last updated on <span class="text--primary">{{ formattedDate }}</span>
             </div>
             <span class="subtitle-2">
                 Made with
                 <span class="red--text text--darken-4">&#10084;</span> in
-                <a target="_blank" href="https://github.com/I2Djs/I2Djs" class="">I2Djs </a>
+                <a class="" href="https://github.com/I2Djs/I2Djs" target="_blank">I2Djs </a>
             </span>
         </v-footer>
     </div>
@@ -214,7 +182,7 @@ export default {
                     key: "confirmed",
                     data: [],
                     color: "red",
-                    hexa: "red",
+                    colorHex: "#F44336",
                     scale: [Infinity, -Infinity],
                 },
                 {
@@ -222,7 +190,7 @@ export default {
                     key: "active",
                     data: [],
                     color: "light-blue",
-                    hexa: "#29b6f6",
+                    colorHex: "#29b6f6",
                     scale: [Infinity, -Infinity],
                 },
                 {
@@ -230,15 +198,15 @@ export default {
                     key: "recovered",
                     data: [],
                     color: "green",
-                    hexa: "green",
+                    colorHex: "#4CAF50",
                     scale: [Infinity, -Infinity],
                 },
                 {
                     label: "Deceased",
-                    key: "death",
+                    key: "deceased",
                     data: [],
                     color: "grey",
-                    hexa: "grey",
+                    colorHex: "#9E9E9E",
                     scale: [Infinity, -Infinity],
                 },
             ],
@@ -271,7 +239,6 @@ export default {
             } else {
                 this.searchGeoLocation = {};
             }
-            // this.searchGeoLocation(val);
         },
     },
 
@@ -285,7 +252,7 @@ export default {
                 let increaseCount = total - previousDayCount;
                 countersArr.push({
                     color: counter.color,
-                    hexa: counter.hexa,
+                    colorHex: counter.colorHex,
                     label: counter.label,
                     key: counter.key,
                     total: convertToIndianFormat(total),
@@ -434,16 +401,12 @@ export default {
             }
 
             self.formattedCovidData = self.formatData(dateBuckets);
-            // console.log(self.formattedCovidData);
-            // self.animateCovid(self.formattedCovidData);
             self.covidDistrictData = distMap;
             self.dataRange = activeRange;
             self.searchItems = Object.keys(self.heatmapDataMap);
-            // console.log(JSON.stringify(tempDistMap));
             self.updateCounters();
             self.updateHeatmapData();
             self.timelineData = self.selectedCounter;
-            console.log(count);
         },
 
         // searchGeoLocation (geoLocation) {
@@ -481,21 +444,18 @@ export default {
             if (data.length !== 0) {
                 let obj = data[data.length - 1];
                 this.districtInfo = {
-                    dis: obj.dis,
+                    district: obj.dis,
                     confirmed: obj.confirmed,
                     active: obj.active,
                     deceased: obj.deceased,
                     recovered: obj.recovered,
                     data: data.length > 45 ? data.splice(data.length - 45, 45) : data,
                 };
-
-                // this.districtTimelineData = data;
             } else {
                 this.districtInfo = {
-                    dis: dist,
+                    district: dist,
                     data: [],
                 };
-                // this.districtTimelineData = [];
             }
         },
 
@@ -574,7 +534,6 @@ export default {
                     return;
                 }
                 if (!covidData[playIndex]) {
-                    console.log(self.heatmapDataMap["mumbai"]);
                     self.animFlag = false;
                     return;
                 }
@@ -666,13 +625,9 @@ export default {
 .main-container {
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    overflow: auto;
     display: flex;
     flex-flow: column nowrap;
-}
-
-.main-container:hover {
-    overflow: auto;
 }
 
 .header--floater {
@@ -680,6 +635,10 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.header-title {
+    width: 30vw;
 }
 
 .counters--floater {
@@ -695,8 +654,13 @@ export default {
     top: 8rem;
 }
 
+.info-window.xs {
+    top: 13rem;
+    left: calc(50% - 12rem);
+}
+
 .search {
-    max-width: 18rem;
+    max-width: 17rem;
 }
 
 .map-container {
@@ -705,15 +669,17 @@ export default {
 }
 
 .map-container.sm {
-    height: calc(100% - 10rem);
+    margin-top: 5rem;
+    height: calc(100% - 15rem);
 }
 
 .map-container.xs {
-    height: 100vmin;
+    margin-top: 5rem;
+    height: calc(100% - 20rem);
 }
 
 .timeline-container {
-    width: 100%;
+    width: calc(100% - 2rem);
     height: 4rem;
 }
 
@@ -727,22 +693,4 @@ export default {
     right: 0;
     top: 0;
 }
-
-/*.btn-container {
-    position: absolute;
-    right: 0;
-    top: 15rem;
-}
-
-.zoom-btn-class {
-    border: 1px solid hsl(0, 1%, 25%);
-}
-
-.plus-class {
-    border-radius: 0.25rem 0.25rem 0 0;
-}
-
-.minus-class {
-    border-radius: 0 0 0.25rem 0.25rem;
-}*/
 </style>

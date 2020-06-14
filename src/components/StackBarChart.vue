@@ -11,7 +11,7 @@ export default {
     },
     props: {
         timelineData: {
-            type: Object,
+            type: Array,
             required: true,
         },
         id: {
@@ -20,26 +20,22 @@ export default {
         },
     },
     mounted() {
-        this.initialize(this.timelineData);
+        this.initialize();
     },
     watch: {
-        timelineData: {
-            handler(val) {
-                this.update();
-            },
-            deep: true,
+        timelineData(data) {
+            this.update(data);
         },
     },
     methods: {
-        initialize(data) {
+        initialize() {
             this.timelineInstance = stackBarChart();
             this.timelineInstance.containerId(this.id);
-            this.timelineInstance.initialize(this.timelineData.data);
+            this.timelineInstance.initialize(this.timelineData);
         },
 
-        update() {
-            console.log(this.timelineData);
-            this.timelineInstance.update(this.timelineData.data);
+        update(data) {
+            this.timelineInstance.update(data);
         },
     },
 };

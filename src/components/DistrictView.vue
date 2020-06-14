@@ -1,60 +1,78 @@
 <template>
     <v-card light class="mt-2">
-        <div class="toolbar-header d-flex justify-center pb-2 font-weight-bold secondary--text">
-            {{ districtName | titleCase }}
-        </div>
-        <div class="d-flex flex-column">
-            <div v-for="counter in countersArr" :key="counter.key" class="ind-row-content">
-                <span :class="['d-flex', 'justify-end', counter.key + '-label-color']">
-                    {{ counter.label }}:
-                </span>
-                <div :class="counter.key + '-count-color'">
-                    <span class="toolbar-count">
+        <v-card-title class="text-capitalize font-weight-bold justify-center">
+            {{ districtInfo.district }}
+        </v-card-title>
+        <v-card-text class="align-center justify-center">
+            <div class="counters-container grid">
+                <div
+                    v-for="counter in counters"
+                    :key="counter.key"
+                    class="d-flex align-center mb-2"
+                >
+                    <div class="color" :class="counter.key"></div>
+                    <span class="subtitle-2 mx-2 counter-label"> {{ counter.label }} Cases </span>
+                    <span class="font-weight-bold black--text mr-2">
                         {{ counter.total }}
                     </span>
-                    <template v-if="counter.increase">
+                    <v-chip
+                        v-if="counter.delta"
+                        outlined
+                        small
+                        class="ml-auto"
+                        :color="
+                            counter.direction === 'up' && counter.key !== 'recovered'
+                                ? 'red darken-2'
+                                : 'green darken-2'
+                        "
+                    >
                         <v-icon
+                            left
                             v-if="counter.direction === 'up'"
                             key="up"
-                            size="1rem"
-                            :class="[counter.key + '-count-color', 'ml-n1']"
+                            small
+                            :x-small="$vuetify.breakpoint.smAndDown"
                         >
                             $arrowUp
                         </v-icon>
                         <v-icon
                             v-else
                             key="down"
-                            size="1rem"
-                            :class="[counter.key + '-count-color', 'ml-n1']"
+                            small
+                            left
+                            :x-small="$vuetify.breakpoint.smAndDown"
                         >
                             $arrowDown
                         </v-icon>
-                        <span class="ml-n1 font-min">
-                            {{ counter.increase || 0 }}
+                        <span class="body-2">
+                            {{ counter.delta }}
                         </span>
-                    </template>
+                    </v-chip>
                 </div>
             </div>
-        </div>
-        <div class="toolbar-timeline-container pt-2">
-            Last 45 days Timeline:
-            <stack-bar-chart :timelineData="districtInfo" :id="districtInfo.dis + '_stackline'">
-            </stack-bar-chart>
-        </div>
+            <template v-if="districtInfo.data && districtInfo.data.length > 0">
+                <div class="mt-4 text-center subtitle-1 black--text">
+                    Activity in the past 45 days
+                </div>
+                <div class="toolbar-timeline-container">
+                    <stack-bar-chart :timelineData="districtInfo.data" id="district_stackline">
+                    </stack-bar-chart>
+                </div>
+            </template>
+        </v-card-text>
     </v-card>
 </template>
 
 <script>
 import StackBarChart from "./StackBarChart";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 import { convertToIndianFormat } from "./helper";
 export default {
     name: "DistrictView",
     components: { StackBarChart },
     data() {
         return {
-            districtName: "",
-            countersArr: [],
+            counters: [],
         };
     },
     props: {
@@ -62,26 +80,10 @@ export default {
             type: Object,
             required: true,
         },
-        // districtTimelineData: {
-        //     type: Array,
-        //     required: true,
-        // },
     },
     watch: {
-        districtInfo(newVal, oldVal) {
+        districtInfo() {
             this.initializeDistrictData();
-        },
-    },
-
-    filters: {
-        titleCase: function (value) {
-            if (value) {
-                let strs = value.split(" ");
-                strs = strs.map((str) => str[0].toUpperCase() + str.slice(1));
-                return strs.join(" ");
-            } else {
-                return value;
-            }
         },
     },
 
@@ -94,24 +96,24 @@ export default {
             let districtInfo = this.districtInfo || { data: [] };
             let length = districtInfo.data.length;
             let previousDayRecord = districtInfo.data[length - 2] || {};
-            if (_.isEmpty(previousDayRecord)) {
+            if (isEmpty(previousDayRecord)) {
                 previousDayRecord = {
                     confirmed: 0,
                     active: 0,
-                    death: 0,
+                    deceased: 0,
                     recovered: 0,
                 };
             }
-            this.districtName = districtInfo.dis;
-            this.countersArr = [
+
+            this.counters = [
                 {
                     label: "Confirmed",
                     key: "confirmed",
                     total: convertToIndianFormat(districtInfo.confirmed),
                     direction:
                         districtInfo.confirmed - previousDayRecord.confirmed < 0 ? "down" : "up",
-                    increase: convertToIndianFormat(
-                        districtInfo.confirmed - previousDayRecord.confirmed
+                    delta: convertToIndianFormat(
+                        Math.abs(districtInfo.confirmed - previousDayRecord.confirmed)
                     ),
                 },
                 {
@@ -119,16 +121,18 @@ export default {
                     key: "active",
                     total: convertToIndianFormat(districtInfo.active),
                     direction: districtInfo.active - previousDayRecord.active < 0 ? "down" : "up",
-                    increase: convertToIndianFormat(districtInfo.active - previousDayRecord.active),
+                    delta: convertToIndianFormat(
+                        Math.abs(districtInfo.active - previousDayRecord.active)
+                    ),
                 },
                 {
                     label: "Deceased",
-                    key: "death",
+                    key: "deceased",
                     total: convertToIndianFormat(districtInfo.deceased),
                     direction:
                         districtInfo.deceased - previousDayRecord.deceased < 0 ? "down" : "up",
-                    increase: convertToIndianFormat(
-                        districtInfo.deceased - previousDayRecord.deceased
+                    delta: convertToIndianFormat(
+                        Math.abs(districtInfo.deceased - previousDayRecord.deceased)
                     ),
                 },
                 {
@@ -137,8 +141,8 @@ export default {
                     total: convertToIndianFormat(districtInfo.recovered),
                     direction:
                         districtInfo.recovered - previousDayRecord.recovered < 0 ? "down" : "up",
-                    increase: convertToIndianFormat(
-                        districtInfo.recovered - previousDayRecord.recovered
+                    delta: convertToIndianFormat(
+                        Math.abs(districtInfo.recovered - previousDayRecord.recovered)
                     ),
                 },
             ];
@@ -147,60 +151,24 @@ export default {
 };
 </script>
 <style scoped>
-.toolbar-header {
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: hsla(33, 100%, 78%, 1);
+.counters-container {
+    width: 70%;
+    margin: 0 auto;
+    display: flex;
+    flex-flow: column nowrap;
 }
 
-.ind-row-content {
+.counters-container.grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 0.5rem;
-    font-size: 1.1rem;
+    justify-content: center;
+}
+
+.counter-label {
+    width: 8rem;
 }
 
 .toolbar-timeline-container {
+    width: 100%;
     height: 10rem;
-}
-
-.active-label-color {
-    color: hsl(210, 100%, 50%);
-}
-
-.active-count-color {
-    color: hsl(210, 100%, 65%);
-}
-
-.confirmed-label-color {
-    color: hsl(0, 100%, 60%);
-}
-
-.confirmed-count-color {
-    color: hsl(0, 100%, 70%);
-}
-
-.death-label-color {
-    color: hsla(0, 0%, 55%, 1);
-}
-
-.death-count-color {
-    color: hsla(0, 0%, 70%, 1);
-}
-
-.recovered-label-color {
-    color: hsl(120, 89%, 35%);
-}
-
-.recovered-count-color {
-    color: hsl(120, 89%, 45%);
-}
-
-.toolbar-count {
-    /*font-weight: bold;*/
-}
-
-.font-min {
-    font-size: 0.8rem;
 }
 </style>

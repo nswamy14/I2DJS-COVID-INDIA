@@ -87,3 +87,26 @@ a.disabled {
 .position-relative {
     position: relative;
 }
+
+.color {
+    width: 10px;
+    height: 10px;
+    border-radius: 8px;
+}
+
+/*Same as in StackbarChart*/
+.color.active {
+    background: #0d47a1;
+}
+
+.color.confirmed {
+    background: #d32f2f;
+}
+
+.color.recovered {
+    background: #388e3c;
+}
+
+.color.deceased {
+    background: #616161;
+}

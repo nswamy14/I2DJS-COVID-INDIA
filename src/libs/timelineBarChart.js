@@ -44,7 +44,7 @@ export default function () {
                     value: 0,
                 },
                 {
-                    color: timelinedata.hexa,
+                    color: timelinedata.colorHex,
                     value: 100.0,
                 },
             ],
@@ -115,7 +115,7 @@ export default function () {
                 value: 0,
             },
             {
-                color: timelinedata.hexa,
+                color: timelinedata.colorHex,
                 value: 100.0,
             },
         ]);
