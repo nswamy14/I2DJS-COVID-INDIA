@@ -394,8 +394,19 @@ export default {
     z-index: 1;
 }
 
+.dark-theme-arrow {
+    color: #1e1e1e;
+}
+
+.light-theme-arrow {
+    color: white;
+}
+
 .arrow.left {
-    border-color: transparent white;
+    border-top-color: transparent;
+    border-right-color: inherit;
+    border-left-color: inherit;
+    border-bottom-color: transparent;
     border-style: solid;
     border-width: 8px 8px 8px 0;
     filter: drop-shadow(-2px 0px 1px rgba(0, 0, 0, 0.2));
@@ -404,7 +415,10 @@ export default {
 }
 
 .arrow.right {
-    border-color: transparent white;
+    border-top-color: transparent;
+    border-right-color: inherit;
+    border-left-color: inherit;
+    border-bottom-color: transparent;
     border-style: solid;
     border-width: 8px 0 8px 8px;
     filter: drop-shadow(2px 0px 1px rgba(0, 0, 0, 0.2));
@@ -414,7 +428,10 @@ export default {
 
 .arrow.top,
 .arrow.up {
-    border-color: white transparent;
+    border-top-color: inherit;
+    border-right-color: transparent;
+    border-left-color: transparent;
+    border-bottom-color: inherit;
     border-style: solid;
     border-width: 0 8px 8px 8px;
     filter: drop-shadow(0px -2px 1px rgba(0, 0, 0, 0.2));
@@ -424,7 +441,10 @@ export default {
 
 .arrow.bottom,
 .arrow.down {
-    border-color: white transparent;
+    border-top-color: inherit;
+    border-right-color: transparent;
+    border-left-color: transparent;
+    border-bottom-color: inherit;
     border-style: solid;
     border-width: 8px 8px 0 8px;
     filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.2));
