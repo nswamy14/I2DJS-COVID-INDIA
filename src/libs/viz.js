@@ -36,9 +36,7 @@ export default function () {
         "south east delhi",
         "south west delhi",
         "south delhi",
-        ,
         "new delhi",
-        ,
         "central delhi",
         "y.s.r. kadapa",
         "chhota udaipur",
@@ -56,11 +54,11 @@ export default function () {
         },
         {
             color: [166, 255, 115, 0.6],
-            offset: 0.45,
+            offset: 0.5,
         },
         {
-            color: [255, 255, 0, 1.0],
-            offset: 0.65,
+            color: [205, 205, 0, 1.0],
+            offset: 0.8,
         },
         {
             color: [255, 0, 0, 1.0],
@@ -74,8 +72,8 @@ export default function () {
             offset: 0,
         },
         {
-            color: [166, 255, 115, 0.3],
-            offset: 0.3,
+            color: [166, 255, 115, 0.4],
+            offset: 0.4,
         },
         {
             color: [166, 255, 115, 1.0],
@@ -289,6 +287,7 @@ export default function () {
     Chart.prototype.resize = function () {
         let self = this;
         let mindim = Math.min(self.GeoMaprenderer.height, self.GeoMaprenderer.width);
+        var defaultFontSize = getDefaultFontSize();
         self.projection
             .translate([self.GeoMaprenderer.width / 2, mindim / 2 + 50])
             .scale([mindim * 1.65]);
@@ -300,7 +299,7 @@ export default function () {
             this.setAttr("d", self.path(d));
         });
 
-        scaleRange = [mindim * 0.01, mindim * 0.1];
+        scaleRange = [defaultFontSize[0] * 0.75, defaultFontSize[0] * 5];
         self.zoomInstance.zoomTarget([self.webglRenderer.width / 2, self.webglRenderer.height / 2]);
 
         this.Texture.setAttr({
@@ -495,7 +494,10 @@ export default function () {
         this.webglRenderer = webglRenderer;
         let dimMin = Math.min(webglRenderer.width, webglRenderer.height);
         // heatmapLinearScale.range([dimMin * 0.01, dimMin * 0.1]);
-        scaleRange = [dimMin * 0.01, dimMin * 0.1];
+        var defaultFontSize = getDefaultFontSize();
+        // console.log(defaultFontSize);
+        // scaleRange = [defaultFontSize[0] * 0.75 , defaultFontSize[0] * 5];
+        scaleRange = [dimMin * 0.015, dimMin * 0.1];
         webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
         self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
         webglRenderer.on("zoom", self.zoomInstance);
@@ -606,9 +608,6 @@ export default function () {
                     })
                         .on("zoom", self.zoomInstance)
                         .on("click", function (e) {
-                            // if (!clickEnable) {
-                            // 	return;
-                            // }
                             var d = this.data();
                             if (showTooltipFunc) {
                                 showTooltipFunc(d, e);
@@ -641,6 +640,8 @@ export default function () {
                         val = val <= 0 ? 0 : scaleFun(sqrt(val));
                         var op = Math.log(val || 1) / 5;
                         op = op > 1.0 ? 1.0 : op;
+
+                        console.log(op);
 
                         this.animateTo({
                             duration: 100,
