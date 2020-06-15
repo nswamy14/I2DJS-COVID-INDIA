@@ -217,6 +217,7 @@ export default function () {
         self.zoomInstance.scaleExtent([1, 15]);
         self.zoomInstance.zoomStart(zoomStart);
         self.zoomInstance.zoom(onZoom);
+        self.zoomInstance.zoomFactor(0.005);
         self.zoomInstance.zoomEnd(zoomEnd);
         self.zoomInstance.duration(500);
 
