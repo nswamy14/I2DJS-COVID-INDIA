@@ -642,8 +642,6 @@ export default function () {
                         var op = Math.log(val || 1) / 5;
                         op = op > 1.0 ? 1.0 : op;
 
-                        console.log(op);
-
                         this.animateTo({
                             duration: 100,
                             attr: {
