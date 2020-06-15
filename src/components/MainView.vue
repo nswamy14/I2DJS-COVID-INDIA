@@ -692,12 +692,12 @@ export default {
 
 .map-container.sm {
     margin-top: 5rem;
-    height: calc(100% - 15rem);
+    height: calc(100% - 20rem);
 }
 
 .map-container.xs {
     margin-top: 5rem;
-    height: calc(100% - 20rem);
+    height: calc(100% - 25rem);
 }
 
 .timeline-container {

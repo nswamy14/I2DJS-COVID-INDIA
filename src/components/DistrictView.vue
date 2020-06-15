@@ -1,6 +1,6 @@
 <template>
-    <v-card light class="mt-2">
-        <v-card-title class="text-capitalize font-weight-bold justify-center">
+    <v-card class="mt-2 card-background">
+        <v-card-title class="text-capitalize font-weight-bold justify-center card-title-color">
             {{ districtInfo.district }}
         </v-card-title>
         <v-card-text class="align-center justify-center">
@@ -151,6 +151,9 @@ export default {
 };
 </script>
 <style scoped>
+.card-background {
+    background-color: hsla(0, 0%, 100%, 0.85);
+}
 .counters-container {
     width: 70%;
     margin: 0 auto;
@@ -163,8 +166,13 @@ export default {
     justify-content: center;
 }
 
+.card-title-color {
+    color: hsla(0, 0%, 0%, 0.7);
+}
+
 .counter-label {
     width: 8rem;
+    color: hsla(0, 0%, 0%, 0.7);
 }
 
 .toolbar-timeline-container {
