@@ -522,16 +522,6 @@ export default function () {
             texture: this.Texture,
         });
 
-        var labelGroup = webglRenderer.createEl({
-            el: "group",
-            attr: {
-                shaderType: "text",
-            },
-            style: {
-                display: "none",
-            },
-        });
-
         var imageGroup = webglRenderer.createEl({
             el: "group",
             attr: {
@@ -543,6 +533,16 @@ export default function () {
                 ctx.blendEquation(ctx.FUNC_ADD);
                 ctx.blendFunc(ctx.ONE, ctx.ONE_MINUS_SRC_ALPHA);
                 ctx.depthMask(true);
+            },
+        });
+
+        var labelGroup = webglRenderer.createEl({
+            el: "group",
+            attr: {
+                shaderType: "text",
+            },
+            style: {
+                display: "none",
             },
         });
 

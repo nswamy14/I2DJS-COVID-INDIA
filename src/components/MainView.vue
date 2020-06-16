@@ -673,10 +673,9 @@ export default {
     margin-top: 5rem;
     height: calc(100% - 15rem);
 }
-
 .map-container.xs {
     margin-top: 5rem;
-    height: calc(100% - 20rem);
+    height: 100vmin;
 }
 
 .timeline-container {
