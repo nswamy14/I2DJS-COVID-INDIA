@@ -9,31 +9,43 @@
         >
             <v-card min-width="10rem" class="pa-2">
                 <div class="body-2 font-weight-bold text-center mt-n1 py-2">
-                    {{ popoverData.date }}
+                    {{ formatDate(popoverData.date) }}
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color confirmed"></div>
+                    <div
+                        class="color popover confirmed"
+                        :class="[[this.$vuetify.breakpoint.name]]"
+                    ></div>
                     <span class="ml-1">CONFIRMED</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.confirmed }}
                     </span>
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color active"></div>
+                    <div
+                        class="color popover active"
+                        :class="[[this.$vuetify.breakpoint.name]]"
+                    ></div>
                     <span class="ml-1">ACTIVE</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.active }}
                     </span>
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color recovered"></div>
+                    <div
+                        class="color popover recovered"
+                        :class="[[this.$vuetify.breakpoint.name]]"
+                    ></div>
                     <span class="ml-1">RECOVERED</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.recovered }}
                     </span>
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color deceased"></div>
+                    <div
+                        class="color popover deceased"
+                        :class="[[this.$vuetify.breakpoint.name]]"
+                    ></div>
                     <span class="ml-1">DECEASED</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.deceased }}
@@ -97,6 +109,19 @@ export default {
         hideTooltip() {
             this.showPopover = false;
             this.debouncedMouseOver.cancel();
+        },
+
+        formatDate(date) {
+            let month = new Date(date).getUTCMonth() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+
+            let day = new Date(date).getUTCDate();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            return new Date(date).getFullYear() + "-" + month + "-" + day;
         },
     },
 };

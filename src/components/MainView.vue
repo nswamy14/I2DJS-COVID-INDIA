@@ -242,7 +242,6 @@ export default {
         },
 
         search(val) {
-            console.log(val);
             if (val && val.type === "District" && this.heatmapDataMap[val.label.toLowerCase()]) {
                 this.searchGeoLocation = this.heatmapDataMap[val.label.toLowerCase()];
                 this.getDistrictTimelineData(val.label.toLowerCase());
@@ -326,9 +325,7 @@ export default {
             let count = 0;
 
             let pastData = pastCovidData["districtsDaily"];
-            // let visitedStates = {};
             for (let state in covidData.districtsDaily) {
-                // visitedStates[state] = {};
                 let stateVal = covidData.districtsDaily[state];
                 let statePastData = pastData[state] || {};
                 let stateLow = state.toLowerCase();
@@ -350,7 +347,6 @@ export default {
                 };
 
                 for (let dis in stateVal) {
-                    // visitedStates[state][dis] = true;
                     let pastDisVal = statePastData[dis] || [];
                     let disVal = pastDisVal.concat(stateVal[dis]);
                     let disLow = dis.toLowerCase();
@@ -412,6 +408,20 @@ export default {
                         stateObj.recovered += disVal[disVal.length - 1].recovered;
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
+                    } else {
+                        disVal.forEach(function (d) {
+                            if (!dateBuckets[d.date]) {
+                                dateBuckets[d.date] = [];
+                            }
+                            d.dis = disLow;
+                            dateBuckets[d.date].push(d);
+                            if (Math.sqrt(d.active) > activeRange[1]) {
+                                activeRange[1] = Math.sqrt(d.active);
+                            }
+                            if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
+                                activeRange[0] = Math.sqrt(d.active);
+                            }
+                        });
                     }
                 }
                 stateMap[stateObj.name] = stateObj;
@@ -485,7 +495,6 @@ export default {
                 recovered: stateObj.recovered,
                 data: dateArr.length > 45 ? dateArr.splice(dateArr.length - 45, 45) : dateArr,
             };
-            console.log(this.districtInfo);
         },
 
         getDistrictTimelineData(dist) {
