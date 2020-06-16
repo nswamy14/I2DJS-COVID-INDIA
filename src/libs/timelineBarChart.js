@@ -32,7 +32,7 @@ export default function () {
         this.timelineLayer.setAttr("viewBox", "0 0 " + 500 + " " + (height / width) * 500);
         newHeight = (height / width) * 500;
         widthPerBar = (500 * 0.8) / dateCount;
-        scaleRange = [2.5, newHeight - 5];
+        scaleRange = [1, newHeight - 1];
         this.gradColor = this.timelineLayer.createLinearGradient({
             x1: 0,
             y1: 100,
@@ -53,7 +53,7 @@ export default function () {
             el: "group",
             attr: {
                 transform: {
-                    translate: [500 * 0.1, newHeight - 2.5],
+                    translate: [500 * 0.1, newHeight - 1],
                 },
             },
         });

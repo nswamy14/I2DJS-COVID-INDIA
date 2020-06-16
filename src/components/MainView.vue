@@ -310,35 +310,52 @@ export default {
             ]);
             let activeRange = [Infinity, -Infinity];
             let dateBuckets = {};
+
             let distMap = [];
+            let stateMap = [];
             let count = 0;
 
             let pastData = pastCovidData["districtsDaily"];
-            let visitedStates = {};
+            // let visitedStates = {};
             for (let state in covidData.districtsDaily) {
-                visitedStates[state] = {};
+                // visitedStates[state] = {};
                 let stateVal = covidData.districtsDaily[state];
                 let statePastData = pastData[state] || {};
+                let stateLow = state.toLowerCase();
+
+                let stateDd = IndianCities[stateLow] || {};
+                let stateObj = {
+                    name: stateLow,
+                    label:
+                        stateLow.charAt(0).toUpperCase() + stateLow.substr(1, stateLow.length - 1),
+                    state: state,
+                    active: 0,
+                    deceased: 0,
+                    confirmed: 0,
+                    recovered: 0,
+                    longitude: stateDd.longitude,
+                    latitude: stateDd.latitude,
+                    timelineData: {},
+                };
+
                 for (let dis in stateVal) {
-                    visitedStates[state][dis] = true;
+                    // visitedStates[state][dis] = true;
                     let pastDisVal = statePastData[dis] || [];
                     let disVal = pastDisVal.concat(stateVal[dis]);
                     let disLow = dis.toLowerCase();
-                    let stateLow = state.toLowerCase();
+
                     disVal.forEach(function (dt) {
                         dt.visible = false;
                     });
-                    let name = IndianCities[disLow]
-                        ? disLow
-                        : IndianCities[stateLow]
-                        ? stateLow
-                        : stateLow;
-                    let dd = IndianCities[name];
 
-                    if (name && dd && !self.heatmapDataMap[name]) {
+                    let dd = IndianCities[disLow];
+
+                    if (dd && !self.heatmapDataMap[disLow]) {
                         let districtObj = {
-                            name: name,
-                            label: name.charAt(0).toUpperCase() + name.substr(1, name.length - 1),
+                            name: disLow,
+                            label:
+                                disLow.charAt(0).toUpperCase() +
+                                disLow.substr(1, disLow.length - 1),
                             state: state,
                             active: 0,
                             deceased: 0,
@@ -352,7 +369,26 @@ export default {
                             if (!dateBuckets[d.date]) {
                                 dateBuckets[d.date] = [];
                             }
-                            d.dis = name;
+                            if (!stateObj.timelineData[d.date]) {
+                                stateObj.timelineData[d.date] = {
+                                    confirmed: 0,
+                                    active: 0,
+                                    deceased: 0,
+                                    recovered: 0,
+                                };
+                            }
+
+                            stateObj.confirmed += d.confirmed;
+                            stateObj.active += d.active;
+                            stateObj.deceased += d.deceased;
+                            stateObj.recovered += d.recovered;
+
+                            stateObj.timelineData[d.date].confirmed += d.confirmed;
+                            stateObj.timelineData[d.date].active += d.active;
+                            stateObj.timelineData[d.date].deceased += d.deceased;
+                            stateObj.timelineData[d.date].recovered += d.recovered;
+
+                            d.dis = disLow;
                             dateBuckets[d.date].push(d);
 
                             if (Math.sqrt(d.active) > activeRange[1]) {
@@ -364,62 +400,11 @@ export default {
                         });
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
-                    } else {
-                        if (self.heatmapDataMap[name] && dd) {
-                            // let districtObj = self.heatmapDataMap[name];
-                            disVal.forEach(function (d) {
-                                if (!dateBuckets[d.date]) {
-                                    dateBuckets[d.date] = [];
-                                }
-
-                                let dtObj = dateBuckets[d.date].filter(function (dBuc) {
-                                    return dBuc.dis === name;
-                                })[0];
-
-                                if (dtObj) {
-                                    dtObj.confirmed += d.confirmed;
-                                    dtObj.active += d.active;
-                                    dtObj.deceased += d.deceased;
-                                    dtObj.recovered += d.recovered;
-                                } else {
-                                    dateBuckets[d.date].push(d);
-                                }
-                            });
-                        } else {
-                            if (disVal[disVal.length - 1].active > 0) {
-                                let districtObj = {
-                                    name: name,
-                                    label:
-                                        name.charAt(0).toUpperCase() +
-                                        name.substr(1, name.length - 1),
-                                    state: state,
-                                    active: 0,
-                                    deceased: 0,
-                                    confirmed: 0,
-                                    recovered: 0,
-                                };
-
-                                disVal.forEach(function (d) {
-                                    if (!dateBuckets[d.date]) {
-                                        dateBuckets[d.date] = [];
-                                    }
-                                    d.dis = name;
-                                    dateBuckets[d.date].push(d);
-                                    // if (Math.sqrt(d.active) > activeRange[1]) {
-                                    //     activeRange[1] = Math.sqrt(d.active);
-                                    // }
-                                    // if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
-                                    //     activeRange[0] = Math.sqrt(d.active);
-                                    // }
-                                });
-                                // count += disVal[disVal.length - 1].confirmed;
-                                // console.log(disLow, disVal[disVal.length - 1].active, state);
-                            }
-                        }
                     }
                 }
+                stateMap.push(stateObj);
             }
-
+            console.log(stateMap);
             self.formattedCovidData = self.formatData(dateBuckets);
             self.covidDistrictData = distMap;
             self.dataRange = activeRange;
