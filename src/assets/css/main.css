@@ -89,15 +89,27 @@ a.disabled {
 }
 
 .color {
-    width: 0.8rem;
-    height: 0.8rem;
-    border-radius: 0.6rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 8px;
+}
+
+.color.xs {
+    width: 8px;
+    height: 8px;
+    border-radius: 6px;
 }
 
 .color.popover {
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 0.4rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 6px;
+}
+
+.color.popover.xs {
+    width: 6px;
+    height: 6px;
+    border-radius: 4px;
 }
 
 /*Same as in StackbarChart*/
