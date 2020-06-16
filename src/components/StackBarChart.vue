@@ -9,7 +9,7 @@
         >
             <v-card min-width="10rem" class="pa-2">
                 <div class="body-2 font-weight-bold text-center mt-n1 py-2">
-                    {{ popoverData.date }}
+                    {{ formatDate(popoverData.date) }}
                 </div>
                 <div class="d-flex align-center px-2 caption">
                     <div
@@ -109,6 +109,19 @@ export default {
         hideTooltip() {
             this.showPopover = false;
             this.debouncedMouseOver.cancel();
+        },
+
+        formatDate(date) {
+            let month = new Date(date).getUTCMonth() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+
+            let day = new Date(date).getUTCDate();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            return new Date(date).getFullYear() + "-" + month + "-" + day;
         },
     },
 };
