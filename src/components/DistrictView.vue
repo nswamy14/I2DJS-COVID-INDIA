@@ -10,7 +10,10 @@
                     :key="counter.key"
                     class="d-flex align-center mb-2"
                 >
-                    <div class="color" :class="counter.key"></div>
+                    <div
+                        class="color"
+                        :class="[[this.$vuetify.breakpoint.name], counter.key]"
+                    ></div>
                     <span class="subtitle-2 mx-2 counter-label"> {{ counter.label }} Cases </span>
                     <span class="font-weight-bold black--text mr-2">
                         {{ counter.total }}
@@ -167,12 +170,12 @@ export default {
 }
 
 .card-title-color {
-    color: hsla(0, 0%, 0%, 0.7);
+    color: hsla(0, 0%, 0%, 0.8);
 }
 
 .counter-label {
     width: 8rem;
-    color: hsla(0, 0%, 0%, 0.7);
+    color: hsla(0, 0%, 0%, 0.9);
 }
 
 .toolbar-timeline-container {
