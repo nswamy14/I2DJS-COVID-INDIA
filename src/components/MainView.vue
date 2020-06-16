@@ -370,6 +370,7 @@ export default {
                             recovered: 0,
                             longitude: dd.longitude,
                             latitude: dd.latitude,
+                            type: "district",
                         };
 
                         disVal.forEach(function (d) {

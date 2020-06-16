@@ -181,13 +181,24 @@ export default function () {
             // prevZoom.loc = location;
             // prevZoom.scale = scale;this.webglRenderer.scaleTo(8, xy);
             // console.log(this.distG);
-            let node = this.distG.fetchEl("." + location.name);
-            if (node) {
-                node.setStyle("lineWidth", 0.25);
-                node.setStyle("strokeStyle", "#33c4cc");
-                prevNode = node;
+            let node;
+            if (location.type === "district") {
+                node = this.distG.fetchEl("." + location.name);
+                if (node) {
+                    node.setStyle("lineWidth", 0.25);
+                    node.setStyle("strokeStyle", "#33c4cc");
+                    prevNode = node;
+                }
+            } else if (location.type === "state") {
+                node = this.stateG.fetchEl("." + location.name);
+                if (node) {
+                    node.setStyle("lineWidth", 1.0);
+                    node.setStyle("strokeStyle", "#33c4cc");
+                    prevNode = node;
+                }
             }
-            this.webglRenderer.scaleTo(8, xy);
+
+            this.webglRenderer.scaleTo(location.type === "district" ? 8 : 4, xy);
         } else {
             // let child = this.distG.children;
             // for (var i = 0; i < child.length; i++) {
@@ -388,6 +399,9 @@ export default function () {
                 attr: {
                     d: function (d) {
                         return self.path(d);
+                    },
+                    class: function (d) {
+                        return d.properties.ST_NM.toLowerCase();
                     },
                 },
             });
