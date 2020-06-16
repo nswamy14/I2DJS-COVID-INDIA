@@ -242,10 +242,10 @@ export default {
         },
 
         search(val) {
-            console.log(val);
-            if (val && this.heatmapDataMap[val.toLowerCase()]) {
-                this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
-                this.getDistrictTimelineData(val.toLowerCase());
+            let label = (val && val.label) || "";
+            if (label && this.heatmapDataMap[label.toLowerCase()]) {
+                this.searchGeoLocation = this.heatmapDataMap[label.toLowerCase()];
+                this.getDistrictTimelineData(label.toLowerCase());
             } else {
                 this.searchGeoLocation = {};
             }
