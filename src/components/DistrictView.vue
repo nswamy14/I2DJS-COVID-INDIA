@@ -10,10 +10,7 @@
                     :key="counter.key"
                     class="d-flex align-center mb-2"
                 >
-                    <div
-                        class="color"
-                        :class="[[this.$vuetify.breakpoint.name], counter.key]"
-                    ></div>
+                    <div class="color" :class="[[$vuetify.breakpoint.name], counter.key]"></div>
                     <span class="subtitle-2 mx-2 counter-label"> {{ counter.label }} Cases </span>
                     <span class="font-weight-bold black--text mr-2">
                         {{ counter.total }}

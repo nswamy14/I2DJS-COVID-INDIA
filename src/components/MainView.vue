@@ -243,12 +243,25 @@ export default {
 
         search(val) {
             console.log(val);
-            if (val && this.heatmapDataMap[val.toLowerCase()]) {
-                this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
-                this.getDistrictTimelineData(val.toLowerCase());
+            if (val && val.type === "District" && this.heatmapDataMap[val.label.toLowerCase()]) {
+                this.searchGeoLocation = this.heatmapDataMap[val.label.toLowerCase()];
+                this.getDistrictTimelineData(val.label.toLowerCase());
+            } else if (
+                val &&
+                val.type === "State" &&
+                this.formattedCovidStateData[val.label.toLowerCase()]
+            ) {
+                this.searchGeoLocation = this.formattedCovidStateData[val.label.toLowerCase()];
+                this.getStateTimelineData(val.label.toLowerCase());
             } else {
                 this.searchGeoLocation = {};
             }
+            // if (val && this.heatmapDataMap[val.toLowerCase()]) {
+            //     this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
+            //     this.getStateTimelineData(val.toLowerCase());
+            // } else {
+
+            // }
         },
     },
 
@@ -309,7 +322,7 @@ export default {
             let dateBuckets = {};
 
             let distMap = [];
-            let stateMap = [];
+            let stateMap = {};
             let count = 0;
 
             let pastData = pastCovidData["districtsDaily"];
@@ -333,6 +346,7 @@ export default {
                     longitude: stateDd.longitude,
                     latitude: stateDd.latitude,
                     timelineData: {},
+                    type: "state",
                 };
 
                 for (let dis in stateVal) {
@@ -372,13 +386,9 @@ export default {
                                     active: 0,
                                     deceased: 0,
                                     recovered: 0,
+                                    date: new Date(d.date),
                                 };
                             }
-
-                            stateObj.confirmed += d.confirmed;
-                            stateObj.active += d.active;
-                            stateObj.deceased += d.deceased;
-                            stateObj.recovered += d.recovered;
 
                             stateObj.timelineData[d.date].confirmed += d.confirmed;
                             stateObj.timelineData[d.date].active += d.active;
@@ -395,13 +405,18 @@ export default {
                                 activeRange[0] = Math.sqrt(d.active);
                             }
                         });
+                        stateObj.confirmed += disVal[disVal.length - 1].confirmed;
+                        stateObj.active += disVal[disVal.length - 1].active;
+                        stateObj.deceased += disVal[disVal.length - 1].deceased;
+                        stateObj.recovered += disVal[disVal.length - 1].recovered;
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
                     }
                 }
-                stateMap.push(stateObj);
+                stateMap[stateObj.name] = stateObj;
             }
-            console.log(stateMap);
+            // console.log(stateMap);
+            self.formattedCovidStateData = stateMap;
             self.formattedCovidData = self.formatData(dateBuckets);
             self.covidDistrictData = distMap;
             self.dataRange = activeRange;
@@ -450,6 +465,28 @@ export default {
             }
         },
 
+        getStateTimelineData(state) {
+            let stateObj = this.formattedCovidStateData[state];
+            let dateArr = [];
+            for (let key in stateObj.timelineData) {
+                dateArr.push(stateObj.timelineData[key]);
+            }
+            dateArr = dateArr.sort(function (a, b) {
+                return a.date - b.date;
+            });
+
+            this.districtInfo = {
+                name: stateObj.name,
+                label: stateObj.label,
+                confirmed: stateObj.confirmed,
+                active: stateObj.active,
+                deceased: stateObj.deceased,
+                recovered: stateObj.recovered,
+                data: dateArr.length > 45 ? dateArr.splice(dateArr.length - 45, 45) : dateArr,
+            };
+            console.log(this.districtInfo);
+        },
+
         getDistrictTimelineData(dist) {
             let data = this.formattedCovidData.map((date) => {
                 return date["distList"].filter((distObj) => {
@@ -463,7 +500,7 @@ export default {
             if (data.length !== 0) {
                 let obj = data[data.length - 1];
                 this.districtInfo = {
-                    district: obj.dis,
+                    name: obj.dis,
                     confirmed: obj.confirmed,
                     active: obj.active,
                     deceased: obj.deceased,
@@ -472,7 +509,7 @@ export default {
                 };
             } else {
                 this.districtInfo = {
-                    district: dist,
+                    name: dist,
                     data: [],
                 };
             }
@@ -606,6 +643,7 @@ export default {
                     recovered: 0,
                     deceased: 0,
                     distList: curr,
+                    type: "district",
                 };
                 curr.reduce(function (p, c) {
                     p.active += c.active;
