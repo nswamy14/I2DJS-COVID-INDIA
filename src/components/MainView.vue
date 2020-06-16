@@ -46,6 +46,8 @@
                     <div class="toolbar d-flex align-center flex-wrap justify-center mt-2">
                         <v-autocomplete
                             :items="searchItems"
+                            item-text="district"
+                            item-value="district"
                             :menu-props="{
                                 light: true,
                                 nudgeBottom: 5,
@@ -61,6 +63,7 @@
                             prepend-inner-icon="$mapSearch"
                             solo
                             v-model="search"
+                            :filter="districtSearch"
                         >
                         </v-autocomplete>
                         <v-menu :close-on-click="true">
@@ -170,7 +173,7 @@ import DistrictView from "./DistrictView";
 import CountersView from "./CountersView";
 import pastCovidData from "@/assets/data/pastCovidData";
 import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
-import { convertToIndianFormat } from "./helper";
+import { convertToIndianFormat, getFormattedSelectItems } from "./helper";
 
 export default {
     name: "MainView",
@@ -287,6 +290,15 @@ export default {
     },
 
     methods: {
+        districtSearch(item, queryText, itemText) {
+            let queryTextUpperCase = queryText.toUpperCase();
+            if (item.district && item.district.toUpperCase().indexOf(queryTextUpperCase) !== -1) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
         async initialize() {
             let self = this;
 
@@ -411,10 +423,19 @@ export default {
             self.formattedCovidData = self.formatData(dateBuckets);
             self.covidDistrictData = distMap;
             self.dataRange = activeRange;
-            self.searchItems = Object.keys(self.heatmapDataMap);
+            let searchItems = [];
+            _.forEach(self.heatmapDataMap, (value, district) => {
+                searchItems.push({
+                    district: district,
+                    state: value.state,
+                });
+            });
+            self.searchItems = getFormattedSelectItems(searchItems, "state");
             self.updateCounters();
             self.updateHeatmapData();
             self.timelineData = self.selectedCounter;
+            await self.$nextTick();
+            await self.$nextTick();
             self.showProgress = false;
         },
 
@@ -671,7 +692,7 @@ export default {
 
 .map-container.sm {
     margin-top: 5rem;
-    height: calc(100% - 15rem);
+    height: calc(100% - 20rem);
 }
 .map-container.xs {
     margin-top: 5rem;
