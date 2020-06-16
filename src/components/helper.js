@@ -23,10 +23,10 @@ export function getFormattedSelectItems(items, groupID) {
     return _.reduce(
         groupedItems,
         (result, value, key) => {
-            let districts = _.map(value, (dis) => dis.district);
+            let labels = _.map(value, (dis) => dis.label);
             let groupHeader = {
                 header: key,
-                district: districts.join(", "),
+                label: labels.join(", "),
             };
             result.push(groupHeader);
             return [...result, ...value];

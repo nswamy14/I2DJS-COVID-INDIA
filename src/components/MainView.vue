@@ -46,8 +46,7 @@
                     <div class="toolbar d-flex align-center flex-wrap justify-center mt-2">
                         <v-autocomplete
                             :items="searchItems"
-                            item-text="district"
-                            item-value="district"
+                            item-text="label"
                             :menu-props="{
                                 light: true,
                                 nudgeBottom: 5,
@@ -62,6 +61,7 @@
                             light
                             prepend-inner-icon="$mapSearch"
                             solo
+                            return-object
                             v-model="search"
                             :filter="districtSearch"
                         >
@@ -74,14 +74,14 @@
                                     light
                                     v-bind="attrs"
                                     v-on="on"
-                                    width="7rem"
+                                    width="7.5rem"
                                 >
                                     <span :class="selectedCounter.key" class="color mr-1"></span>
                                     <span class="caption">{{ selectedCounter.label }}</span>
                                 </v-btn>
                             </template>
 
-                            <v-list color="text-secondary" dense light width="7rem">
+                            <v-list color="text-secondary" dense light width="7.5rem">
                                 <v-list-item
                                     :key="index"
                                     @click="selectedCounter = item"
@@ -242,6 +242,7 @@ export default {
         },
 
         search(val) {
+            console.log(val);
             if (val && this.heatmapDataMap[val.toLowerCase()]) {
                 this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
                 this.getDistrictTimelineData(val.toLowerCase());
@@ -292,11 +293,7 @@ export default {
     methods: {
         districtSearch(item, queryText, itemText) {
             let queryTextUpperCase = queryText.toUpperCase();
-            if (item.district && item.district.toUpperCase().indexOf(queryTextUpperCase) !== -1) {
-                return true;
-            } else {
-                return false;
-            }
+            return item.label && item.label.toUpperCase().indexOf(queryTextUpperCase) !== -1;
         },
 
         async initialize() {
@@ -424,13 +421,24 @@ export default {
             self.covidDistrictData = distMap;
             self.dataRange = activeRange;
             let searchItems = [];
+            let states = [];
             _.forEach(self.heatmapDataMap, (value, district) => {
                 searchItems.push({
-                    district: district,
-                    state: value.state,
+                    label: district,
+                    type: "District",
                 });
+                if (states.indexOf(value.state) === -1) {
+                    states.push(value.state);
+                }
             });
-            self.searchItems = getFormattedSelectItems(searchItems, "state");
+            states = _.map(states, (state) => {
+                return {
+                    label: state,
+                    type: "State",
+                };
+            });
+            searchItems = searchItems.concat(states);
+            self.searchItems = getFormattedSelectItems(searchItems, "type");
             self.updateCounters();
             self.updateHeatmapData();
             self.timelineData = self.selectedCounter;
