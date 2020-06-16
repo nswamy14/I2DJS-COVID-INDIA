@@ -11,32 +11,34 @@
                 <div class="subtitle-1 text-center text-capitalize">
                     {{ popoverData.label }}
                 </div>
-                <div class="body-2 font-weight-bold text-center mt-n1 mb-3 text-capitalize">
+                <div
+                    class="body-2 font-weight-bold text-center mb-3 state-container text-capitalize"
+                >
                     {{ popoverData.state }}
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color confirmed"></div>
+                    <div class="color popover confirmed"></div>
                     <span class="ml-1">CONFIRMED</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.confirmed }}
                     </span>
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color active"></div>
+                    <div class="color popover active"></div>
                     <span class="ml-1">ACTIVE</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.active }}
                     </span>
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color recovered"></div>
+                    <div class="color popover recovered"></div>
                     <span class="ml-1">RECOVERED</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.recovered }}
                     </span>
                 </div>
                 <div class="d-flex align-center px-2 caption">
-                    <div class="color deceased"></div>
+                    <div class="color popover deceased"></div>
                     <span class="ml-1">DECEASED</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.deceased }}
@@ -226,5 +228,9 @@ export default {
 
 .minus-class {
     border-radius: 0 0 0.25rem 0.25rem;
+}
+
+.state-container {
+    margin-top: -0.1rem;
 }
 </style>

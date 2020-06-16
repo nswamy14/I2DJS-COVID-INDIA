@@ -12,7 +12,10 @@
                 <span :class="[counter.color + '--text', 'text--lighten-1']">
                     {{ counter.total }}
                 </span>
-                <div v-if="counter.increaseCount" class="mt-n1 d-flex align-center">
+                <div
+                    v-if="counter.increaseCount"
+                    class="d-flex align-center counter-indicator-container"
+                >
                     <v-icon size="1rem" :class="[counter.color + '--text', 'text--accent-4']">
                         {{ counter.direction === "up" ? "$arrowUp" : "$arrowDown" }}
                     </v-icon>
@@ -52,6 +55,9 @@ export default {
 }
 .counter-content {
     height: 2rem;
+}
+.counter-indicator-container {
+    margin-top: -0.1rem;
 }
 .sparkline-chart {
     height: 2rem;
