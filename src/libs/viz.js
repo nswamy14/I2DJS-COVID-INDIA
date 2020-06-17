@@ -436,7 +436,7 @@ export default function () {
                             d.latitude = latlng.latitude;
                             xy = self.projection([latlng.longitude, latlng.latitude]);
                         } else {
-                            console.log(d.properties.DISTRICT);
+                            // console.log(d.properties.DISTRICT);
                         }
 
                         this.setAttr("x", xy[0]);
