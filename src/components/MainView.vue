@@ -448,6 +448,8 @@ export default {
                     type: "State",
                 };
             });
+            states = _.sortBy(states, (state) => state.label);
+            searchItems = _.sortBy(searchItems, (district) => district.label);
             searchItems = searchItems.concat(states);
             self.searchItems = getFormattedSelectItems(searchItems, "type");
             self.updateCounters();
