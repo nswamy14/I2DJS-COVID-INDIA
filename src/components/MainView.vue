@@ -74,21 +74,27 @@
                                     light
                                     v-bind="attrs"
                                     v-on="on"
-                                    width="7.5rem"
+                                    width="7.25rem"
                                 >
-                                    <span :class="selectedCounter.key" class="color mr-1"></span>
+                                    <span
+                                        :class="[selectedCounter.key, [$vuetify.breakpoint.name]]"
+                                        class="color mr-1"
+                                    ></span>
                                     <span class="caption">{{ selectedCounter.label }}</span>
                                 </v-btn>
                             </template>
 
-                            <v-list color="text-secondary" dense light width="7.5rem">
+                            <v-list color="text-secondary" dense light width="7.3rem">
                                 <v-list-item
                                     :key="index"
                                     @click="selectedCounter = item"
                                     class="px-2"
                                     v-for="(item, index) in counters"
                                 >
-                                    <span :class="item.key" class="color mr-1"></span>
+                                    <span
+                                        :class="[item.key, [$vuetify.breakpoint.name]]"
+                                        class="color mr-1"
+                                    ></span>
                                     <span class="caption text-uppercase">{{ item.label }}</span>
                                 </v-list-item>
                             </v-list>
@@ -244,7 +250,6 @@ export default {
         },
 
         search(val) {
-            console.log(val);
             if (val && val.type === "District" && this.heatmapDataMap[val.label.toLowerCase()]) {
                 this.searchGeoLocation = this.heatmapDataMap[val.label.toLowerCase()];
                 this.getDistrictTimelineData(val.label.toLowerCase());
@@ -330,9 +335,7 @@ export default {
 
             this.IndianCitiesLatLong = IndianCities;
             let pastData = pastCovidData["districtsDaily"];
-            // let visitedStates = {};
             for (let state in covidData.districtsDaily) {
-                // visitedStates[state] = {};
                 let stateVal = covidData.districtsDaily[state];
                 let statePastData = pastData[state] || {};
                 let stateLow = state.toLowerCase();
@@ -354,7 +357,6 @@ export default {
                 };
 
                 for (let dis in stateVal) {
-                    // visitedStates[state][dis] = true;
                     let pastDisVal = statePastData[dis] || [];
                     let disVal = pastDisVal.concat(stateVal[dis]);
                     let disLow = dis.toLowerCase();
@@ -457,6 +459,8 @@ export default {
                     type: "State",
                 };
             });
+            states = _.sortBy(states, (state) => state.label);
+            searchItems = _.sortBy(searchItems, (district) => district.label);
             searchItems = searchItems.concat(states);
             self.searchItems = getFormattedSelectItems(searchItems, "type");
             self.updateCounters();
@@ -504,7 +508,6 @@ export default {
                 recovered: stateObj.recovered,
                 data: dateArr.length > 45 ? dateArr.splice(dateArr.length - 45, 45) : dateArr,
             };
-            console.log(this.districtInfo);
         },
 
         getDistrictTimelineData(dist) {

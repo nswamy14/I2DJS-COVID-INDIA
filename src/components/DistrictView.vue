@@ -1,7 +1,7 @@
 <template>
     <v-card class="mt-2 card-background">
         <v-card-title class="text-capitalize font-weight-bold justify-center card-title-color">
-            {{ districtInfo.district }}
+            {{ districtInfo.name }}
         </v-card-title>
         <v-card-text class="align-center justify-center">
             <div class="counters-container grid">
@@ -10,7 +10,7 @@
                     :key="counter.key"
                     class="d-flex align-center mb-2"
                 >
-                    <div class="color" :class="[[$vuetify.breakpoint.name], counter.key]"></div>
+                    <div :class="[counter.key, 'color', [$vuetify.breakpoint.name]]"></div>
                     <span class="subtitle-2 mx-2 counter-label"> {{ counter.label }} Cases </span>
                     <span class="font-weight-bold black--text mr-2">
                         {{ counter.total }}
