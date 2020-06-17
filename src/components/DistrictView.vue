@@ -1,5 +1,5 @@
 <template>
-    <v-card light class="mt-2">
+    <v-card light class="mt-2" :class="[$vuetify.breakpoint.xs ? 'card-background' : '']">
         <v-card-title class="text-capitalize font-weight-bold justify-center">
             {{ districtInfo.name }}
         </v-card-title>
@@ -152,6 +152,9 @@ export default {
 };
 </script>
 <style scoped>
+.card-background {
+    background-color: hsla(0, 0%, 100%, 0.85);
+}
 .counters-container {
     width: 70%;
     margin: 0 auto;
