@@ -5,9 +5,9 @@
   <br>
 </p>
 
-# Covid-19 Dashboard for India
+# Coronavirus (Covid 19) Dashboard for India
 
-> Dashboard showcasing state and district wise impact of Covid-19 in India created using [I2Djs](https://github.com/I2Djs/I2Djs)
+> Dashboard showcasing state and district wise impact of Covid-19 pandemic in India with confirmed, active, recoveries and death rate on the map. Created using [I2Djs](https://github.com/I2Djs/I2Djs)
 
 ### Project Setup
 
