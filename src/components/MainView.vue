@@ -108,6 +108,7 @@
                         :dataRange="dataRange"
                         :dataType="dataType"
                         :searchGeoLocation="searchGeoLocation"
+                        :latlongData="IndianCitiesLatLong"
                         id="map-container"
                         v-if="covidDistrictData.length !== 0"
                     >
@@ -240,6 +241,7 @@ export default {
             dataType: "Active",
             animFlag: false,
             districtInfo: {},
+            IndianCitiesLatLong: {},
             lastUpdatedTime: new Date(),
         };
     },
@@ -326,10 +328,12 @@ export default {
             ]);
             let activeRange = [Infinity, -Infinity];
             let dateBuckets = {};
+            let dateStateBuckets = {};
 
             let distMap = [];
             let stateMap = {};
 
+            this.IndianCitiesLatLong = IndianCities;
             let pastData = pastCovidData["districtsDaily"];
             for (let state in covidData.districtsDaily) {
                 let stateVal = covidData.districtsDaily[state];
@@ -421,6 +425,7 @@ export default {
                             }
                             d.dis = disLow;
                             dateBuckets[d.date].push(d);
+
                             if (Math.sqrt(d.active) > activeRange[1]) {
                                 activeRange[1] = Math.sqrt(d.active);
                             }

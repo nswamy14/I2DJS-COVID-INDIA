@@ -245,7 +245,7 @@ export default function () {
             [10000, 10000],
         ]);
 
-        self.renderGeoMap();
+        self.renderGeoMap(districtData);
         self.renderHeatMap(districtData);
 
         function zoomStart(event) {
@@ -261,7 +261,7 @@ export default function () {
             var sqrtScale = sqrt(1 / scale);
             self.geoGroup.setAttr("transform", event.transform);
             self.heatmapHref.setAttr("transform", event.transform);
-            self.labelHref.setAttr("transform", event.transform);
+            // self.labelHref.setAttr("transform", event.transform);
 
             var nodes = self.heatmapHref.children;
 
@@ -284,23 +284,14 @@ export default function () {
         function zoomEnd(event) {
             var scale = event.transform.scale[0];
             var sqrtScale = sqrt(1 / scale);
-            var nodes = self.labelHref.children;
-            if (scale >= 3.5) {
-                var defaultFontSize = getDefaultFontSize();
-                self.labelHref.setStyle("display", true);
-                for (var i = nodes.length - 1; i >= 0; i--) {
-                    var d = nodes[i].data();
-                    nodes[i].setStyle("font", defaultFontSize[0] * 0.75 * sqrtScale + "px Arial");
-                    var width = nodes[i].attr.width;
-                    var val = d.d[dataType];
-                    val = val <= 0 ? 0 : scaleFun(sqrt(val));
+            var defaultFontSize = getDefaultFontSize();
+            self.labelGroup.setStyle("font", defaultFontSize[0] * 0.4 * sqrtScale + "px Arial");
 
-                    nodes[i].setAttr("x", d.xy[0] - width * 0.25).setAttr("y", d.xy[1] - 3);
-                }
+            if (scale >= 3.5) {
+                self.labelGroup.setStyle("globalAlpha", 1);
             } else {
-                self.labelHref.setStyle("display", "none");
+                self.labelGroup.setStyle("globalAlpha", 0.001);
             }
-            // clickEnable = true;
         }
     };
 
@@ -327,19 +318,27 @@ export default function () {
             height: self.webglRenderer.height * self.webglRenderer.pixelRatio,
         });
 
+        // self.labelHref.data.forEach(function (d) {
+        //     d.xy = self.projection([d.d.longitude, d.d.latitude]);
+        // });
+
         self.heatmapHref.data.forEach(function (d) {
             d.xy = self.projection([d.d.longitude, d.d.latitude]);
         });
 
-        self.heatmapHref.update();
         self.labelHref.update();
+        self.heatmapHref.update();
     };
 
     Chart.prototype.update = function (argument) {
         this.heatmapHref.update();
     };
 
-    Chart.prototype.renderGeoMap = function (argument) {
+    Chart.prototype.latlongData = function (data) {
+        this.latlong = data;
+    };
+
+    Chart.prototype.renderGeoMap = function () {
         var self = this;
         var GeoMaprenderer = i2d.canvasLayer("#map-container", {}, { enableEvents: false });
         var mindim = Math.min(GeoMaprenderer.height, GeoMaprenderer.width);
@@ -382,6 +381,119 @@ export default function () {
             bbox: false,
         });
 
+        var defaultFontSize = getDefaultFontSize();
+        this.labelGroup = this.geoGroup.createEl({
+            el: "group",
+            attr: {
+                transform: {
+                    translate: [0, -2],
+                },
+            },
+            style: {
+                font: defaultFontSize[0] * 0.4 + "px Arial",
+                fillStyle: "#dba9a9",
+                textAlign: "center",
+                globalAlpha: 0,
+            },
+            bbox: false,
+        });
+
+        this.labelHref = this.labelGroup.join([], "text", {
+            action: {
+                enter: function (data) {
+                    // data["text"] = data["text"].map(function (d) {
+                    //     let latlng = self.latlong[d.properties.DISTRICT.toLowerCase()];
+                    //     let xy = [0, 0];
+
+                    //     if (latlng) {
+                    //     	d.longitude = latlng.longitude;
+                    //     	d.latitude = latlng.latitude;
+                    //         xy = self.projection([latlng.longitude, latlng.latitude]);
+                    //     } else {
+                    //         console.log(d.properties.DISTRICT);
+                    //     }
+
+                    //     return {
+                    //         xy: xy,
+                    //         d: d,
+                    //     };
+                    // });
+                    this.createEls(
+                        data["text"].filter(function (d) {
+                            return citiesToHide.indexOf(d.properties.DISTRICT) === -1;
+                        }),
+                        {
+                            el: "text",
+                            attr: {
+                                text: function (d) {
+                                    return d.properties.DISTRICT;
+                                },
+                            },
+                        }
+                    ).forEach(function (d) {
+                        let latlng = self.latlong[d.properties.DISTRICT.toLowerCase()];
+                        let xy = [0, 0];
+
+                        if (latlng) {
+                            d.longitude = latlng.longitude;
+                            d.latitude = latlng.latitude;
+                            xy = self.projection([latlng.longitude, latlng.latitude]);
+                        } else {
+                            console.log(d.properties.DISTRICT);
+                        }
+
+                        this.setAttr("x", xy[0]);
+                        this.setAttr("y", xy[1]);
+
+                        this.on("zoom", self.zoomInstance)
+                            .on("mousemove", function (e) {
+                                var d = this.data();
+                                if (e.pointerType === "touch") {
+                                    return;
+                                }
+                                if (showTooltipFunc) {
+                                    showTooltipFunc(d, e);
+                                }
+                            })
+                            .on("mouseout", function (e) {
+                                if (e.pointerType === "touch") {
+                                    return;
+                                }
+                                if (hideTooltipFunc) {
+                                    hideTooltipFunc();
+                                }
+                            });
+                    });
+                },
+                update: function (nodes) {
+                    nodes["text"].forEach(function (d) {
+                        let xy = self.projection([d.longitude, d.latitude]);
+                        this.setAttr("x", xy[0]);
+                        this.setAttr("y", xy[1]);
+                    });
+                    // nodes['text'].forEach(function (d) {
+                    // 	var active = d.active;
+                    // 	active = active <= 0 ? 0 : heatmapLinearScale(Math.sqrt(active));
+                    // 	var op = Math.log(active || 1) / 5;
+                    // 	op = (op > 1.0 ? 1.0 : op);
+                    // 	var scale = zoomInstance.event.transform.scale[0];
+                    // 	this.animateTo({
+                    //     	duration: 100,
+                    //     	attr: {
+                    //     		width: active / scale,
+                    //     		height: active / scale,
+                    //     		x: d.xy[0] - ((active * 0.5) / scale),
+                    //     		y: d.xy[1] - ((active * 0.5) / scale)
+                    //     	},
+                    //     	style: {
+                    //     		opacity: op
+                    //     	}
+                    //     });
+                    // })
+                },
+            },
+        });
+
         renderGeoJson();
 
         async function renderGeoJson() {
@@ -408,6 +520,8 @@ export default function () {
                     },
                 },
             });
+
+            self.labelHref.join(districtGeoData.features);
         }
 
         function renderLegend(renderer) {
@@ -663,85 +777,8 @@ export default function () {
                 },
             },
         });
-        var defaultFontSize = getDefaultFontSize();
-        this.labelHref = labelGroup.join(data, "text", {
-            action: {
-                enter: function (data) {
-                    this.createEls(
-                        data["text"].filter(function (d) {
-                            return citiesToHide.indexOf(d.d.name) === -1;
-                        }),
-                        {
-                            el: "text",
-                            attr: {
-                                x: function (d) {
-                                    return d.xy[0];
-                                },
-                                y: function (d) {
-                                    return d.xy[1] + 10;
-                                },
-                                text: function (d) {
-                                    return d.d.label;
-                                },
-                            },
-                            style: {
-                                font: defaultFontSize[0] * 0.75 + "px Arial",
-                                fillStyle: "#dba9a9",
-                                opacity: function (d) {
-                                    return citiesToHide.indexOf(d.d.name) === -1 ? 1 : 0;
-                                },
-                            },
-                        }
-                    )
-                        .on("zoom", self.zoomInstance)
-                        .on("mousemove", function (e) {
-                            var d = this.data();
-                            if (e.pointerType === "touch") {
-                                return;
-                            }
-                            if (showTooltipFunc) {
-                                showTooltipFunc(d, e);
-                            }
-                        })
-                        .on("mouseout", function (e) {
-                            if (e.pointerType === "touch") {
-                                return;
-                            }
-                            if (hideTooltipFunc) {
-                                hideTooltipFunc();
-                            }
-                        });
-                },
-                update: function (nodes) {
-                    nodes["text"].forEach(function (d) {
-                        this.setAttr("x", d.xy[0]);
-                        this.setAttr("y", d.xy[1] + 10);
-                    });
-                    // nodes['text'].forEach(function (d) {
-                    // 	var active = d.active;
-                    // 	active = active <= 0 ? 0 : heatmapLinearScale(Math.sqrt(active));
-                    // 	var op = Math.log(active || 1) / 5;
-                    // 	op = (op > 1.0 ? 1.0 : op);
-                    // 	var scale = zoomInstance.event.transform.scale[0];
-                    // 	this.animateTo({
-                    //     	duration: 100,
-                    //     	attr: {
-                    //     		width: active / scale,
-                    //     		height: active / scale,
-                    //     		x: d.xy[0] - ((active * 0.5) / scale),
-                    //     		y: d.xy[1] - ((active * 0.5) / scale)
-                    //     	},
-                    //     	style: {
-                    //     		opacity: op
-                    //     	}
-                    //     });
-                    // })
-                },
-            },
-        });
 
         this.heatmapHref.update();
-        this.labelHref.update();
     };
 
     Chart.prototype.showTooltip = function (_) {
