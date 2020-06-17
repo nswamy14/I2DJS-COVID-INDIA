@@ -332,6 +332,8 @@ export default {
             let distMap = [];
             let stateMap = {};
 
+            let currDate = this.formatDate(new Date());
+
             this.IndianCitiesLatLong = IndianCities;
             let pastData = pastCovidData["districtsDaily"];
             for (let state in covidData.districtsDaily) {
@@ -411,10 +413,14 @@ export default {
                                 activeRange[0] = Math.sqrt(d.active);
                             }
                         });
-                        stateObj.confirmed += disVal[disVal.length - 1].confirmed;
-                        stateObj.active += disVal[disVal.length - 1].active;
-                        stateObj.deceased += disVal[disVal.length - 1].deceased;
-                        stateObj.recovered += disVal[disVal.length - 1].recovered;
+
+                        if (disVal[disVal.length - 1].date === currDate) {
+                            stateObj.confirmed += disVal[disVal.length - 1].confirmed;
+                            stateObj.active += disVal[disVal.length - 1].active;
+                            stateObj.deceased += disVal[disVal.length - 1].deceased;
+                            stateObj.recovered += disVal[disVal.length - 1].recovered;
+                        }
+
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
                     } else {
@@ -432,6 +438,12 @@ export default {
                                 activeRange[0] = Math.sqrt(d.active);
                             }
                         });
+                        if (disVal[disVal.length - 1].date === currDate) {
+                            stateObj.confirmed += disVal[disVal.length - 1].confirmed;
+                            stateObj.active += disVal[disVal.length - 1].active;
+                            stateObj.deceased += disVal[disVal.length - 1].deceased;
+                            stateObj.recovered += disVal[disVal.length - 1].recovered;
+                        }
                     }
                 }
                 stateMap[stateObj.name] = stateObj;
@@ -474,6 +486,19 @@ export default {
 
             await self.$nextTick();
             self.showProgress = false;
+        },
+
+        formatDate(date) {
+            let month = new Date(date).getMonth() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+
+            let day = new Date(date).getDate();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            return new Date(date).getFullYear() + "-" + month + "-" + day;
         },
 
         async getDistrictWiseDailyData() {
@@ -532,6 +557,8 @@ export default {
                 return a.date - b.date;
             });
 
+            console.log(dateArr);
+
             this.districtInfo = {
                 name: stateObj.name,
                 label: stateObj.label,
@@ -539,7 +566,10 @@ export default {
                 active: stateObj.active,
                 deceased: stateObj.deceased,
                 recovered: stateObj.recovered,
-                data: dateArr.length > 45 ? dateArr.splice(dateArr.length - 45, 45) : dateArr,
+                data:
+                    dateArr.length > 45
+                        ? dateArr.slice(dateArr.length - 45, dateArr.length)
+                        : dateArr,
             };
         },
 

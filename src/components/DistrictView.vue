@@ -96,9 +96,19 @@ export default {
         initializeDistrictData() {
             let districtInfo = this.districtInfo || { data: [] };
             let length = districtInfo.data.length;
+            let currDayRecord = districtInfo || {};
+            let dayRecord = districtInfo.data[length - 1] || {};
             let previousDayRecord = districtInfo.data[length - 2] || {};
             if (_.isEmpty(previousDayRecord)) {
                 previousDayRecord = {
+                    confirmed: 0,
+                    active: 0,
+                    deceased: 0,
+                    recovered: 0,
+                };
+            }
+            if (_.isEmpty(dayRecord)) {
+                dayRecord = {
                     confirmed: 0,
                     active: 0,
                     deceased: 0,
@@ -110,40 +120,39 @@ export default {
                 {
                     label: "Confirmed",
                     key: "confirmed",
-                    total: convertToIndianFormat(districtInfo.confirmed),
+                    total: convertToIndianFormat(currDayRecord.confirmed),
                     direction:
-                        districtInfo.confirmed - previousDayRecord.confirmed < 0 ? "down" : "up",
+                        dayRecord.confirmed - previousDayRecord.confirmed < 0 ? "down" : "up",
                     delta: convertToIndianFormat(
-                        Math.abs(districtInfo.confirmed - previousDayRecord.confirmed)
+                        Math.abs(dayRecord.confirmed - previousDayRecord.confirmed)
                     ),
                 },
                 {
                     label: "Active",
                     key: "active",
-                    total: convertToIndianFormat(districtInfo.active),
-                    direction: districtInfo.active - previousDayRecord.active < 0 ? "down" : "up",
+                    total: convertToIndianFormat(currDayRecord.active),
+                    direction: dayRecord.active - previousDayRecord.active < 0 ? "down" : "up",
                     delta: convertToIndianFormat(
-                        Math.abs(districtInfo.active - previousDayRecord.active)
+                        Math.abs(dayRecord.active - previousDayRecord.active)
                     ),
                 },
                 {
                     label: "Deceased",
                     key: "deceased",
-                    total: convertToIndianFormat(districtInfo.deceased),
-                    direction:
-                        districtInfo.deceased - previousDayRecord.deceased < 0 ? "down" : "up",
+                    total: convertToIndianFormat(currDayRecord.deceased),
+                    direction: dayRecord.deceased - previousDayRecord.deceased < 0 ? "down" : "up",
                     delta: convertToIndianFormat(
-                        Math.abs(districtInfo.deceased - previousDayRecord.deceased)
+                        Math.abs(dayRecord.deceased - previousDayRecord.deceased)
                     ),
                 },
                 {
                     label: "Recovered",
                     key: "recovered",
-                    total: convertToIndianFormat(districtInfo.recovered),
+                    total: convertToIndianFormat(currDayRecord.recovered),
                     direction:
-                        districtInfo.recovered - previousDayRecord.recovered < 0 ? "down" : "up",
+                        dayRecord.recovered - previousDayRecord.recovered < 0 ? "down" : "up",
                     delta: convertToIndianFormat(
-                        Math.abs(districtInfo.recovered - previousDayRecord.recovered)
+                        Math.abs(dayRecord.recovered - previousDayRecord.recovered)
                     ),
                 },
             ];
