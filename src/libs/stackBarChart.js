@@ -11,10 +11,10 @@ export default function () {
     let hideTooltipFunc;
     // let dateCount = 0;
     function scaleFun(count) {
+        let domainDiff = scaleDomain[1] - scaleDomain[0] || 1;
         return (
             scaleRange[0] +
-            ((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
-                (scaleRange[1] - scaleRange[0])
+            ((count - scaleDomain[0]) / domainDiff) * (scaleRange[1] - scaleRange[0])
         );
     }
     let Chart = function () {
@@ -38,22 +38,7 @@ export default function () {
         this.timelineLayer.setAttr("viewBox", "0 0 " + 500 + " " + (height / width) * 500);
         widthPerBar = (500 * 0.8) / 45;
         scaleRange = [5, (height / width) * 500 - 10];
-        // this.gradColor = this.timelineLayer.createLinearGradient({
-        //     x1: 0,
-        //     y1: 100,
-        //     x2: 0,
-        //     y2: 0,
-        //     colorStops: [
-        //         {
-        //             color: "rgba(0, 0, 0, 0.0)",
-        //             value: 0,
-        //         },
-        //         {
-        //             color: "rgba(255, 0, 0, 1.0)",
-        //             value: 100.0,
-        //         },
-        //     ],
-        // });
+
         scaleDomain = [0, fetchDomainRange(data)[1]];
         let g = this.timelineLayer.createEl({
             el: "g",
@@ -63,6 +48,11 @@ export default function () {
                 },
             },
         });
+
+        this.g = g;
+
+        noDataLabel(g, data);
+
         this.barHref = g.join(data, "g", {
             action: {
                 enter: function (data) {
@@ -163,6 +153,7 @@ export default function () {
     };
     Chart.prototype.update = function (data) {
         scaleDomain = [0, fetchDomainRange(data)[1]];
+        noDataLabel(this.g, data);
         this.barHref.join(data);
         this.barHref.update();
     };
@@ -175,6 +166,27 @@ export default function () {
         hideTooltipFunc = _;
         return this;
     };
+
+    function noDataLabel(g, data) {
+        var el = g.fetchEl(".nodataLabel");
+        if (el) {
+            el.remove();
+        }
+        if (data & (data.length === 0)) {
+            g.createEl({
+                el: "text",
+                attr: {
+                    class: "nodataLabel",
+                    x: 250,
+                    y: (height / width) * 500 * 0.5,
+                    text: "No data",
+                },
+                style: {
+                    fill: "#000",
+                },
+            });
+        }
+    }
 
     function fetchDomainRange(data) {
         return data.reduce(

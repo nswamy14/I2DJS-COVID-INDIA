@@ -8,44 +8,17 @@ export default function () {
     let scaleRange = [0, 0];
     let scaleDomain = [0, 0];
     function scaleFun(count) {
+        let domainDiff = scaleDomain[1] - scaleDomain[0] || 1;
         return (
             scaleRange[0] +
-            ((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
-                (scaleRange[1] - scaleRange[0])
+            ((count - scaleDomain[0]) / domainDiff) * (scaleRange[1] - scaleRange[0])
         );
     }
 
     let districtGeoData = {};
     let stateGeoData = {};
+    let latlong = {};
 
-    var citiesToHide = [
-        "kodarma",
-        "baleshwar",
-        "medchal malkajgiri",
-        "bengaluru urban",
-        "bengaluru rural",
-        "kanyakumari",
-        "bid",
-        "ahmadnagar",
-        "buldhana",
-        "ahmedabad",
-        "mehsana",
-        "charkhi dadri",
-        "north delhi",
-        "north west delhi",
-        "north east delhi",
-        "west delhi",
-        "east delhi",
-        "south east delhi",
-        "south west delhi",
-        "south delhi",
-        "new delhi",
-        "central delhi",
-        "y.s.r. kadapa",
-        "chhota udaipur",
-        "chittaurgam",
-    ];
-    // var clickEnable = true;
     var ActiveColorGrad = [
         {
             color: [0, 0, 0, 0.0],
@@ -132,6 +105,7 @@ export default function () {
     Chart.prototype.geoJSON = function (GEO_JSON) {
         districtGeoData = GEO_JSON.districtGeoData;
         stateGeoData = GEO_JSON.stateGeoData;
+        latlong = GEO_JSON.latlong;
     };
 
     // let prevZoom = {
@@ -249,8 +223,6 @@ export default function () {
         self.renderHeatMap(districtData);
 
         function zoomStart(event) {
-            // tooltip();
-            // clickEnable = false;
             if (hideTooltipFunc) {
                 hideTooltipFunc();
             }
@@ -318,10 +290,6 @@ export default function () {
             height: self.webglRenderer.height * self.webglRenderer.pixelRatio,
         });
 
-        // self.labelHref.data.forEach(function (d) {
-        //     d.xy = self.projection([d.d.longitude, d.d.latitude]);
-        // });
-
         self.heatmapHref.data.forEach(function (d) {
             d.xy = self.projection([d.d.longitude, d.d.latitude]);
         });
@@ -332,10 +300,6 @@ export default function () {
 
     Chart.prototype.update = function (argument) {
         this.heatmapHref.update();
-    };
-
-    Chart.prototype.latlongData = function (data) {
-        this.latlong = data;
     };
 
     Chart.prototype.renderGeoMap = function () {
@@ -401,37 +365,15 @@ export default function () {
         this.labelHref = this.labelGroup.join([], "text", {
             action: {
                 enter: function (data) {
-                    // data["text"] = data["text"].map(function (d) {
-                    //     let latlng = self.latlong[d.properties.DISTRICT.toLowerCase()];
-                    //     let xy = [0, 0];
-
-                    //     if (latlng) {
-                    //     	d.longitude = latlng.longitude;
-                    //     	d.latitude = latlng.latitude;
-                    //         xy = self.projection([latlng.longitude, latlng.latitude]);
-                    //     } else {
-                    //         console.log(d.properties.DISTRICT);
-                    //     }
-
-                    //     return {
-                    //         xy: xy,
-                    //         d: d,
-                    //     };
-                    // });
-                    this.createEls(
-                        data["text"].filter(function (d) {
-                            return citiesToHide.indexOf(d.properties.DISTRICT) === -1;
-                        }),
-                        {
-                            el: "text",
-                            attr: {
-                                text: function (d) {
-                                    return d.properties.DISTRICT;
-                                },
+                    this.createEls(data["text"], {
+                        el: "text",
+                        attr: {
+                            text: function (d) {
+                                return d.properties.DISTRICT;
                             },
-                        }
-                    ).forEach(function (d) {
-                        let latlng = self.latlong[d.properties.DISTRICT.toLowerCase()];
+                        },
+                    }).forEach(function (d) {
+                        let latlng = latlong[d.properties.DISTRICT.toLowerCase()];
                         let xy = [0, 0];
 
                         if (latlng) {
@@ -439,7 +381,7 @@ export default function () {
                             d.latitude = latlng.latitude;
                             xy = self.projection([latlng.longitude, latlng.latitude]);
                         } else {
-                            console.log(d.properties.DISTRICT);
+                            // console.log(d.properties.DISTRICT);
                         }
 
                         this.setAttr("x", xy[0]);
@@ -471,32 +413,13 @@ export default function () {
                         this.setAttr("x", xy[0]);
                         this.setAttr("y", xy[1]);
                     });
-                    // nodes['text'].forEach(function (d) {
-                    // 	var active = d.active;
-                    // 	active = active <= 0 ? 0 : heatmapLinearScale(Math.sqrt(active));
-                    // 	var op = Math.log(active || 1) / 5;
-                    // 	op = (op > 1.0 ? 1.0 : op);
-                    // 	var scale = zoomInstance.event.transform.scale[0];
-                    // 	this.animateTo({
-                    //     	duration: 100,
-                    //     	attr: {
-                    //     		width: active / scale,
-                    //     		height: active / scale,
-                    //     		x: d.xy[0] - ((active * 0.5) / scale),
-                    //     		y: d.xy[1] - ((active * 0.5) / scale)
-                    //     	},
-                    //     	style: {
-                    //     		opacity: op
-                    //     	}
-                    //     });
-                    // })
                 },
             },
         });
 
         renderGeoJson();
 
-        async function renderGeoJson() {
+        function renderGeoJson() {
             self.stateG.createEls(stateGeoData.features, {
                 el: "path",
                 attr: {

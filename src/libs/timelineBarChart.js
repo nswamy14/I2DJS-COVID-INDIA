@@ -11,10 +11,10 @@ export default function () {
     let showTooltipFunc;
     let hideTooltipFunc;
     function scaleFun(count) {
+        let domainDiff = scaleDomain[1] - scaleDomain[0] || 1;
         return (
             scaleRange[0] +
-            ((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
-                (scaleRange[1] - scaleRange[0])
+            ((count - scaleDomain[0]) / domainDiff) * (scaleRange[1] - scaleRange[0])
         );
     }
     let Chart = function () {};

@@ -109,7 +109,6 @@
                         :dataRange="dataRange"
                         :dataType="dataType"
                         :searchGeoLocation="searchGeoLocation"
-                        :latlongData="IndianCitiesLatLong"
                         id="map-container"
                         v-if="covidDistrictData.length !== 0"
                     >
@@ -492,6 +491,7 @@ export default {
         async getIndianCities() {
             try {
                 let response = await getIndianCities();
+                GEO_JSON.latlong = response;
                 return response;
             } catch (e) {
                 console.error(e);
@@ -787,7 +787,7 @@ export default {
 
 .map-container.sm {
     margin-top: 5rem;
-    height: calc(100% - 20rem);
+    height: calc(100% - 15rem);
 }
 
 .map-container.xs {
