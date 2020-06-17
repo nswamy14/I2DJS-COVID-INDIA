@@ -105,6 +105,7 @@
                         :dataRange="dataRange"
                         :dataType="dataType"
                         :searchGeoLocation="searchGeoLocation"
+                        :latlongData="IndianCitiesLatLong"
                         id="map-container"
                         v-if="covidDistrictData.length !== 0"
                     >
@@ -229,6 +230,7 @@ export default {
             dataType: "Active",
             animFlag: false,
             districtInfo: {},
+            IndianCitiesLatLong: {},
             // districtTimelineData: [],
             lastUpdatedTime: new Date(),
         };
@@ -320,11 +322,13 @@ export default {
             ]);
             let activeRange = [Infinity, -Infinity];
             let dateBuckets = {};
+            let dateStateBuckets = {};
 
             let distMap = [];
             let stateMap = {};
             let count = 0;
 
+            this.IndianCitiesLatLong = IndianCities;
             let pastData = pastCovidData["districtsDaily"];
             // let visitedStates = {};
             for (let state in covidData.districtsDaily) {
@@ -412,6 +416,21 @@ export default {
                         stateObj.recovered += disVal[disVal.length - 1].recovered;
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
+                    } else {
+                        disVal.forEach(function (d) {
+                            if (!dateBuckets[d.date]) {
+                                dateBuckets[d.date] = [];
+                            }
+                            d.dis = disLow;
+                            dateBuckets[d.date].push(d);
+
+                            if (Math.sqrt(d.active) > activeRange[1]) {
+                                activeRange[1] = Math.sqrt(d.active);
+                            }
+                            if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
+                                activeRange[0] = Math.sqrt(d.active);
+                            }
+                        });
                     }
                 }
                 stateMap[stateObj.name] = stateObj;
