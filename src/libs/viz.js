@@ -1,8 +1,7 @@
 import { geoMercator, geoPath } from "d3";
 import * as i2d from "i2djs";
+import _ from "lodash";
 import { vertexShader, fragmentShader } from "./shaders";
-import { getIndianDistrictGeoJson, getIndianStatesGeoJson } from "@/api/CovidServices";
-import { debounce } from "lodash";
 
 export default function () {
     // var heatmapLinearScale = d3.scaleLinear();
@@ -15,6 +14,10 @@ export default function () {
                 (scaleRange[1] - scaleRange[0])
         );
     }
+
+    let districtGeoData = {};
+    let stateGeoData = {};
+
     var citiesToHide = [
         "kodarma",
         "baleshwar",
@@ -124,6 +127,11 @@ export default function () {
             heatmapShader.setUniformData("u_colorArr", colorGradMap.value);
             heatmapShader.setUniformData("u_offset", colorGradMap.offset);
         }
+    };
+
+    Chart.prototype.geoJSON = function (GEO_JSON) {
+        districtGeoData = GEO_JSON.districtGeoData;
+        stateGeoData = GEO_JSON.stateGeoData;
     };
 
     // let prevZoom = {
@@ -342,7 +350,7 @@ export default function () {
             .scale([mindim * 1.65]);
 
         GeoMaprenderer.onResize(
-            debounce(function () {
+            _.debounce(function () {
                 self.resize();
             }, 250)
         );
@@ -376,24 +384,7 @@ export default function () {
 
         renderGeoJson();
 
-        // indiaDist = json(
-        // 	"https://nswamy14.github.io/geoJson/india.district.geo.json"
-        // );
-        // var states = json(
-        // 	"https://nswamy14.github.io/geoJson/india.states2.geo.json"
-        // );
-        // Promise.all([indiaDist, states]).then(function (values) {
-        // 	var districtGeoData = values[0];
-        // 	var stateGeoData = values[1];
-        // 	// var count = 0;
-        // });
-
         async function renderGeoJson() {
-            let [districtGeoData, stateGeoData] = await Promise.all([
-                getIndianDistrictGeoJson(),
-                getIndianStatesGeoJson(),
-            ]);
-
             self.stateG.createEls(stateGeoData.features, {
                 el: "path",
                 attr: {

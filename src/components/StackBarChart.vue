@@ -16,7 +16,7 @@
                         class="color popover confirmed"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">CONFIRMED</span>
+                    <span class="mx-1">CONFIRMED</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.confirmed }}
                     </span>
@@ -26,7 +26,7 @@
                         class="color popover active"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">ACTIVE</span>
+                    <span class="mx-1">ACTIVE</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.active }}
                     </span>
@@ -36,7 +36,7 @@
                         class="color popover recovered"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">RECOVERED</span>
+                    <span class="mx-1">RECOVERED</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.recovered }}
                     </span>
@@ -46,7 +46,7 @@
                         class="color popover deceased"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">DECEASED</span>
+                    <span class="mx-1">DECEASED</span>
                     <span class="font-weight-bold ml-auto">
                         {{ popoverData.deceased }}
                     </span>
@@ -57,8 +57,8 @@
 </template>
 
 <script>
+import _ from "lodash";
 import stackBarChart from "./../libs/stackBarChart.js";
-import { debounce } from "lodash";
 export default {
     name: "TimelineView",
     data() {
@@ -88,7 +88,7 @@ export default {
     },
     methods: {
         initialize() {
-            this.debouncedMouseOver = debounce(this.showTooltip.bind(this), 300);
+            this.debouncedMouseOver = _.debounce(this.showTooltip.bind(this), 300);
             this.timelineInstance = stackBarChart();
             this.timelineInstance.containerId(this.id);
             this.timelineInstance.initialize(this.timelineData);

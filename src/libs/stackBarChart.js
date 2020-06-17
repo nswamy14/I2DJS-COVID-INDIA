@@ -36,7 +36,6 @@ export default function () {
         width = this.timelineLayer.width;
         height = this.timelineLayer.height;
         this.timelineLayer.setAttr("viewBox", "0 0 " + 500 + " " + (height / width) * 500);
-        height *= 0.8;
         widthPerBar = (500 * 0.8) / 45;
         scaleRange = [5, (height / width) * 500 - 10];
         // this.gradColor = this.timelineLayer.createLinearGradient({
