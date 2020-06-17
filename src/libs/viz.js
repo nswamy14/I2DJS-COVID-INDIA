@@ -19,34 +19,6 @@ export default function () {
     let stateGeoData = {};
     let latlong = {};
 
-    // var citiesToHide = [
-    //     "kodarma",
-    //     "baleshwar",
-    //     "medchal malkajgiri",
-    //     "bengaluru urban",
-    //     "bengaluru rural",
-    //     "kanyakumari",
-    //     "bid",
-    //     "ahmadnagar",
-    //     "buldhana",
-    //     "ahmedabad",
-    //     "mehsana",
-    //     "charkhi dadri",
-    //     "north delhi",
-    //     "north west delhi",
-    //     "north east delhi",
-    //     "west delhi",
-    //     "east delhi",
-    //     "south east delhi",
-    //     "south west delhi",
-    //     "south delhi",
-    //     "new delhi",
-    //     "central delhi",
-    //     "y.s.r. kadapa",
-    //     "chhota udaipur",
-    //     "chittaurgam",
-    // ];
-    // var clickEnable = true;
     var ActiveColorGrad = [
         {
             color: [0, 0, 0, 0.0],
@@ -251,8 +223,6 @@ export default function () {
         self.renderHeatMap(districtData);
 
         function zoomStart(event) {
-            // tooltip();
-            // clickEnable = false;
             if (hideTooltipFunc) {
                 hideTooltipFunc();
             }
@@ -320,10 +290,6 @@ export default function () {
             height: self.webglRenderer.height * self.webglRenderer.pixelRatio,
         });
 
-        // self.labelHref.data.forEach(function (d) {
-        //     d.xy = self.projection([d.d.longitude, d.d.latitude]);
-        // });
-
         self.heatmapHref.data.forEach(function (d) {
             d.xy = self.projection([d.d.longitude, d.d.latitude]);
         });
@@ -335,10 +301,6 @@ export default function () {
     Chart.prototype.update = function (argument) {
         this.heatmapHref.update();
     };
-
-    // Chart.prototype.latlongData = function (data) {
-    //     latlong = data;
-    // };
 
     Chart.prototype.renderGeoMap = function () {
         var self = this;
@@ -403,23 +365,6 @@ export default function () {
         this.labelHref = this.labelGroup.join([], "text", {
             action: {
                 enter: function (data) {
-                    // data["text"] = data["text"].map(function (d) {
-                    //     let latlng = self.latlong[d.properties.DISTRICT.toLowerCase()];
-                    //     let xy = [0, 0];
-
-                    //     if (latlng) {
-                    //     	d.longitude = latlng.longitude;
-                    //     	d.latitude = latlng.latitude;
-                    //         xy = self.projection([latlng.longitude, latlng.latitude]);
-                    //     } else {
-                    //         console.log(d.properties.DISTRICT);
-                    //     }
-
-                    //     return {
-                    //         xy: xy,
-                    //         d: d,
-                    //     };
-                    // });
                     this.createEls(data["text"], {
                         el: "text",
                         attr: {
@@ -468,25 +413,6 @@ export default function () {
                         this.setAttr("x", xy[0]);
                         this.setAttr("y", xy[1]);
                     });
-                    // nodes['text'].forEach(function (d) {
-                    // 	var active = d.active;
-                    // 	active = active <= 0 ? 0 : heatmapLinearScale(Math.sqrt(active));
-                    // 	var op = Math.log(active || 1) / 5;
-                    // 	op = (op > 1.0 ? 1.0 : op);
-                    // 	var scale = zoomInstance.event.transform.scale[0];
-                    // 	this.animateTo({
-                    //     	duration: 100,
-                    //     	attr: {
-                    //     		width: active / scale,
-                    //     		height: active / scale,
-                    //     		x: d.xy[0] - ((active * 0.5) / scale),
-                    //     		y: d.xy[1] - ((active * 0.5) / scale)
-                    //     	},
-                    //     	style: {
-                    //     		opacity: op
-                    //     	}
-                    //     });
-                    // })
                 },
             },
         });
