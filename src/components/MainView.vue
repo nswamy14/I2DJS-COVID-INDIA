@@ -74,21 +74,27 @@
                                     light
                                     v-bind="attrs"
                                     v-on="on"
-                                    width="7.5rem"
+                                    width="7.25rem"
                                 >
-                                    <span :class="selectedCounter.key" class="color mr-1"></span>
+                                    <span
+                                        :class="[selectedCounter.key, [$vuetify.breakpoint.name]]"
+                                        class="color mr-1"
+                                    ></span>
                                     <span class="caption">{{ selectedCounter.label }}</span>
                                 </v-btn>
                             </template>
 
-                            <v-list color="text-secondary" dense light width="7.5rem">
+                            <v-list color="text-secondary" dense light width="7.3rem">
                                 <v-list-item
                                     :key="index"
                                     @click="selectedCounter = item"
                                     class="px-2"
                                     v-for="(item, index) in counters"
                                 >
-                                    <span :class="item.key" class="color mr-1"></span>
+                                    <span
+                                        :class="[item.key, [$vuetify.breakpoint.name]]"
+                                        class="color mr-1"
+                                    ></span>
                                     <span class="caption text-uppercase">{{ item.label }}</span>
                                 </v-list-item>
                             </v-list>
@@ -448,6 +454,8 @@ export default {
                     type: "State",
                 };
             });
+            states = _.sortBy(states, (state) => state.label);
+            searchItems = _.sortBy(searchItems, (district) => district.label);
             searchItems = searchItems.concat(states);
             self.searchItems = getFormattedSelectItems(searchItems, "type");
             self.updateCounters();
