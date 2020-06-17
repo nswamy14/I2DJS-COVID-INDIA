@@ -1,6 +1,6 @@
 <template>
-    <v-card class="mt-2 card-background">
-        <v-card-title class="text-capitalize font-weight-bold justify-center card-title-color">
+    <v-card light class="mt-2">
+        <v-card-title class="text-capitalize font-weight-bold justify-center">
             {{ districtInfo.name }}
         </v-card-title>
         <v-card-text class="align-center justify-center">
@@ -51,7 +51,7 @@
                 </div>
             </div>
             <template v-if="districtInfo.data && districtInfo.data.length > 0">
-                <div class="mt-4 text-center subtitle-1 black--text">
+                <div class="mt-3 mb-1 text-center subtitle-1 black--text">
                     Activity in the past 45 days
                 </div>
                 <div class="toolbar-timeline-container">
@@ -65,8 +65,9 @@
 
 <script>
 import StackBarChart from "./StackBarChart";
-import { isEmpty } from "lodash";
 import { convertToIndianFormat } from "./helper";
+import _ from "lodash";
+
 export default {
     name: "DistrictView",
     components: { StackBarChart },
@@ -96,7 +97,7 @@ export default {
             let districtInfo = this.districtInfo || { data: [] };
             let length = districtInfo.data.length;
             let previousDayRecord = districtInfo.data[length - 2] || {};
-            if (isEmpty(previousDayRecord)) {
+            if (_.isEmpty(previousDayRecord)) {
                 previousDayRecord = {
                     confirmed: 0,
                     active: 0,
@@ -151,9 +152,6 @@ export default {
 };
 </script>
 <style scoped>
-.card-background {
-    background-color: hsla(0, 0%, 100%, 0.85);
-}
 .counters-container {
     width: 70%;
     margin: 0 auto;
@@ -166,17 +164,12 @@ export default {
     justify-content: center;
 }
 
-.card-title-color {
-    color: hsla(0, 0%, 0%, 0.8);
-}
-
 .counter-label {
     width: 8rem;
-    color: hsla(0, 0%, 0%, 0.9);
 }
 
 .toolbar-timeline-container {
     width: 100%;
-    height: 10rem;
+    height: 8rem;
 }
 </style>

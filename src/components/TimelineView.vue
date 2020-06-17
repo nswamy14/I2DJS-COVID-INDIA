@@ -15,8 +15,9 @@
 </template>
 
 <script>
+import _ from "lodash";
 import timelineBarChart from "./../libs/timelineBarChart.js";
-import { debounce } from "lodash";
+
 export default {
     name: "TimelineView",
     data() {
@@ -45,7 +46,7 @@ export default {
     },
     methods: {
         initialize() {
-            this.debouncedMouseOver = debounce(this.showTooltip.bind(this), 300);
+            this.debouncedMouseOver = _.debounce(this.showTooltip.bind(this), 300);
             this.timelineInstance = timelineBarChart();
             this.timelineInstance.dataRange(this.timelineData.scale);
             this.timelineInstance.dateCount(this.timelineData.dateCount);

@@ -1,7 +1,7 @@
 <template>
     <div class="main-container">
         <v-progress-linear :active="showProgress" indeterminate color="orange"> </v-progress-linear>
-        <v-content>
+        <v-main>
             <v-container class="fill-height align-content-start" fluid>
                 <div
                     :class="[
@@ -11,15 +11,13 @@
                     ]"
                     class="d-flex align-center"
                 >
-                    <v-img
-                        alt="I2Djs Covid India logo"
-                        class="mr-4"
-                        contain
-                        max-height="4rem"
-                        max-width="4rem"
-                        src="~assets/img/logo.png"
+                    <a
+                        class="nav-icon mr-4"
+                        href="https://github.com/nswamy14/I2DJS-COVID-INDIA"
+                        target="_blank"
                     >
-                    </v-img>
+                        <img alt="I2Djs Covid India logo" src="~assets/img/logo.png" />
+                    </a>
                     <div class="d-flex flex-column">
                         <div class="title"><strong>COVID-19</strong> INDIA</div>
                         <div class="subtitle-2 text--secondary">
@@ -50,7 +48,6 @@
                             :menu-props="{
                                 light: true,
                                 nudgeBottom: 5,
-                                contentClass: 'text-capitalize',
                             }"
                             class="mr-2 search"
                             clearable
@@ -156,7 +153,7 @@
                     </timeline-view>
                 </div>
             </v-container>
-        </v-content>
+        </v-main>
         <v-footer app class="flex-wrap justify-center transparent">
             <div
                 :class="[$vuetify.breakpoint.xs ? 'flex-fill' : 'update-time-floater ma-2']"
@@ -174,13 +171,21 @@
 </template>
 
 <script>
+import _ from "lodash";
 import TimelineView from "./TimelineView";
 import MapContainer from "./MapContainer";
 import DistrictView from "./DistrictView";
 import CountersView from "./CountersView";
-import pastCovidData from "@/assets/data/pastCovidData";
-import { getDistrictWiseDailyData, getIndianCities } from "@/api/CovidServices";
-import { convertToIndianFormat, getFormattedSelectItems } from "./helper";
+
+import {
+    getDistrictWiseDailyData,
+    getIndianCities,
+    getIndianDistrictGeoJson,
+    getIndianStatesGeoJson,
+    getPastCovidData,
+} from "@/api/Services";
+
+import { convertToIndianFormat, getFormattedSelectItems, GEO_JSON } from "./helper";
 
 export default {
     name: "MainView",
@@ -237,7 +242,6 @@ export default {
             animFlag: false,
             districtInfo: {},
             IndianCitiesLatLong: {},
-            // districtTimelineData: [],
             lastUpdatedTime: new Date(),
         };
     },
@@ -263,19 +267,13 @@ export default {
             } else {
                 this.searchGeoLocation = {};
             }
-            // if (val && this.heatmapDataMap[val.toLowerCase()]) {
-            //     this.searchGeoLocation = this.heatmapDataMap[val.toLowerCase()];
-            //     this.getStateTimelineData(val.toLowerCase());
-            // } else {
-
-            // }
         },
     },
 
     computed: {
         mainCounter() {
             let countersArr = [];
-            this.counters.forEach((counter) => {
+            _.forEach(this.counters, (counter) => {
                 let data = counter.data || [];
                 let total = (data[data.length - 1] && data[data.length - 1].value) || 0;
                 let previousDayCount = (data[data.length - 2] && data[data.length - 2].value) || 0;
@@ -321,9 +319,12 @@ export default {
 
             self.showProgress = true;
 
-            let [IndianCities, covidData] = await Promise.all([
+            let [IndianCities, covidData, pastCovidData] = await Promise.all([
                 this.getIndianCities(),
                 this.getDistrictWiseDailyData(),
+                this.getPastCovidData(),
+                this.getIndianDistrictGeoJson(),
+                this.getIndianStatesGeoJson(),
             ]);
             let activeRange = [Infinity, -Infinity];
             let dateBuckets = {};
@@ -331,7 +332,6 @@ export default {
 
             let distMap = [];
             let stateMap = {};
-            let count = 0;
 
             this.IndianCitiesLatLong = IndianCities;
             let pastData = pastCovidData["districtsDaily"];
@@ -361,7 +361,7 @@ export default {
                     let disVal = pastDisVal.concat(stateVal[dis]);
                     let disLow = dis.toLowerCase();
 
-                    disVal.forEach(function (dt) {
+                    _.forEach(disVal, function (dt) {
                         dt.visible = false;
                     });
 
@@ -383,7 +383,7 @@ export default {
                             type: "district",
                         };
 
-                        disVal.forEach(function (d) {
+                        _.forEach(disVal, function (d) {
                             if (!dateBuckets[d.date]) {
                                 dateBuckets[d.date] = [];
                             }
@@ -419,7 +419,7 @@ export default {
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
                     } else {
-                        disVal.forEach(function (d) {
+                        _.forEach(disVal, function (d) {
                             if (!dateBuckets[d.date]) {
                                 dateBuckets[d.date] = [];
                             }
@@ -437,36 +437,42 @@ export default {
                 }
                 stateMap[stateObj.name] = stateObj;
             }
-            // console.log(stateMap);
+
             self.formattedCovidStateData = stateMap;
             self.formattedCovidData = self.formatData(dateBuckets);
             self.covidDistrictData = distMap;
             self.dataRange = activeRange;
-            let searchItems = [];
+
+            let districts = [];
             let states = [];
+
             _.forEach(self.heatmapDataMap, (value, district) => {
-                searchItems.push({
-                    label: district,
+                districts.push({
+                    label: _.capitalize(district),
                     type: "District",
                 });
                 if (states.indexOf(value.state) === -1) {
                     states.push(value.state);
                 }
             });
+
             states = _.map(states, (state) => {
                 return {
-                    label: state,
+                    label: _.capitalize(state),
                     type: "State",
                 };
             });
+
             states = _.sortBy(states, (state) => state.label);
-            searchItems = _.sortBy(searchItems, (district) => district.label);
-            searchItems = searchItems.concat(states);
-            self.searchItems = getFormattedSelectItems(searchItems, "type");
+            districts = _.sortBy(districts, (district) => district.label);
+
+            self.searchItems = getFormattedSelectItems([...states, ...districts], "type");
+
             self.updateCounters();
             self.updateHeatmapData();
+
             self.timelineData = self.selectedCounter;
-            await self.$nextTick();
+
             await self.$nextTick();
             self.showProgress = false;
         },
@@ -483,6 +489,33 @@ export default {
         async getIndianCities() {
             try {
                 let response = await getIndianCities();
+                return response;
+            } catch (e) {
+                console.error(e);
+            }
+        },
+
+        async getIndianDistrictGeoJson() {
+            try {
+                let response = await getIndianDistrictGeoJson();
+                GEO_JSON.districtGeoData = response;
+            } catch (e) {
+                console.error(e);
+            }
+        },
+
+        async getIndianStatesGeoJson() {
+            try {
+                let response = await getIndianStatesGeoJson();
+                GEO_JSON.stateGeoData = response;
+            } catch (e) {
+                console.error(e);
+            }
+        },
+
+        async getPastCovidData() {
+            try {
+                let response = await getPastCovidData();
                 return response;
             } catch (e) {
                 console.error(e);
@@ -541,7 +574,7 @@ export default {
         updateCounters() {
             let self = this;
             self.clearCounters();
-            self.formattedCovidData.forEach(function (d) {
+            _.forEach(self.formattedCovidData, function (d) {
                 self.counters[0].data.push({
                     value: d.confirmed,
                 });
@@ -635,7 +668,7 @@ export default {
                 });
 
                 let distList = currData.distList;
-                distList.forEach(function (item) {
+                _.forEach(distList, function (item) {
                     if (self.heatmapDataMap[item["dis"]]) {
                         self.heatmapDataMap[item["dis"]].active = item.active;
                         self.heatmapDataMap[item["dis"]].confirmed = item.confirmed;
@@ -657,7 +690,7 @@ export default {
             let dateData = [];
             let confirmScale = [Infinity, -Infinity];
             let totalDateItems = 0;
-            dtKeys.forEach(function (dt) {
+            _.forEach(dtKeys, function (dt) {
                 let curr = dateBuckets[dt];
                 let dataObj = {
                     date: new Date(dt),
@@ -687,7 +720,7 @@ export default {
                 return a.date - b.date;
             });
 
-            self.counters.forEach(function (d) {
+            _.forEach(self.counters, function (d) {
                 d.scale = confirmScale;
                 d.dateCount = totalDateItems;
             });
@@ -713,6 +746,11 @@ export default {
     left: 0;
 }
 
+.nav-icon {
+    width: 4rem;
+    height: 4rem;
+}
+
 .header-title {
     width: 30vw;
 }
@@ -736,7 +774,7 @@ export default {
 }
 
 .search {
-    max-width: 17rem;
+    max-width: 17.5rem;
 }
 
 .map-container {

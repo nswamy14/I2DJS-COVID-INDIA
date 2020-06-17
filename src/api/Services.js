@@ -51,3 +51,16 @@ export function getIndianStatesGeoJson() {
             return handlerErrors(error);
         });
 }
+
+export function getPastCovidData() {
+    return ajax({
+        url: "https://nswamy14.github.io/I2DJS-COVID-INDIA/src/assets/data/pastCovidData.json",
+        method: "GET",
+    })
+        .then((response) => {
+            return response.data;
+        })
+        .catch((error) => {
+            return handlerErrors(error);
+        });
+}

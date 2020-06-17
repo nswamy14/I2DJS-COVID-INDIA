@@ -13,7 +13,6 @@
     },
     "dependencies": {
         "axios": "^0.19.0",
-        "core-js": "^3.6.5",
         "d3": "^5.12.0",
         "i2djs": "git+https://github.com/I2Djs/I2Djs.git",
         "lodash": "^4.17.15",
@@ -29,6 +28,7 @@
         "@vue/cli-service": "^4.1.0",
         "@vue/eslint-config-standard": "^4.0.0",
         "babel-eslint": "^10.0.3",
+        "babel-plugin-lodash": "^3.3.4",
         "eslint": "^5.16.0",
         "eslint-config-prettier": "^6.11.0",
         "eslint-plugin-prettier": "^3.1.3",

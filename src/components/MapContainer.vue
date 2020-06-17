@@ -11,9 +11,7 @@
                 <div class="subtitle-1 text-center text-capitalize">
                     {{ popoverData.label }}
                 </div>
-                <div
-                    class="body-2 font-weight-bold text-center mb-3 state-container text-capitalize"
-                >
+                <div class="body-2 font-weight-bold text-center mb-3 text-capitalize">
                     {{ popoverData.state }}
                 </div>
                 <div class="d-flex align-center px-2 caption">
@@ -21,7 +19,7 @@
                         class="color popover confirmed"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">CONFIRMED</span>
+                    <span class="mx-1">CONFIRMED</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.confirmed }}
                     </span>
@@ -31,7 +29,7 @@
                         class="color popover active"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">ACTIVE</span>
+                    <span class="mx-1">ACTIVE</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.active }}
                     </span>
@@ -41,7 +39,7 @@
                         class="color popover recovered"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">RECOVERED</span>
+                    <span class="mx-1">RECOVERED</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.recovered }}
                     </span>
@@ -51,7 +49,7 @@
                         class="color popover deceased"
                         :class="[[this.$vuetify.breakpoint.name]]"
                     ></div>
-                    <span class="ml-1">DECEASED</span>
+                    <span class="mx-1">DECEASED</span>
                     <span class="font-weight-bold black--text ml-auto">
                         {{ popoverData.deceased }}
                     </span>
@@ -119,8 +117,9 @@
 </template>
 
 <script>
+import _ from "lodash";
 import geoHeatmap from "@/libs/viz";
-import { debounce } from "lodash";
+import { GEO_JSON } from "./helper";
 
 export default {
     name: "MapContainer",
@@ -178,12 +177,12 @@ export default {
 
     methods: {
         initialize(covidDistData) {
-            this.debouncedMouseOver = debounce(this.showTooltip.bind(this), 300);
+            this.debouncedMouseOver = _.debounce(this.showTooltip.bind(this), 300);
 
             this.geoHeatmapInstance = geoHeatmap();
             this.geoHeatmapInstance.dataType(this.dataType);
             this.geoHeatmapInstance.latlongData(this.latlongData);
-
+            this.geoHeatmapInstance.geoJSON(GEO_JSON);
             this.geoHeatmapInstance.dataRange(this.dataRange);
             this.geoHeatmapInstance.initialize(covidDistData);
             this.geoHeatmapInstance.showTooltip(this.debouncedMouseOver);
@@ -245,9 +244,5 @@ export default {
 
 .minus-class {
     border-radius: 0 0 0.25rem 0.25rem;
-}
-
-.state-container {
-    margin-top: -0.1rem;
 }
 </style>

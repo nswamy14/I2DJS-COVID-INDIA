@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export function convertToIndianFormat(number) {
     if (!number) {
         return number;
@@ -34,3 +36,8 @@ export function getFormattedSelectItems(items, groupID) {
         []
     );
 }
+
+export const GEO_JSON = {
+    districtGeoData: {},
+    stateGeoData: {},
+};
