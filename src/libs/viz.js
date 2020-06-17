@@ -8,43 +8,44 @@ export default function () {
     let scaleRange = [0, 0];
     let scaleDomain = [0, 0];
     function scaleFun(count) {
+        let domainDiff = scaleDomain[1] - scaleDomain[0] || 1;
         return (
             scaleRange[0] +
-            ((count - scaleDomain[0]) / (scaleDomain[1] - scaleDomain[0])) *
-                (scaleRange[1] - scaleRange[0])
+            ((count - scaleDomain[0]) / domainDiff) * (scaleRange[1] - scaleRange[0])
         );
     }
 
     let districtGeoData = {};
     let stateGeoData = {};
+    let latlong = {};
 
-    var citiesToHide = [
-        "kodarma",
-        "baleshwar",
-        "medchal malkajgiri",
-        "bengaluru urban",
-        "bengaluru rural",
-        "kanyakumari",
-        "bid",
-        "ahmadnagar",
-        "buldhana",
-        "ahmedabad",
-        "mehsana",
-        "charkhi dadri",
-        "north delhi",
-        "north west delhi",
-        "north east delhi",
-        "west delhi",
-        "east delhi",
-        "south east delhi",
-        "south west delhi",
-        "south delhi",
-        "new delhi",
-        "central delhi",
-        "y.s.r. kadapa",
-        "chhota udaipur",
-        "chittaurgam",
-    ];
+    // var citiesToHide = [
+    //     "kodarma",
+    //     "baleshwar",
+    //     "medchal malkajgiri",
+    //     "bengaluru urban",
+    //     "bengaluru rural",
+    //     "kanyakumari",
+    //     "bid",
+    //     "ahmadnagar",
+    //     "buldhana",
+    //     "ahmedabad",
+    //     "mehsana",
+    //     "charkhi dadri",
+    //     "north delhi",
+    //     "north west delhi",
+    //     "north east delhi",
+    //     "west delhi",
+    //     "east delhi",
+    //     "south east delhi",
+    //     "south west delhi",
+    //     "south delhi",
+    //     "new delhi",
+    //     "central delhi",
+    //     "y.s.r. kadapa",
+    //     "chhota udaipur",
+    //     "chittaurgam",
+    // ];
     // var clickEnable = true;
     var ActiveColorGrad = [
         {
@@ -132,6 +133,7 @@ export default function () {
     Chart.prototype.geoJSON = function (GEO_JSON) {
         districtGeoData = GEO_JSON.districtGeoData;
         stateGeoData = GEO_JSON.stateGeoData;
+        latlong = GEO_JSON.latlong;
     };
 
     // let prevZoom = {
@@ -334,9 +336,9 @@ export default function () {
         this.heatmapHref.update();
     };
 
-    Chart.prototype.latlongData = function (data) {
-        this.latlong = data;
-    };
+    // Chart.prototype.latlongData = function (data) {
+    //     latlong = data;
+    // };
 
     Chart.prototype.renderGeoMap = function () {
         var self = this;
@@ -418,20 +420,15 @@ export default function () {
                     //         d: d,
                     //     };
                     // });
-                    this.createEls(
-                        data["text"].filter(function (d) {
-                            return citiesToHide.indexOf(d.properties.DISTRICT) === -1;
-                        }),
-                        {
-                            el: "text",
-                            attr: {
-                                text: function (d) {
-                                    return d.properties.DISTRICT;
-                                },
+                    this.createEls(data["text"], {
+                        el: "text",
+                        attr: {
+                            text: function (d) {
+                                return d.properties.DISTRICT;
                             },
-                        }
-                    ).forEach(function (d) {
-                        let latlng = self.latlong[d.properties.DISTRICT.toLowerCase()];
+                        },
+                    }).forEach(function (d) {
+                        let latlng = latlong[d.properties.DISTRICT.toLowerCase()];
                         let xy = [0, 0];
 
                         if (latlng) {
@@ -496,7 +493,7 @@ export default function () {
 
         renderGeoJson();
 
-        async function renderGeoJson() {
+        function renderGeoJson() {
             self.stateG.createEls(stateGeoData.features, {
                 el: "path",
                 attr: {

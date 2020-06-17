@@ -147,10 +147,6 @@ export default {
             type: Array,
             required: true,
         },
-        latlongData: {
-            type: Object,
-            required: true,
-        },
     },
     mounted() {
         this.initialize(this.covidDistrictData);
@@ -181,7 +177,7 @@ export default {
 
             this.geoHeatmapInstance = geoHeatmap();
             this.geoHeatmapInstance.dataType(this.dataType);
-            this.geoHeatmapInstance.latlongData(this.latlongData);
+            // this.geoHeatmapInstance.latlongData(this.latlongData);
             this.geoHeatmapInstance.geoJSON(GEO_JSON);
             this.geoHeatmapInstance.dataRange(this.dataRange);
             this.geoHeatmapInstance.initialize(covidDistData);
