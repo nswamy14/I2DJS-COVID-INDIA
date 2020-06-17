@@ -71,6 +71,7 @@
                             color="grey lighten-5"
                             icon
                             outlined
+                            aria-label="Zoom In"
                             v-on="on"
                         >
                             <v-icon>$plus</v-icon>
@@ -88,6 +89,7 @@
                             color="grey lighten-5"
                             icon
                             outlined
+                            aria-label="Zoom Out"
                             v-on="on"
                         >
                             <v-icon>$minus</v-icon>
@@ -105,6 +107,7 @@
                         class="mt-2"
                         color="grey lighten-5"
                         icon
+                        aria-label="Reset Zoom"
                         v-on="on"
                     >
                         <v-icon>$globe</v-icon>

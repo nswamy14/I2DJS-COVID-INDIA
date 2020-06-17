@@ -13,6 +13,7 @@
                 >
                     <a
                         class="nav-icon mr-4"
+                        rel="noopener"
                         href="https://github.com/nswamy14/I2DJS-COVID-INDIA"
                         target="_blank"
                     >
@@ -126,6 +127,7 @@
                             color="orange"
                             fab
                             key="play"
+                            aria-label="Play"
                             light
                             v-if="!animFlag"
                         >
@@ -137,6 +139,7 @@
                             @click="stopTimelineAnimation"
                             color="deep-orange"
                             fab
+                            aria-label="Stop"
                             key="pause"
                             light
                             v-else
@@ -163,7 +166,7 @@
             <span class="subtitle-2">
                 Made with
                 <span class="red--text text--darken-4">&#10084;</span> in
-                <a class="" href="https://github.com/I2Djs/I2Djs" target="_blank">I2Djs </a>
+                <a rel="noopener" href="https://github.com/I2Djs/I2Djs" target="_blank">I2Djs </a>
             </span>
         </v-footer>
     </div>
@@ -816,6 +819,7 @@ export default {
     margin-top: 5rem;
     height: calc(100% - 15rem);
 }
+
 .map-container.xs {
     margin-top: 5rem;
     height: 100vmin;

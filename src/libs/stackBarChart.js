@@ -179,7 +179,7 @@ export default function () {
                     class: "nodataLabel",
                     x: 250,
                     y: (height / width) * 500 * 0.5,
-                    text: "No data",
+                    text: "No Activity Data Available",
                 },
                 style: {
                     fill: "#000",
