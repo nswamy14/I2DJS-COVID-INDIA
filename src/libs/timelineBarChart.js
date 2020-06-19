@@ -53,7 +53,7 @@ export default function () {
             el: "group",
             attr: {
                 transform: {
-                    translate: [500 * 0.1, newHeight - 1],
+                    translate: [500 * 0.05, newHeight - 1],
                 },
             },
         });

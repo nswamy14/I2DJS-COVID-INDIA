@@ -6,9 +6,14 @@
             content-class="light-theme-arrow"
             v-model="showPopover"
         >
-            <v-card min-width="6rem" class="black--text white pa-1 text-center">
-                <div class="body-2">Total Cases</div>
-                <div class="caption font-weight-bold">{{ popoverData }}</div>
+            <v-card min-width="8rem" class="black--text white pa-1 text-center">
+                <div class="d-flex align-center">
+                    <div class="caption font-weight-regular">Total Cases:</div>
+                    <div class="caption font-weight-bold pl-1">{{ popoverData.value }}</div>
+                </div>
+                <div class="caption font-weight-medium">
+                    {{ popoverData.date }}
+                </div>
             </v-card>
         </custom-popover>
     </div>
@@ -46,6 +51,7 @@ export default {
     },
     methods: {
         initialize() {
+            console.log(this.timelineData);
             this.debouncedMouseOver = _.debounce(this.showTooltip.bind(this), 300);
             this.timelineInstance = timelineBarChart();
             this.timelineInstance.dataRange(this.timelineData.scale);
@@ -60,7 +66,7 @@ export default {
         },
 
         showTooltip(data, event) {
-            this.popoverData = data.value;
+            this.popoverData = data;
             this.position = { x: event.clientX, y: event.clientY, offset: 5 };
             this.showPopover = true;
         },
@@ -72,3 +78,8 @@ export default {
     },
 };
 </script>
+<style>
+.date-class {
+    font-size: 0.7rem;
+}
+</style>
