@@ -119,6 +119,40 @@
                     :class="[{ floater: $vuetify.breakpoint.smAndUp }]"
                     class="mx-4 d-flex align-end timeline-container"
                 >
+                    <!--                    <div class="d-flex flex-column align-center">-->
+                    <!--                        <v-chip v-if="currentDate" color="teal darken-1" x-small class="mx-2 mb-2">-->
+                    <!--                            <span class="caption">Date: </span>-->
+                    <!--                            <span class="caption font-weight-bold">{{ currentDate }}</span>-->
+                    <!--                        </v-chip>-->
+                    <!--                        <v-fab-transition>-->
+                    <!--                            <v-btn-->
+                    <!--                                :small="$vuetify.breakpoint.md"-->
+                    <!--                                :x-small="$vuetify.breakpoint.smAndDown"-->
+                    <!--                                @click="startTimelineAnimation"-->
+                    <!--                                color="orange"-->
+                    <!--                                fab-->
+                    <!--                                key="play"-->
+                    <!--                                aria-label="Play"-->
+                    <!--                                light-->
+                    <!--                                v-if="!animFlag"-->
+                    <!--                            >-->
+                    <!--                                <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$play</v-icon>-->
+                    <!--                            </v-btn>-->
+                    <!--                            <v-btn-->
+                    <!--                                :small="$vuetify.breakpoint.md"-->
+                    <!--                                :x-small="$vuetify.breakpoint.smAndDown"-->
+                    <!--                                @click="stopTimelineAnimation"-->
+                    <!--                                color="deep-orange"-->
+                    <!--                                fab-->
+                    <!--                                aria-label="Stop"-->
+                    <!--                                key="pause"-->
+                    <!--                                light-->
+                    <!--                                v-else-->
+                    <!--                            >-->
+                    <!--                                <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$stop</v-icon>-->
+                    <!--                            </v-btn>-->
+                    <!--                        </v-fab-transition>-->
+                    <!--                    </div>-->
                     <v-fab-transition>
                         <v-btn
                             :small="$vuetify.breakpoint.md"
@@ -147,16 +181,6 @@
                             <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$stop</v-icon>
                         </v-btn>
                     </v-fab-transition>
-                    <v-chip
-                        v-if="currentDate"
-                        color="teal lighten-1"
-                        x-small
-                        class="mx-2 date-chip"
-                    >
-                        <span class="caption">Date: </span>
-                        <span class="caption font-weight-bold">{{ currentDate }}</span>
-                    </v-chip>
-                    <div v-else class="date-chip"></div>
                     <timeline-view
                         :timelineData="timelineData"
                         id="timeline-container"
@@ -853,9 +877,5 @@ export default {
     position: absolute;
     right: 0;
     top: 0;
-}
-
-.date-chip {
-    width: 7.5rem;
 }
 </style>
