@@ -59,8 +59,10 @@
 <script>
 import _ from "lodash";
 import stackBarChart from "./../libs/stackBarChart.js";
+import formatDataMixin from "../mixins/formatDataMixin";
 export default {
     name: "TimelineView",
+    mixins: [formatDataMixin],
     data() {
         return {
             showPopover: false,
@@ -109,19 +111,6 @@ export default {
         hideTooltip() {
             this.showPopover = false;
             this.debouncedMouseOver.cancel();
-        },
-
-        formatDate(date) {
-            let month = new Date(date).getMonth() + 1;
-            if (month < 10) {
-                month = "0" + month;
-            }
-
-            let day = new Date(date).getDate();
-            if (day < 10) {
-                day = "0" + day;
-            }
-            return new Date(date).getFullYear() + "-" + month + "-" + day;
         },
     },
 };

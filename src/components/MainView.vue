@@ -147,6 +147,16 @@
                             <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$stop</v-icon>
                         </v-btn>
                     </v-fab-transition>
+                    <v-chip
+                        v-if="currentDate"
+                        color="teal lighten-1"
+                        x-small
+                        class="mx-2 date-chip"
+                    >
+                        <span class="caption">Date: </span>
+                        <span class="caption font-weight-bold">{{ currentDate }}</span>
+                    </v-chip>
+                    <div v-else class="date-chip"></div>
                     <timeline-view
                         :timelineData="timelineData"
                         id="timeline-container"
@@ -187,11 +197,13 @@ import {
     getPastCovidData,
 } from "@/api/Services";
 
+import formatDataMixin from "../mixins/formatDataMixin";
 import { convertToIndianFormat, getFormattedSelectItems, GEO_JSON } from "./helper";
 
 export default {
     name: "MainView",
     components: { DistrictView, TimelineView, MapContainer, CountersView },
+    mixins: [formatDataMixin],
     data() {
         return {
             showProgress: false,
@@ -244,6 +256,7 @@ export default {
             animFlag: false,
             districtInfo: {},
             IndianCitiesLatLong: {},
+            currentDate: "",
             lastUpdatedTime: new Date(),
         };
     },
@@ -297,9 +310,7 @@ export default {
 
         formattedDate() {
             if (this.lastUpdatedTime) {
-                return `${this.lastUpdatedTime.getDate()}-${
-                    this.lastUpdatedTime.getMonth() + 1
-                }-${this.lastUpdatedTime.getFullYear()}`;
+                return this.formatDate(this.lastUpdatedTime);
             } else {
                 return "";
             }
@@ -491,19 +502,6 @@ export default {
             self.showProgress = false;
         },
 
-        formatDate(date) {
-            let month = new Date(date).getMonth() + 1;
-            if (month < 10) {
-                month = "0" + month;
-            }
-
-            let day = new Date(date).getDate();
-            if (day < 10) {
-                day = "0" + day;
-            }
-            return new Date(date).getFullYear() + "-" + month + "-" + day;
-        },
-
         async getDistrictWiseDailyData() {
             try {
                 let response = await getDistrictWiseDailyData();
@@ -610,15 +608,19 @@ export default {
             _.forEach(self.formattedCovidData, function (d) {
                 self.counters[0].data.push({
                     value: d.confirmed,
+                    date: self.formatDate(d.date),
                 });
                 self.counters[1].data.push({
                     value: d.active,
+                    date: self.formatDate(d.date),
                 });
                 self.counters[2].data.push({
                     value: d.recovered,
+                    date: self.formatDate(d.date),
                 });
                 self.counters[3].data.push({
                     value: d.deceased,
+                    date: self.formatDate(d.date),
                 });
             });
         },
@@ -664,6 +666,7 @@ export default {
         stopTimelineAnimation() {
             let self = this;
             self.animFlag = false;
+            self.currentDate = "";
             self.updateCounters();
             self.updateHeatmapData();
         },
@@ -676,28 +679,35 @@ export default {
 
             function Play() {
                 if (!self.animFlag) {
+                    self.currentDate = "";
                     return;
                 }
                 if (!covidData[playIndex]) {
                     self.animFlag = false;
+                    self.currentDate = "";
                     return;
                 }
                 let currData = covidData[playIndex];
+                self.currentDate = self.formatDate(currData.date);
 
                 self.counters[0].data.push({
                     value: currData.confirmed,
+                    date: self.formatDate(currData.date),
                 });
 
                 self.counters[1].data.push({
                     value: currData.active,
+                    date: self.formatDate(currData.date),
                 });
 
                 self.counters[2].data.push({
                     value: currData.recovered,
+                    date: self.formatDate(currData.date),
                 });
 
                 self.counters[3].data.push({
                     value: currData.deceased,
+                    date: self.formatDate(currData.date),
                 });
 
                 let distList = currData.distList;
@@ -830,6 +840,10 @@ export default {
     height: 4rem;
 }
 
+.date-container {
+    height: 0.5rem;
+}
+
 .timeline-container.floater {
     position: absolute;
     bottom: 0;
@@ -839,5 +853,9 @@ export default {
     position: absolute;
     right: 0;
     top: 0;
+}
+
+.date-chip {
+    width: 7.5rem;
 }
 </style>
