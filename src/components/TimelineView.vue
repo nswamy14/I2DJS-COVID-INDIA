@@ -53,6 +53,7 @@ export default {
             this.timelineInstance.initialize(this.timelineData);
             this.timelineInstance.showTooltip(this.debouncedMouseOver);
             this.timelineInstance.hideTooltip(this.hideTooltip);
+            this.timelineInstance.onTimeSelector(this.onTimeSelect);
         },
 
         update(val) {
@@ -68,6 +69,10 @@ export default {
         hideTooltip() {
             this.showPopover = false;
             this.debouncedMouseOver.cancel();
+        },
+
+        onTimeSelect(index) {
+            this.$emit("timeSelected", index);
         },
     },
 };

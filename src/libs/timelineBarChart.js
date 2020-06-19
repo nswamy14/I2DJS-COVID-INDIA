@@ -10,6 +10,8 @@ export default function () {
     let dateCount = 0;
     let showTooltipFunc;
     let hideTooltipFunc;
+    let drag = i2d.behaviour.drag();
+    let timeExe;
     function scaleFun(count) {
         let domainDiff = scaleDomain[1] - scaleDomain[0] || 1;
         return (
@@ -49,6 +51,7 @@ export default function () {
                 },
             ],
         });
+
         let g = this.timelineLayer.createEl({
             el: "group",
             attr: {
@@ -57,16 +60,18 @@ export default function () {
                 },
             },
         });
-        this.barHref = g.join(timelinedata.data, "rect", {
+
+        this.barHref = g.join(timelinedata.data, ".bar", {
             action: {
                 enter: function (data) {
-                    this.createEls(data["rect"], {
+                    this.createEls(data[".bar"], {
                         el: "rect",
                         attr: {
                             x: 0,
                             y: 5,
                             height: 0,
                             width: widthPerBar * 0.7,
+                            class: "bar",
                         },
                         style: {
                             fill: self.gradColor,
@@ -85,10 +90,10 @@ export default function () {
                         });
                 },
                 exit: function (nodes) {
-                    nodes["rect"].remove();
+                    nodes[".bar"].remove();
                 },
                 update: function (nodes) {
-                    nodes["rect"].forEach(function (d, i) {
+                    nodes[".bar"].forEach(function (d, i) {
                         this.setAttr("x", i * widthPerBar);
                         this.setAttr("y", -scaleFun(d.value));
                         this.setAttr("height", scaleFun(d.value));
@@ -97,11 +102,46 @@ export default function () {
             },
         });
 
+        g.createEl({
+            el: "rect",
+            attr: {
+                x: 0,
+                y: -newHeight,
+                width: widthPerBar * 1.5,
+                height: newHeight,
+                rx: 1,
+                ry: 1,
+            },
+            style: {
+                fill: "#a3a3a3",
+                opacity: 0.3,
+            },
+        }).on("drag", drag);
+
         this.barHref.update();
+
+        drag.dragStart(function () {
+            this.x = this.getAttr("x");
+        }).drag(function (e) {
+            let x = this.getAttr("x") + (500 / width) * e.dx;
+            let tx = Math.floor(x / widthPerBar);
+            if (tx < 0 || tx > dateCount - 1) {
+                return;
+            }
+            this.setAttr("x", x);
+            if (timeExe && this.x !== tx) {
+                this.x = tx;
+                timeExe(this.x);
+            }
+        });
     };
     Chart.prototype.showTooltip = function (_) {
         showTooltipFunc = _;
         return this;
+    };
+
+    Chart.prototype.onTimeSelector = function (exe) {
+        timeExe = exe;
     };
 
     Chart.prototype.hideTooltip = function (_) {

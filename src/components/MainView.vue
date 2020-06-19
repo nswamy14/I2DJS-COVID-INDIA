@@ -150,6 +150,7 @@
                     <timeline-view
                         :timelineData="timelineData"
                         id="timeline-container"
+                        @timeSelected="onTimeSelected"
                         v-if="timelineData.data.length !== 0"
                     >
                     </timeline-view>
@@ -201,19 +202,19 @@ export default {
             selectedCounter: {},
             counters: [
                 {
-                    label: "Confirmed",
-                    key: "confirmed",
-                    data: [],
-                    color: "red",
-                    colorHex: "#F44336",
-                    scale: [Infinity, -Infinity],
-                },
-                {
                     label: "Active",
                     key: "active",
                     data: [],
                     color: "light-blue",
                     colorHex: "#29b6f6",
+                    scale: [Infinity, -Infinity],
+                },
+                {
+                    label: "Confirmed",
+                    key: "confirmed",
+                    data: [],
+                    color: "red",
+                    colorHex: "#F44336",
                     scale: [Infinity, -Infinity],
                 },
                 {
@@ -306,7 +307,7 @@ export default {
         },
     },
     mounted() {
-        this.selectedCounter = this.counters[1];
+        this.selectedCounter = this.counters[0];
         this.initialize();
     },
 
@@ -609,10 +610,10 @@ export default {
             self.clearCounters();
             _.forEach(self.formattedCovidData, function (d) {
                 self.counters[0].data.push({
-                    value: d.confirmed,
+                    value: d.active,
                 });
                 self.counters[1].data.push({
-                    value: d.active,
+                    value: d.confirmed,
                 });
                 self.counters[2].data.push({
                     value: d.recovered,
@@ -661,6 +662,37 @@ export default {
             this.animateCovid(this.formattedCovidData);
         },
 
+        onTimeSelected(index) {
+            let self = this;
+            let currData = this.formattedCovidData[index];
+            let distList = currData.distList;
+            let disMap = distList.reduce(function (p, c) {
+                p[c.dis] = c;
+                return p;
+            }, {});
+            for (let key in self.heatmapDataMap) {
+                if (disMap[key]) {
+                    self.heatmapDataMap[key].active = disMap[key].active;
+                    self.heatmapDataMap[key].confirmed = disMap[key].confirmed;
+                    self.heatmapDataMap[key].deceased = disMap[key].deceased;
+                    self.heatmapDataMap[key].recovered = disMap[key].recovered;
+                } else {
+                    self.heatmapDataMap[key].active = 0;
+                    self.heatmapDataMap[key].confirmed = 0;
+                    self.heatmapDataMap[key].deceased = 0;
+                    self.heatmapDataMap[key].recovered = 0;
+                }
+            }
+            // _.forEach(distList, function (item) {
+            //     if (self.heatmapDataMap[item["dis"]]) {
+            //         self.heatmapDataMap[item["dis"]].active = item.active;
+            //         self.heatmapDataMap[item["dis"]].confirmed = item.confirmed;
+            //         self.heatmapDataMap[item["dis"]].deceased = item.deceased;
+            //         self.heatmapDataMap[item["dis"]].recovered = item.recovered;
+            //     }
+            // });
+        },
+
         stopTimelineAnimation() {
             let self = this;
             self.animFlag = false;
@@ -685,11 +717,11 @@ export default {
                 let currData = covidData[playIndex];
 
                 self.counters[0].data.push({
-                    value: currData.confirmed,
+                    value: currData.active,
                 });
 
                 self.counters[1].data.push({
-                    value: currData.active,
+                    value: currData.confirmed,
                 });
 
                 self.counters[2].data.push({
