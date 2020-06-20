@@ -1,6 +1,6 @@
 const formatDataMixin = {
     methods: {
-        formatDate(date) {
+        formatDate(date, format = "day") {
             let month = new Date(date).getMonth() + 1;
             if (month < 10) {
                 month = "0" + month;
@@ -10,8 +10,11 @@ const formatDataMixin = {
             if (day < 10) {
                 day = "0" + day;
             }
-            return day + "-" + month + "-" + new Date(date).getFullYear();
-            // return new Date(date).getFullYear() + "-" + month + "-" + day;
+            if (format === "year") {
+                return new Date(date).getFullYear() + "-" + month + "-" + day;
+            } else {
+                return day + "-" + month + "-" + new Date(date).getFullYear();
+            }
         },
     },
 };
