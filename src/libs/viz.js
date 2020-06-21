@@ -163,10 +163,6 @@ export default function () {
             xy[1] *= scale;
             xy[0] += translate[0];
             xy[1] += translate[1];
-            // prevLoc = location;
-            // prevZoom.loc = location;
-            // prevZoom.scale = scale;this.webglRenderer.scaleTo(8, xy);
-            // console.log(this.distG);
             let node;
             if (location.type === "district") {
                 node = this.distG.fetchEl("." + location.name);
@@ -178,7 +174,7 @@ export default function () {
             } else if (location.type === "state") {
                 node = this.stateG.fetchEl("." + location.name);
                 if (node) {
-                    node.setStyle("lineWidth", 1.0);
+                    node.setStyle("lineWidth", 0.75);
                     node.setStyle("strokeStyle", "#33c4cc");
                     prevNode = node;
                 }
