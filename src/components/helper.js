@@ -37,6 +37,19 @@ export function getFormattedSelectItems(items, groupID) {
     );
 }
 
+export function formatDate(date) {
+    let month = new Date(date).getMonth() + 1;
+    if (month < 10) {
+        month = "0" + month;
+    }
+
+    let day = new Date(date).getDate();
+    if (day < 10) {
+        day = "0" + day;
+    }
+    return new Date(date).getFullYear() + "-" + month + "-" + day;
+}
+
 export const GEO_JSON = {
     districtGeoData: {},
     stateGeoData: {},

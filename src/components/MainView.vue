@@ -119,6 +119,40 @@
                     :class="[{ floater: $vuetify.breakpoint.smAndUp }]"
                     class="mx-4 d-flex align-end timeline-container"
                 >
+                    <!--                    <div class="d-flex flex-column align-center">-->
+                    <!--                        <v-chip v-if="currentDate" color="teal darken-1" x-small class="mx-2 mb-2">-->
+                    <!--                            <span class="caption">Date: </span>-->
+                    <!--                            <span class="caption font-weight-bold">{{ currentDate }}</span>-->
+                    <!--                        </v-chip>-->
+                    <!--                        <v-fab-transition>-->
+                    <!--                            <v-btn-->
+                    <!--                                :small="$vuetify.breakpoint.md"-->
+                    <!--                                :x-small="$vuetify.breakpoint.smAndDown"-->
+                    <!--                                @click="startTimelineAnimation"-->
+                    <!--                                color="orange"-->
+                    <!--                                fab-->
+                    <!--                                key="play"-->
+                    <!--                                aria-label="Play"-->
+                    <!--                                light-->
+                    <!--                                v-if="!animFlag"-->
+                    <!--                            >-->
+                    <!--                                <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$play</v-icon>-->
+                    <!--                            </v-btn>-->
+                    <!--                            <v-btn-->
+                    <!--                                :small="$vuetify.breakpoint.md"-->
+                    <!--                                :x-small="$vuetify.breakpoint.smAndDown"-->
+                    <!--                                @click="stopTimelineAnimation"-->
+                    <!--                                color="deep-orange"-->
+                    <!--                                fab-->
+                    <!--                                aria-label="Stop"-->
+                    <!--                                key="pause"-->
+                    <!--                                light-->
+                    <!--                                v-else-->
+                    <!--                            >-->
+                    <!--                                <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$stop</v-icon>-->
+                    <!--                            </v-btn>-->
+                    <!--                        </v-fab-transition>-->
+                    <!--                    </div>-->
                     <v-fab-transition>
                         <v-btn
                             :small="$vuetify.breakpoint.md"
@@ -149,6 +183,7 @@
                     </v-fab-transition>
                     <timeline-view
                         :timelineData="timelineData"
+                        :playFlag="animFlag"
                         id="timeline-container"
                         @timeSelected="onTimeSelected"
                         v-if="timelineData.data.length !== 0"
@@ -188,11 +223,13 @@ import {
     getPastCovidData,
 } from "@/api/Services";
 
+import formatDataMixin from "../mixins/formatDataMixin";
 import { convertToIndianFormat, getFormattedSelectItems, GEO_JSON } from "./helper";
 
 export default {
     name: "MainView",
     components: { DistrictView, TimelineView, MapContainer, CountersView },
+    mixins: [formatDataMixin],
     data() {
         return {
             showProgress: false,
@@ -245,6 +282,7 @@ export default {
             animFlag: false,
             districtInfo: {},
             IndianCitiesLatLong: {},
+            currentDate: "",
             lastUpdatedTime: new Date(),
         };
     },
@@ -298,9 +336,7 @@ export default {
 
         formattedDate() {
             if (this.lastUpdatedTime) {
-                return `${this.lastUpdatedTime.getDate()}-${
-                    this.lastUpdatedTime.getMonth() + 1
-                }-${this.lastUpdatedTime.getFullYear()}`;
+                return this.formatDate(this.lastUpdatedTime);
             } else {
                 return "";
             }
@@ -492,19 +528,6 @@ export default {
             self.showProgress = false;
         },
 
-        formatDate(date) {
-            let month = new Date(date).getMonth() + 1;
-            if (month < 10) {
-                month = "0" + month;
-            }
-
-            let day = new Date(date).getDate();
-            if (day < 10) {
-                day = "0" + day;
-            }
-            return new Date(date).getFullYear() + "-" + month + "-" + day;
-        },
-
         async getDistrictWiseDailyData() {
             try {
                 let response = await getDistrictWiseDailyData();
@@ -609,17 +632,22 @@ export default {
             let self = this;
             self.clearCounters();
             _.forEach(self.formattedCovidData, function (d) {
+                let dt = self.formatDate(d.date);
                 self.counters[0].data.push({
                     value: d.active,
+                    date: dt,
                 });
                 self.counters[1].data.push({
                     value: d.confirmed,
+                    date: dt,
                 });
                 self.counters[2].data.push({
                     value: d.recovered,
+                    date: dt,
                 });
                 self.counters[3].data.push({
                     value: d.deceased,
+                    date: dt,
                 });
             });
         },
@@ -662,7 +690,7 @@ export default {
             this.animateCovid(this.formattedCovidData);
         },
 
-        onTimeSelected(index) {
+        onTimeSelected(index, flag) {
             let self = this;
             let currData = this.formattedCovidData[index];
             let distList = currData.distList;
@@ -670,32 +698,26 @@ export default {
                 p[c.dis] = c;
                 return p;
             }, {});
-            for (let key in self.heatmapDataMap) {
-                if (disMap[key]) {
-                    self.heatmapDataMap[key].active = disMap[key].active;
-                    self.heatmapDataMap[key].confirmed = disMap[key].confirmed;
-                    self.heatmapDataMap[key].deceased = disMap[key].deceased;
-                    self.heatmapDataMap[key].recovered = disMap[key].recovered;
+            for (var i = 0; i < this.covidDistrictData.length; i++) {
+                let d = this.covidDistrictData[i];
+                if (disMap[d.name]) {
+                    d.active = disMap[d.name].active;
+                    d.confirmed = disMap[d.name].confirmed;
+                    d.deceased = disMap[d.name].deceased;
+                    d.recovered = disMap[d.name].recovered;
                 } else {
-                    self.heatmapDataMap[key].active = 0;
-                    self.heatmapDataMap[key].confirmed = 0;
-                    self.heatmapDataMap[key].deceased = 0;
-                    self.heatmapDataMap[key].recovered = 0;
+                    d.active = 0;
+                    d.confirmed = 0;
+                    d.deceased = 0;
+                    d.recovered = 0;
                 }
             }
-            // _.forEach(distList, function (item) {
-            //     if (self.heatmapDataMap[item["dis"]]) {
-            //         self.heatmapDataMap[item["dis"]].active = item.active;
-            //         self.heatmapDataMap[item["dis"]].confirmed = item.confirmed;
-            //         self.heatmapDataMap[item["dis"]].deceased = item.deceased;
-            //         self.heatmapDataMap[item["dis"]].recovered = item.recovered;
-            //     }
-            // });
         },
 
         stopTimelineAnimation() {
             let self = this;
             self.animFlag = false;
+            self.currentDate = "";
             self.updateCounters();
             self.updateHeatmapData();
         },
@@ -708,28 +730,35 @@ export default {
 
             function Play() {
                 if (!self.animFlag) {
+                    self.currentDate = "";
                     return;
                 }
                 if (!covidData[playIndex]) {
                     self.animFlag = false;
+                    self.currentDate = "";
                     return;
                 }
                 let currData = covidData[playIndex];
+                self.currentDate = self.formatDate(currData.date);
 
                 self.counters[0].data.push({
                     value: currData.active,
+                    date: self.currentDate,
                 });
 
                 self.counters[1].data.push({
                     value: currData.confirmed,
+                    date: self.currentDate,
                 });
 
                 self.counters[2].data.push({
                     value: currData.recovered,
+                    date: self.currentDate,
                 });
 
                 self.counters[3].data.push({
                     value: currData.deceased,
+                    date: self.currentDate,
                 });
 
                 let distList = currData.distList;
@@ -860,6 +889,10 @@ export default {
 .timeline-container {
     width: calc(100% - 2rem);
     height: 4rem;
+}
+
+.date-container {
+    height: 0.5rem;
 }
 
 .timeline-container.floater {

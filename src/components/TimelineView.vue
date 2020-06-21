@@ -6,9 +6,14 @@
             content-class="light-theme-arrow"
             v-model="showPopover"
         >
-            <v-card min-width="6rem" class="black--text white pa-1 text-center">
-                <div class="body-2">Total Cases</div>
-                <div class="caption font-weight-bold">{{ popoverData }}</div>
+            <v-card min-width="8rem" class="black--text white pa-1 text-center">
+                <div class="d-flex align-center">
+                    <div class="caption font-weight-regular">Total Cases:</div>
+                    <div class="caption font-weight-bold pl-1">{{ popoverData.value }}</div>
+                </div>
+                <div class="caption font-weight-medium">
+                    {{ popoverData.date }}
+                </div>
             </v-card>
         </custom-popover>
     </div>
@@ -30,6 +35,10 @@ export default {
     props: {
         timelineData: {
             type: Object,
+            required: true,
+        },
+        playFlag: {
+            type: Boolean,
             required: true,
         },
     },
@@ -57,11 +66,11 @@ export default {
         },
 
         update(val) {
-            this.timelineInstance.update(val);
+            this.timelineInstance.update(val, this.playFlag);
         },
 
         showTooltip(data, event) {
-            this.popoverData = data.value;
+            this.popoverData = data;
             this.position = { x: event.clientX, y: event.clientY, offset: 5 };
             this.showPopover = true;
         },
@@ -71,9 +80,14 @@ export default {
             this.debouncedMouseOver.cancel();
         },
 
-        onTimeSelect(index) {
-            this.$emit("timeSelected", index);
+        onTimeSelect(index, flag) {
+            this.$emit("timeSelected", index, flag);
         },
     },
 };
 </script>
+<style>
+.date-class {
+    font-size: 0.7rem;
+}
+</style>

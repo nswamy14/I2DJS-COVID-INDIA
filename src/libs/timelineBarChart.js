@@ -12,6 +12,7 @@ export default function () {
     let hideTooltipFunc;
     let drag = i2d.behaviour.drag();
     let timeExe;
+    let timelinedata_ = [];
     function scaleFun(count) {
         let domainDiff = scaleDomain[1] - scaleDomain[0] || 1;
         return (
@@ -28,13 +29,29 @@ export default function () {
     };
     Chart.prototype.initialize = function (timelinedata) {
         let self = this;
+        timelinedata_ = timelinedata;
         this.timelineLayer = i2d.svgLayer("#timeline-container", {}, {});
+        this.drag = i2d.behaviour.drag();
         width = this.timelineLayer.width;
         height = this.timelineLayer.height;
         this.timelineLayer.setAttr("viewBox", "0 0 " + 500 + " " + (height / width) * 500);
         newHeight = (height / width) * 500;
         widthPerBar = (500 * 0.8) / dateCount;
-        scaleRange = [1, newHeight - 1];
+        scaleRange = [2, newHeight - 6];
+        var linearGradiant = this.timelineLayer.createLinearGradient({
+            id: "linearG",
+            x1: 0,
+            y1: 0,
+            x2: 100,
+            y2: 0,
+            spreadMethod: "repeat",
+            colorStops: [
+                { color: "rgba(148, 134, 102, 0)", value: 0 },
+                { color: "rgba(148, 134, 102, 50)", value: 30 },
+                { color: "rgba(148, 134, 102, 50)", value: 70 },
+                { color: "rgba(148, 134, 102, 0)", value: 100 },
+            ],
+        });
         this.gradColor = this.timelineLayer.createLinearGradient({
             x1: 0,
             y1: 100,
@@ -46,7 +63,7 @@ export default function () {
                     value: 0,
                 },
                 {
-                    color: timelinedata.colorHex,
+                    color: timelinedata_.colorHex,
                     value: 100.0,
                 },
             ],
@@ -56,12 +73,12 @@ export default function () {
             el: "group",
             attr: {
                 transform: {
-                    translate: [500 * 0.1, newHeight - 1],
+                    translate: [500 * 0.05, newHeight - 2],
                 },
             },
         });
 
-        this.barHref = g.join(timelinedata.data, ".bar", {
+        this.barHref = g.join(timelinedata_.data, ".bar", {
             action: {
                 enter: function (data) {
                     this.createEls(data[".bar"], {
@@ -94,46 +111,109 @@ export default function () {
                 },
                 update: function (nodes) {
                     nodes[".bar"].forEach(function (d, i) {
+                        let v = scaleFun(d.value);
                         this.setAttr("x", i * widthPerBar);
-                        this.setAttr("y", -scaleFun(d.value));
-                        this.setAttr("height", scaleFun(d.value));
+                        this.setAttr("y", -v);
+                        this.setAttr("height", v);
                     });
                 },
             },
         });
 
-        g.createEl({
-            el: "rect",
+        let dragGroup = g.createEl({
+            el: "g",
             attr: {
-                x: 0,
-                y: -newHeight,
-                width: widthPerBar * 1.5,
-                height: newHeight,
-                rx: 1,
-                ry: 1,
+                transform: {
+                    translate: [500 * 0.8 - widthPerBar * 1.5, 0],
+                },
             },
             style: {
-                fill: "#a3a3a3",
-                opacity: 0.3,
+                cursor: "pointer",
             },
-        }).on("drag", drag);
+        });
+
+        this.dragGroup = dragGroup;
+
+        dragGroup
+            .createEl({
+                el: "rect",
+                attr: {
+                    x: 0,
+                    y: -newHeight + 6,
+                    width: widthPerBar * 1.5,
+                    height: newHeight - 6,
+                    rx: 1,
+                    ry: 1,
+                },
+                style: {
+                    fill: linearGradiant,
+                    opacity: 0.7,
+                },
+            })
+            .on("drag", this.drag);
+
+        this.valEl = dragGroup
+            .createEl({
+                el: "text",
+                attr: {
+                    x: widthPerBar * 1.5 * 0.5,
+                    y: -newHeight + 5.5,
+                    text: timelinedata_.data[timelinedata_.data.length - 1].value,
+                    id: "value",
+                },
+                style: {
+                    fill: "#dbb356",
+                    "font-size": "4.5",
+                    "text-anchor": "middle",
+                },
+            })
+            .on("drag", this.drag);
+
+        this.dateEl = dragGroup
+            .createEl({
+                el: "text",
+                attr: {
+                    x: widthPerBar * 1.5 * 0.5,
+                    y: 2,
+                    text: timelinedata_.data[timelinedata_.data.length - 1].date,
+                    id: "time",
+                },
+                style: {
+                    fill: "#3ed2f0",
+                    "font-size": "4",
+                    "text-anchor": "middle",
+                },
+            })
+            .on("drag", this.drag);
 
         this.barHref.update();
 
-        drag.dragStart(function () {
-            this.x = this.getAttr("x");
-        }).drag(function (e) {
-            let x = this.getAttr("x") + (500 / width) * e.dx;
-            let tx = Math.floor(x / widthPerBar);
-            if (tx < 0 || tx > dateCount - 1) {
-                return;
-            }
-            this.setAttr("x", x);
-            if (timeExe && this.x !== tx) {
-                this.x = tx;
-                timeExe(this.x);
-            }
-        });
+        this.drag
+            .dragStart(function () {
+                let x = dragGroup.getAttr("transform").translate[0];
+                let tx = Math.floor(x / widthPerBar);
+                self.drag.x = tx;
+                if (timeExe) {
+                    timeExe(this.x, true);
+                }
+            })
+            .drag(function (e) {
+                let x = dragGroup.getAttr("transform").translate[0] + (500 / width) * e.dx;
+                let tx = Math.ceil(x / widthPerBar);
+                if (tx < 0 || tx > dateCount - 1) {
+                    return;
+                }
+
+                dragGroup.setAttr("transform", {
+                    translate: [x, 0],
+                });
+                if (timeExe && self.drag.x !== tx) {
+                    self.drag.x = tx;
+                    self.valEl.text(timelinedata_.data[tx].value);
+                    self.dateEl.text(timelinedata_.data[tx].date);
+                    timeExe(self.drag.x);
+                }
+            });
     };
     Chart.prototype.showTooltip = function (_) {
         showTooltipFunc = _;
@@ -148,19 +228,34 @@ export default function () {
         hideTooltipFunc = _;
         return this;
     };
-    Chart.prototype.update = function (timelinedata) {
+    Chart.prototype.update = function (timelinedata, play) {
+        timelinedata_ = timelinedata;
         this.gradColor.colorStops([
             {
                 color: "rgba(0, 0, 0, 0.0)",
                 value: 0,
             },
             {
-                color: timelinedata.colorHex,
+                color: timelinedata_.colorHex,
                 value: 100.0,
             },
         ]);
-        this.barHref.join(timelinedata.data);
+        if (play) {
+            this.drag.x = timelinedata_.data.length - 1;
+        }
+        this.dragGroup.animateTo({
+            duration: 100,
+            attr: {
+                transform: {
+                    translate: [this.drag.x * widthPerBar, 0],
+                },
+            },
+        });
+        // .setAttr('transform', );
+        this.barHref.join(timelinedata_.data);
         this.barHref.update();
+        this.valEl.text(timelinedata_.data[this.drag.x].value);
+        this.dateEl.text(timelinedata_.data[this.drag.x].date);
     };
     return new Chart();
 }
