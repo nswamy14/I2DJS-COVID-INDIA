@@ -38,20 +38,20 @@ export default function () {
         newHeight = (height / width) * 500;
         widthPerBar = (500 * 0.8) / dateCount;
         scaleRange = [2, newHeight - 6];
-        var linearGradiant = this.timelineLayer.createLinearGradient({
-            id: "linearG",
-            x1: 0,
-            y1: 0,
-            x2: 100,
-            y2: 0,
-            spreadMethod: "repeat",
-            colorStops: [
-                { color: "rgba(148, 134, 102, 0)", value: 0 },
-                { color: "rgba(148, 134, 102, 50)", value: 30 },
-                { color: "rgba(148, 134, 102, 50)", value: 70 },
-                { color: "rgba(148, 134, 102, 0)", value: 100 },
-            ],
-        });
+        // var linearGradiant = this.timelineLayer.createLinearGradient({
+        //     id: "linearG",
+        //     x1: 0,
+        //     y1: 0,
+        //     x2: 100,
+        //     y2: 0,
+        //     spreadMethod: "repeat",
+        //     colorStops: [
+        //         { color: "rgba(148, 134, 102, 0)", value: 0 },
+        //         { color: "rgba(148, 134, 102, 50)", value: 30 },
+        //         { color: "rgba(148, 134, 102, 50)", value: 70 },
+        //         { color: "rgba(148, 134, 102, 0)", value: 100 },
+        //     ],
+        // });
         this.gradColor = this.timelineLayer.createLinearGradient({
             x1: 0,
             y1: 100,
@@ -146,7 +146,7 @@ export default function () {
                     ry: 1,
                 },
                 style: {
-                    fill: linearGradiant,
+                    fill: "rgba(148, 134, 102, 50)",
                     opacity: 0.7,
                 },
             })
@@ -157,13 +157,13 @@ export default function () {
                 el: "text",
                 attr: {
                     x: widthPerBar * 1.5 * 0.5,
-                    y: -newHeight + 5.5,
+                    y: -newHeight + newHeight * 0.3,
                     text: timelinedata_.data[timelinedata_.data.length - 1].value,
                     id: "value",
                 },
                 style: {
                     fill: "#dbb356",
-                    "font-size": "4.5",
+                    "font-size": newHeight * 0.2 + "px",
                     "text-anchor": "middle",
                 },
             })
@@ -180,7 +180,7 @@ export default function () {
                 },
                 style: {
                     fill: "#3ed2f0",
-                    "font-size": "4",
+                    "font-size": newHeight * 0.2 + "px",
                     "text-anchor": "middle",
                 },
             })

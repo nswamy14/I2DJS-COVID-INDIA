@@ -260,9 +260,9 @@ export default function () {
             self.labelGroup.setStyle("font", defaultFontSize[0] * 0.4 * sqrtScale + "px Arial");
 
             if (scale >= 3.5) {
-                self.labelGroup.setStyle("globalAlpha", 1);
+                self.labelGroup.setStyle("display", "block");
             } else {
-                self.labelGroup.setStyle("globalAlpha", 0.001);
+                self.labelGroup.setStyle("display", "none");
             }
         }
     };
@@ -357,7 +357,7 @@ export default function () {
                 font: defaultFontSize[0] * 0.4 + "px Arial",
                 fillStyle: "#dba9a9",
                 textAlign: "center",
-                globalAlpha: 0,
+                display: "none",
             },
             bbox: false,
         });

@@ -4851,8 +4851,8 @@ husky@^4.2.5:
     which-pm-runs "^1.0.0"
 
 "i2djs@git+https://github.com/I2Djs/I2Djs.git":
-  version "3.1.0"
-  resolved "git+https://github.com/I2Djs/I2Djs.git#1e31b830e714b6827ce8e26abfaadc29f67ddee3"
+  version "3.2.0"
+  resolved "git+https://github.com/I2Djs/I2Djs.git#fa656cc924fc4eb99169ee808c7067f45d096ce9"
   dependencies:
     earcut "^2.2.2"
 
