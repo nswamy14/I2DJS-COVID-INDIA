@@ -38,20 +38,20 @@ export default function () {
         newHeight = (height / width) * 500;
         widthPerBar = (500 * 0.8) / dateCount;
         scaleRange = [2, newHeight - 6];
-        // var linearGradiant = this.timelineLayer.createLinearGradient({
-        //     id: "linearG",
-        //     x1: 0,
-        //     y1: 0,
-        //     x2: 100,
-        //     y2: 0,
-        //     spreadMethod: "repeat",
-        //     colorStops: [
-        //         { color: "rgba(148, 134, 102, 0)", value: 0 },
-        //         { color: "rgba(148, 134, 102, 50)", value: 30 },
-        //         { color: "rgba(148, 134, 102, 50)", value: 70 },
-        //         { color: "rgba(148, 134, 102, 0)", value: 100 },
-        //     ],
-        // });
+        var linearGradiant = this.timelineLayer.createLinearGradient({
+            id: "linearG",
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 100,
+            spreadMethod: "repeat",
+            colorStops: [
+                { color: "rgba(148, 134, 102, 0)", value: 0 },
+                { color: "rgba(148, 134, 102, 50)", value: 30 },
+                { color: "rgba(148, 134, 102, 50)", value: 70 },
+                { color: "rgba(148, 134, 102, 0)", value: 100 },
+            ],
+        });
         this.gradColor = this.timelineLayer.createLinearGradient({
             x1: 0,
             y1: 100,
@@ -146,7 +146,7 @@ export default function () {
                     ry: 1,
                 },
                 style: {
-                    fill: "rgba(148, 134, 102, 50)",
+                    fill: linearGradiant,
                     opacity: 0.7,
                 },
             })
