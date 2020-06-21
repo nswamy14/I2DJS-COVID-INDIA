@@ -372,7 +372,7 @@ export default {
             let distMap = [];
             let stateMap = {};
 
-            let currDate = this.formatDate(new Date());
+            let currDate = this.formatDate(new Date(), "year");
 
             this.IndianCitiesLatLong = IndianCities;
             let pastData = pastCovidData["districtsDaily"];
