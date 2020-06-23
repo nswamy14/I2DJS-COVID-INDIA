@@ -73,12 +73,20 @@
                                     v-bind="attrs"
                                     v-on="on"
                                     width="7.25rem"
+                                    class="d-flex justify-space-between align-center"
                                 >
-                                    <span
-                                        :class="[selectedCounter.key, [$vuetify.breakpoint.name]]"
-                                        class="color mr-1"
-                                    ></span>
-                                    <span class="caption">{{ selectedCounter.label }}</span>
+                                    <div class="d-flex align-center">
+                                        <span
+                                            :class="[
+                                                selectedCounter.key,
+                                                [$vuetify.breakpoint.name],
+                                            ]"
+                                            class="color mr-1"
+                                        ></span>
+                                        <span class="caption">{{ selectedCounter.label }}</span>
+                                    </div>
+
+                                    <v-icon color="grey darken-2">$menuDown</v-icon>
                                 </v-btn>
                             </template>
 
@@ -878,7 +886,7 @@ export default {
 
 .map-container.sm {
     margin-top: 5rem;
-    height: calc(100% - 15rem);
+    height: calc(100% - 14rem);
 }
 
 .map-container.xs {
@@ -888,7 +896,7 @@ export default {
 
 .timeline-container {
     width: calc(100% - 2rem);
-    height: 4rem;
+    height: 5rem;
 }
 
 .date-container {
