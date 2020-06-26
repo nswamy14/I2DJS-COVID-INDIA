@@ -72,7 +72,7 @@
                                     light
                                     v-bind="attrs"
                                     v-on="on"
-                                    width="7.25rem"
+                                    width="9.5rem"
                                     class="d-flex justify-space-between align-center"
                                 >
                                     <div class="d-flex align-center">
@@ -90,7 +90,7 @@
                                 </v-btn>
                             </template>
 
-                            <v-list color="text-secondary" dense light width="7.3rem">
+                            <v-list color="text-secondary" dense light width="9.5rem">
                                 <v-list-item
                                     :key="index"
                                     @click="selectedCounter = item"
