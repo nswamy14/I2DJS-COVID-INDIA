@@ -408,6 +408,11 @@ export default {
 
                     let dd = IndianCities[disLow];
 
+                    if (!dd && disLow === "unknown") {
+                        disLow = stateLow;
+                        dd = IndianCities[stateLow];
+                    }
+
                     if (dd && !self.heatmapDataMap[disLow]) {
                         let districtObj = {
                             name: disLow,

@@ -243,6 +243,9 @@ export default function () {
         if (play) {
             this.drag.x = timelinedata_.data.length - 1;
         }
+        if (this.drag.x == null) {
+            this.drag.x = timelinedata_.data.length - 1;
+        }
         this.dragGroup.animateTo({
             duration: 100,
             attr: {

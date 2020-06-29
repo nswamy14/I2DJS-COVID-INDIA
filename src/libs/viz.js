@@ -28,10 +28,6 @@ export default function () {
             color: [0, 0, 0, 0.0],
             offset: 0.05,
         },
-        // {
-        //     color: [57, 84, 41, 0.4],
-        //     offset: 0.2,
-        // },
         {
             color: [114, 179, 77, 0.8],
             offset: 0.5,
@@ -282,7 +278,7 @@ export default function () {
             this.setAttr("d", self.path(d));
         });
 
-        scaleRange = [defaultFontSize[0] * 0.75, defaultFontSize[0] * 6];
+        scaleRange = [defaultFontSize[0] * 0.75, defaultFontSize[0] * 5];
         self.zoomInstance.zoomTarget([self.webglRenderer.width / 2, self.webglRenderer.height / 2]);
 
         this.Texture.setAttr({
@@ -536,16 +532,12 @@ export default function () {
         );
         this.webglRenderer = webglRenderer;
         let dimMin = Math.min(webglRenderer.width, webglRenderer.height);
-        // heatmapLinearScale.range([dimMin * 0.01, dimMin * 0.1]);
         var defaultFontSize = getDefaultFontSize();
-        // console.log(defaultFontSize);
-        scaleRange = [defaultFontSize[0] * 0.75, defaultFontSize[0] * 6];
-        // scaleRange = [dimMin * 0.015, dimMin * 0.1];
+        scaleRange = [defaultFontSize[0] * 0.75, defaultFontSize[0] * 5];
         webglRenderer.setClearColor(i2d.color.rgba(0, 0, 0, 0));
         self.zoomInstance.zoomTarget([webglRenderer.width / 2, webglRenderer.height / 2]);
         webglRenderer.on("zoom", self.zoomInstance);
         this.webglRenderer = webglRenderer;
-        // var opacity = 1.0;
 
         this.Texture = webglRenderer.TextureObject({
             width: webglRenderer.width * webglRenderer.pixelRatio,
