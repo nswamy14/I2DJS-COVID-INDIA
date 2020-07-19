@@ -81,7 +81,7 @@ export default {
         },
 
         onTimeSelect(index, flag) {
-            this.$emit("timeSelected", index, flag);
+            // this.$emit("timeSelected", index, flag);
         },
     },
 };

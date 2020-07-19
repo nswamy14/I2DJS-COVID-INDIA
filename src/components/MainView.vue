@@ -161,7 +161,7 @@
                     <!--                            </v-btn>-->
                     <!--                        </v-fab-transition>-->
                     <!--                    </div>-->
-                    <v-fab-transition>
+                    <!-- <v-fab-transition>
                         <v-btn
                             :small="$vuetify.breakpoint.md"
                             :x-small="$vuetify.breakpoint.smAndDown"
@@ -188,7 +188,7 @@
                         >
                             <v-icon :x-large="$vuetify.breakpoint.lgAndUp">$stop</v-icon>
                         </v-btn>
-                    </v-fab-transition>
+                    </v-fab-transition> -->
                     <timeline-view
                         :timelineData="timelineData"
                         :playFlag="animFlag"
@@ -227,6 +227,7 @@ import {
     getDistrictWiseDailyData,
     getIndianCities,
     getIndianDistrictGeoJson,
+    getTimelineDailyData,
     getIndianStatesGeoJson,
     getPastCovidData,
 } from "@/api/Services";
@@ -247,19 +248,19 @@ export default {
             selectedCounter: {},
             counters: [
                 {
-                    label: "Active",
-                    key: "active",
-                    data: [],
-                    color: "light-blue",
-                    colorHex: "#29b6f6",
-                    scale: [Infinity, -Infinity],
-                },
-                {
                     label: "Confirmed",
                     key: "confirmed",
                     data: [],
                     color: "red",
                     colorHex: "#F44336",
+                    scale: [Infinity, -Infinity],
+                },
+                {
+                    label: "Active",
+                    key: "active",
+                    data: [],
+                    color: "light-blue",
+                    colorHex: "#29b6f6",
                     scale: [Infinity, -Infinity],
                 },
                 {
@@ -351,7 +352,7 @@ export default {
         },
     },
     mounted() {
-        this.selectedCounter = this.counters[0];
+        this.selectedCounter = this.counters[1];
         this.initialize();
     },
 
@@ -366,10 +367,10 @@ export default {
 
             self.showProgress = true;
 
-            let [IndianCities, covidData, pastCovidData] = await Promise.all([
+            let [IndianCities, covidData, timelineDailyData] = await Promise.all([
                 this.getIndianCities(),
                 this.getDistrictWiseDailyData(),
-                this.getPastCovidData(),
+                this.getTimelineDailyData(),
                 this.getIndianDistrictGeoJson(),
                 this.getIndianStatesGeoJson(),
             ]);
@@ -383,10 +384,9 @@ export default {
             let currDate = this.formatDate(new Date(), "year");
 
             this.IndianCitiesLatLong = IndianCities;
-            let pastData = pastCovidData["districtsDaily"];
-            for (let state in covidData.districtsDaily) {
-                let stateVal = covidData.districtsDaily[state];
-                let statePastData = pastData[state] || {};
+            for (let state in covidData) {
+                let stateVal = covidData[state];
+                let districts = stateVal.districtData;
                 let stateLow = state.toLowerCase();
 
                 let stateDd = IndianCities[stateLow] || {};
@@ -405,14 +405,14 @@ export default {
                     type: "state",
                 };
 
-                for (let dis in stateVal) {
-                    let pastDisVal = statePastData[dis] || [];
-                    let disVal = pastDisVal.concat(stateVal[dis]);
+                for (let dis in districts) {
+                    // let pastDisVal = statePastData[dis] || [];
+                    let disVal = districts[dis];
                     let disLow = dis.toLowerCase();
 
-                    _.forEach(disVal, function (dt) {
-                        dt.visible = false;
-                    });
+                    // _.forEach(disVal, function (dt) {
+                    //     dt.visible = false;
+                    // });
 
                     let dd = IndianCities[disLow];
 
@@ -422,84 +422,132 @@ export default {
                     }
 
                     if (dd && !self.heatmapDataMap[disLow]) {
+                        let active = disVal.active;
                         let districtObj = {
                             name: disLow,
                             label:
                                 disLow.charAt(0).toUpperCase() +
                                 disLow.substr(1, disLow.length - 1),
                             state: state,
-                            active: 0,
-                            deceased: 0,
-                            confirmed: 0,
-                            recovered: 0,
+                            active: disVal.active,
+                            deceased: disVal.deceased,
+                            confirmed: disVal.confirmed,
+                            recovered: disVal.recovered,
                             longitude: dd.longitude,
                             latitude: dd.latitude,
                             type: "district",
                         };
 
-                        _.forEach(disVal, function (d) {
-                            if (!dateBuckets[d.date]) {
-                                dateBuckets[d.date] = [];
-                            }
-                            if (!stateObj.timelineData[d.date]) {
-                                stateObj.timelineData[d.date] = {
-                                    confirmed: 0,
-                                    active: 0,
-                                    deceased: 0,
-                                    recovered: 0,
-                                    date: new Date(d.date),
-                                };
-                            }
-
-                            stateObj.timelineData[d.date].confirmed += d.confirmed;
-                            stateObj.timelineData[d.date].active += d.active;
-                            stateObj.timelineData[d.date].deceased += d.deceased;
-                            stateObj.timelineData[d.date].recovered += d.recovered;
-
-                            d.dis = disLow;
-                            dateBuckets[d.date].push(d);
-
-                            if (Math.sqrt(d.active) > activeRange[1]) {
-                                activeRange[1] = Math.sqrt(d.active);
-                            }
-                            if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
-                                activeRange[0] = Math.sqrt(d.active);
-                            }
-                        });
-
-                        if (disVal[disVal.length - 1].date === currDate) {
-                            stateObj.confirmed += disVal[disVal.length - 1].confirmed;
-                            stateObj.active += disVal[disVal.length - 1].active;
-                            stateObj.deceased += disVal[disVal.length - 1].deceased;
-                            stateObj.recovered += disVal[disVal.length - 1].recovered;
+                        if (Math.sqrt(active) > activeRange[1]) {
+                            activeRange[1] = Math.sqrt(active);
                         }
+                        if (Math.sqrt(active) <= activeRange[0] && active > 0) {
+                            activeRange[0] = Math.sqrt(active);
+                        }
+
+                        // _.forEach(disVal, function (d) {
+                        //     if (!dateBuckets[d.date]) {
+                        //         dateBuckets[d.date] = [];
+                        //     }
+                        //     if (!stateObj.timelineData[d.date]) {
+                        //         stateObj.timelineData[d.date] = {
+                        //             confirmed: 0,
+                        //             active: 0,
+                        //             deceased: 0,
+                        //             recovered: 0,
+                        //             date: new Date(d.date),
+                        //         };
+                        //     }
+
+                        //     stateObj.timelineData[d.date].confirmed += d.confirmed;
+                        //     stateObj.timelineData[d.date].active += d.active;
+                        //     stateObj.timelineData[d.date].deceased += d.deceased;
+                        //     stateObj.timelineData[d.date].recovered += d.recovered;
+
+                        //     d.dis = disLow;
+                        //     dateBuckets[d.date].push(d);
+
+                        //     if (Math.sqrt(d.active) > activeRange[1]) {
+                        //         activeRange[1] = Math.sqrt(d.active);
+                        //     }
+                        //     if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
+                        //         activeRange[0] = Math.sqrt(d.active);
+                        //     }
+                        // });
+                        stateObj.confirmed += disVal.confirmed;
+                        stateObj.active += disVal.active;
+                        stateObj.deceased += disVal.deceased;
+                        stateObj.recovered += disVal.recovered;
 
                         distMap.push(districtObj);
                         self.heatmapDataMap[districtObj.name] = districtObj;
                     } else {
-                        _.forEach(disVal, function (d) {
-                            if (!dateBuckets[d.date]) {
-                                dateBuckets[d.date] = [];
-                            }
-                            d.dis = disLow;
-                            dateBuckets[d.date].push(d);
+                        // _.forEach(disVal, function (d) {
+                        //     if (!dateBuckets[d.date]) {
+                        //         dateBuckets[d.date] = [];
+                        //     }
+                        //     d.dis = disLow;
+                        //     dateBuckets[d.date].push(d);
 
-                            if (Math.sqrt(d.active) > activeRange[1]) {
-                                activeRange[1] = Math.sqrt(d.active);
-                            }
-                            if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
-                                activeRange[0] = Math.sqrt(d.active);
-                            }
-                        });
-                        if (disVal[disVal.length - 1].date === currDate) {
-                            stateObj.confirmed += disVal[disVal.length - 1].confirmed;
-                            stateObj.active += disVal[disVal.length - 1].active;
-                            stateObj.deceased += disVal[disVal.length - 1].deceased;
-                            stateObj.recovered += disVal[disVal.length - 1].recovered;
-                        }
+                        //     if (Math.sqrt(d.active) > activeRange[1]) {
+                        //         activeRange[1] = Math.sqrt(d.active);
+                        //     }
+                        //     if (Math.sqrt(d.active) <= activeRange[0] && d.active > 0) {
+                        //         activeRange[0] = Math.sqrt(d.active);
+                        //     }
+                        // });
+                        // if (disVal[disVal.length - 1].date === currDate) {
+                        stateObj.confirmed += disVal.confirmed;
+                        stateObj.active += disVal.active;
+                        stateObj.deceased += disVal.deceased;
+                        stateObj.recovered += disVal.recovered;
+                        // }
                     }
                 }
                 stateMap[stateObj.name] = stateObj;
+            }
+
+            console.log(timelineDailyData);
+            let keys = Object.keys(timelineDailyData);
+            for (var i = 0; i < keys.length; i++) {
+                let state = keys[i];
+                let stateObj = timelineDailyData[state];
+                let dates = Object.keys(stateObj.dates);
+                if (state === "TT") {
+                    continue;
+                }
+                dates.forEach(function (dt) {
+                    let obj = stateObj.dates[dt].total || {
+                        confirmed: 0,
+                        recovered: 0,
+                        deceased: 0,
+                        active: 0,
+                    };
+                    if (!obj.recovered) {
+                        obj.recovered = 0;
+                    }
+                    if (!obj.confirmed) {
+                        obj.confirmed = 0;
+                    }
+                    if (!obj.deceased) {
+                        obj.deceased = 0;
+                    }
+                    if (!dateBuckets[dt]) {
+                        dateBuckets[dt] = {
+                            date: new Date(dt),
+                            confirmed: obj.confirmed,
+                            active: obj.confirmed - obj.recovered - obj.deceased,
+                            recovered: obj.recovered,
+                            deceased: obj.deceased,
+                        };
+                    } else {
+                        (dateBuckets[dt].confirmed += obj.confirmed),
+                            (dateBuckets[dt].active +=
+                                obj.confirmed - obj.recovered - obj.deceased),
+                            (dateBuckets[dt].recovered += obj.recovered),
+                            (dateBuckets[dt].deceased += obj.deceased);
+                    }
+                });
             }
 
             self.formattedCovidStateData = stateMap;
@@ -533,7 +581,7 @@ export default {
             self.searchItems = getFormattedSelectItems([...states, ...districts], "type");
 
             self.updateCounters();
-            self.updateHeatmapData();
+            // self.updateHeatmapData();
 
             self.timelineData = self.selectedCounter;
 
@@ -544,6 +592,15 @@ export default {
         async getDistrictWiseDailyData() {
             try {
                 let response = await getDistrictWiseDailyData();
+                return response;
+            } catch (e) {
+                console.error(e);
+            }
+        },
+
+        async getTimelineDailyData() {
+            try {
+                let response = await getTimelineDailyData();
                 return response;
             } catch (e) {
                 console.error(e);
@@ -614,31 +671,33 @@ export default {
         },
 
         getDistrictTimelineData(dist) {
-            let data = this.formattedCovidData.map((date) => {
-                return date["distList"].filter((distObj) => {
-                    return distObj["dis"] === dist;
-                });
-            });
-            data = data.filter((d) => d.length !== 0);
-            data = data.map(function (d) {
-                return d[0];
-            });
-            if (data.length !== 0) {
-                let obj = data[data.length - 1];
-                this.districtInfo = {
-                    name: obj.dis,
-                    confirmed: obj.confirmed,
-                    active: obj.active,
-                    deceased: obj.deceased,
-                    recovered: obj.recovered,
-                    data: data.length > 45 ? data.splice(data.length - 45, 45) : data,
-                };
-            } else {
-                this.districtInfo = {
-                    name: dist,
-                    data: [],
-                };
-            }
+            let obj = this.heatmapDataMap[dist.toLowerCase()];
+            // this.formattedCovidData.map((date) => {
+            //     return date["distList"].filter((distObj) => {
+            //         return distObj["dis"] === dist;
+            //     });
+            // });
+            // data = data.filter((d) => d.length !== 0);
+            // data = data.map(function (d) {
+            //     return d[0];
+            // });
+            // if (data.length !== 0) {
+            // let obj = data[data.length - 1];
+            this.districtInfo = {
+                name: obj.dis,
+                confirmed: obj.confirmed,
+                active: obj.active,
+                deceased: obj.deceased,
+                recovered: obj.recovered,
+                data: [],
+                // data.length > 45 ? data.splice(data.length - 45, 45) : data,
+            };
+            // } else {
+            //     this.districtInfo = {
+            //         name: dist,
+            //         data: [],
+            //     };
+            // }
         },
 
         updateCounters() {
@@ -647,11 +706,11 @@ export default {
             _.forEach(self.formattedCovidData, function (d) {
                 let dt = self.formatDate(d.date);
                 self.counters[0].data.push({
-                    value: d.active,
+                    value: d.confirmed,
                     date: dt,
                 });
                 self.counters[1].data.push({
-                    value: d.confirmed,
+                    value: d.active,
                     date: dt,
                 });
                 self.counters[2].data.push({
@@ -755,12 +814,12 @@ export default {
                 self.currentDate = self.formatDate(currData.date);
 
                 self.counters[0].data.push({
-                    value: currData.active,
+                    value: currData.confirmed,
                     date: self.currentDate,
                 });
 
                 self.counters[1].data.push({
-                    value: currData.confirmed,
+                    value: currData.active,
                     date: self.currentDate,
                 });
 
@@ -801,20 +860,20 @@ export default {
                 let curr = dateBuckets[dt];
                 let dataObj = {
                     date: new Date(dt),
-                    confirmed: 0,
-                    active: 0,
-                    recovered: 0,
-                    deceased: 0,
+                    confirmed: curr.confirmed,
+                    active: curr.active,
+                    recovered: curr.recovered,
+                    deceased: curr.deceased,
                     distList: curr,
                     type: "district",
                 };
-                curr.reduce(function (p, c) {
-                    p.active += c.active;
-                    p.recovered += c.recovered;
-                    p.deceased += c.deceased;
-                    p.confirmed += c.confirmed;
-                    return p;
-                }, dataObj);
+                // curr.reduce(function (p, c) {
+                //     p.active += c.active;
+                //     p.recovered += c.recovered;
+                //     p.deceased += c.deceased;
+                //     p.confirmed += c.confirmed;
+                //     return p;
+                // }, dataObj);
 
                 confirmScale[0] = Math.min(confirmScale[0], dataObj.confirmed);
                 confirmScale[1] = Math.max(confirmScale[1], dataObj.confirmed);
