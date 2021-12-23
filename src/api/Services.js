@@ -2,7 +2,7 @@ import { ajax, handlerErrors } from "./helper";
 
 export function getDistrictWiseDailyData() {
     return ajax({
-        url: "https://api.covid19india.org/state_district_wise.json",
+        url: "https://data.covid19india.org/state_district_wise.json",
         method: "GET",
     })
         .then((response) => {
@@ -15,7 +15,7 @@ export function getDistrictWiseDailyData() {
 
 export function getTimelineDailyData() {
     return ajax({
-        url: "https://api.covid19india.org/v4/timeseries.json",
+        url: "https://data.covid19india.org/v4/timeseries.json",
         method: "GET",
     })
         .then((response) => {
